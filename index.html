@@ -550,114 +550,44 @@ footer{
   }
 }
   /* ===== AMKINA LEFT MENU ===== */
-/* ===== AMKINA DARK SIDEBAR ===== */
+/* ===== FINAL DARK LEFT MENU ===== */
 
-.amkina-sidebar{
+body > header{
     background:#0d0f12 !important;
-    border-right:1px solid #20242a !important;
-    color:#f4f5f7 !important;
-}
-
-.amkina-brand{
+    border-right:1px solid #24282e !important;
+    border-bottom:none !important;
     color:#ffffff !important;
 }
 
-.amkina-brand span{
+body > header .logo{
+    color:#ffffff !important;
+}
+
+body > header .logo span{
     color:#a3ff68 !important;
 }
 
-/* 메뉴 글자 */
-.amkina-menu a{
-    color:#969da7 !important;
-    transition:all .2s ease;
+body > header nav{
+    background:#0d0f12 !important;
 }
 
-/* 마우스를 올렸을 때 */
-.amkina-menu a:hover{
+body > header nav a{
+    color:#9299a4 !important;
+    background:transparent !important;
+}
+
+body > header nav a:hover{
+    color:#ffffff !important;
     background:#171a1f !important;
-    color:#ffffff !important;
 }
 
-/* 선택된 메뉴 */
-.amkina-menu a.active{
-    background:#191d22 !important;
+body > header nav a:first-child{
     color:#ffffff !important;
+    background:#1a1e23 !important;
     border-left:3px solid #a3ff68 !important;
 }
 
-/* 메뉴 구분선 */
-.amkina-menu hr{
-    border:0 !important;
-    border-top:1px solid #24282e !important;
-}
-
-/* 메뉴 아이콘 */
-.amkina-menu a span{
-    color:#aab0b8;
-}
-header{
-  position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  width:210px;
-  height:100vh;
-  padding:24px 14px;
-  background:#ffffff;
-  border-right:1px solid #e7e9ee;
-  border-bottom:0;
-  display:block;
-  z-index:50;
-  box-sizing:border-box;
-}
-
-.logo{
-  padding:8px 12px 28px;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:1px;
-  color:#151922;
-}
-
-.logo span{
-  color:#69c83e;
-}
-
-header nav{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-
-header nav a{
-  display:flex;
-  align-items:center;
-  width:100%;
-  min-height:44px;
-  padding:0 14px;
-  border-radius:10px;
-  color:#596273;
-  text-decoration:none;
-  font-size:14px;
-  letter-spacing:0;
-  box-sizing:border-box;
-}
-
-header nav a:hover{
-  background:#f3f5f7;
-  color:#151922;
-}
-
-header nav a:first-child{
-  background:#f0f2f5;
-  color:#151922;
-  font-weight:700;
-  border-left:3px solid #76e34b;
-}
-
-body{
-  padding-left:210px;
-}
+</style>
 </style>
 </head>
 
