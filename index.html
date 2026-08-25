@@ -3,138 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>AMKINA MUSIC</title>
 
 <style>
 :root{
   --bg:#070707;
-  --panel:#111;
-  --panel2:#171717;
+  --card:#111;
   --line:#242424;
-  --text:#f5f5f5;
-  --muted:#8b8b8b;
-  --green:#9bea63;
+  --text:#f7f7f7;
+  --muted:#888;
+  --accent:#a3ff68;
 }
 
 *{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
+  padding-bottom:105px;
 }
 
 header{
-  height:76px;
-  padding:0 7%;
+  height:72px;
+  padding:0 6%;
   display:flex;
   align-items:center;
   justify-content:space-between;
   border-bottom:1px solid var(--line);
   position:sticky;
   top:0;
+  z-index:20;
   background:rgba(7,7,7,.94);
   backdrop-filter:blur(15px);
-  z-index:10;
 }
 
 .logo{
-  font-size:21px;
   font-weight:900;
-  letter-spacing:5px;
+  letter-spacing:4px;
+  font-size:20px;
 }
 
-.logo span{color:var(--green)}
+.logo span{color:var(--accent)}
 
 nav{
   display:flex;
-  gap:30px;
+  gap:28px;
 }
 
 nav a{
-  color:#999;
+  color:#888;
   text-decoration:none;
-  font-size:12px;
+  font-size:11px;
   letter-spacing:2px;
 }
 
 nav a:hover{color:white}
 
 .hero{
-  min-height:430px;
-  padding:90px 7% 60px;
+  min-height:390px;
+  padding:75px 6%;
   display:flex;
   align-items:center;
   background:
     radial-gradient(circle at 75% 30%,
-    rgba(155,234,99,.10),transparent 30%);
+    rgba(163,255,104,.12),transparent 28%);
 }
 
-.hero-label{
-  color:var(--green);
+.hero-small{
+  color:var(--accent);
+  font-size:10px;
   letter-spacing:4px;
-  font-size:11px;
   font-weight:bold;
   margin-bottom:18px;
 }
 
 .hero h1{
   margin:0;
-  font-size:clamp(48px,7vw,100px);
-  line-height:.95;
+  font-size:clamp(45px,7vw,92px);
+  line-height:.92;
   letter-spacing:-4px;
 }
 
 .hero p{
-  color:#888;
-  margin-top:24px;
+  color:#777;
   letter-spacing:2px;
-  font-size:13px;
+  font-size:12px;
+  margin-top:25px;
 }
 
 main{
-  padding:20px 7% 100px;
+  padding:30px 6% 80px;
 }
 
-.section-header{
+.section-top{
   display:flex;
-  justify-content:space-between;
   align-items:end;
-  margin-bottom:28px;
+  justify-content:space-between;
+  margin-bottom:25px;
 }
 
-.section-header h2{
+.section-top h2{
   margin:0;
   font-size:25px;
 }
 
-.section-header span{
+#track-count{
   color:#666;
-  font-size:12px;
+  font-size:11px;
+  letter-spacing:1px;
 }
 
 .music-grid{
   display:grid;
   grid-template-columns:
-    repeat(auto-fill,minmax(220px,1fr));
-  gap:26px;
+    repeat(auto-fill,minmax(210px,1fr));
+  gap:24px;
 }
 
 .track{
-  background:var(--panel);
+  background:var(--card);
   border:1px solid var(--line);
-  border-radius:18px;
-  padding:13px;
-  transition:.25s ease;
-  overflow:hidden;
+  padding:12px;
+  border-radius:16px;
+  cursor:pointer;
+  transition:.25s;
 }
 
 .track:hover{
-  transform:translateY(-6px);
-  background:var(--panel2);
-  border-color:#3a3a3a;
+  transform:translateY(-5px);
+  border-color:#444;
 }
 
 .cover-wrap{
@@ -143,50 +144,57 @@ main{
 
 .cover{
   width:100%;
-  aspect-ratio:1/1;
+  aspect-ratio:1;
   object-fit:cover;
-  border-radius:11px;
+  border-radius:10px;
   display:block;
-  background:#161616;
 }
 
-.badge{
+.play-circle{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  border:0;
   position:absolute;
-  top:10px;
-  left:10px;
-  padding:6px 9px;
-  background:rgba(0,0,0,.72);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:20px;
-  font-size:9px;
-  letter-spacing:1px;
+  right:12px;
+  bottom:12px;
+  background:var(--accent);
+  color:#050505;
+  font-size:20px;
+  cursor:pointer;
+  opacity:0;
+  transform:translateY(5px);
+  transition:.2s;
+}
+
+.track:hover .play-circle{
+  opacity:1;
+  transform:none;
 }
 
 .info{
-  padding:15px 3px 5px;
+  padding:14px 3px 5px;
 }
 
 .title{
-  font-size:17px;
   font-weight:700;
-  margin-bottom:7px;
+  font-size:16px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .artist{
   color:#888;
-  font-size:13px;
+  font-size:12px;
+  margin-top:6px;
 }
 
 .meta{
-  margin-top:8px;
-  color:#5f5f5f;
-  font-size:11px;
-}
-
-audio{
-  width:100%;
-  margin-top:16px;
-  height:38px;
+  color:#555;
+  font-size:10px;
+  margin-top:7px;
+  text-transform:uppercase;
 }
 
 .loading{
@@ -194,29 +202,139 @@ audio{
   padding:30px 0;
 }
 
-footer{
-  padding:40px 7%;
-  border-top:1px solid var(--line);
-  color:#555;
-  font-size:11px;
-  letter-spacing:1px;
-  display:flex;
-  justify-content:space-between;
+/* PLAYER */
+
+.player{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:90px;
+  z-index:50;
+  background:rgba(15,15,15,.97);
+  border-top:1px solid #292929;
+  display:grid;
+  grid-template-columns:1fr 1.4fr 1fr;
+  align-items:center;
+  padding:10px 5%;
+  backdrop-filter:blur(20px);
 }
 
-@media(max-width:650px){
+.now{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
 
-  header{
-    padding:0 5%;
-  }
+.now img{
+  width:58px;
+  height:58px;
+  object-fit:cover;
+  border-radius:7px;
+  margin-right:13px;
+  background:#222;
+}
 
-  nav{
-    display:none;
-  }
+.now-text{
+  min-width:0;
+}
+
+#now-title{
+  font-size:13px;
+  font-weight:bold;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#now-artist{
+  color:#777;
+  font-size:11px;
+  margin-top:5px;
+}
+
+.controls{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.buttons{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.control-btn{
+  background:none;
+  border:0;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.main-play{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:white;
+  color:black;
+  border:0;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.progress-row{
+  width:100%;
+  max-width:500px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:7px;
+}
+
+.time{
+  color:#666;
+  font-size:9px;
+  width:32px;
+}
+
+#progress{
+  flex:1;
+  accent-color:var(--accent);
+}
+
+.volume{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  color:#777;
+  font-size:12px;
+}
+
+#volume{
+  width:90px;
+  accent-color:var(--accent);
+}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:35px 6%;
+  color:#555;
+  font-size:10px;
+  letter-spacing:1px;
+}
+
+@media(max-width:700px){
+
+  nav{display:none}
+
+  header{padding:0 4%}
 
   .hero{
-    min-height:330px;
-    padding:60px 5%;
+    min-height:310px;
+    padding:55px 5%;
   }
 
   .hero h1{
@@ -224,26 +342,55 @@ footer{
   }
 
   main{
-    padding:10px 5% 70px;
+    padding:20px 4% 70px;
   }
 
   .music-grid{
-    grid-template-columns:
-      repeat(2,minmax(0,1fr));
-    gap:12px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:11px;
   }
 
   .track{
-    border-radius:13px;
-    padding:9px;
+    padding:8px;
+    border-radius:12px;
   }
 
-  .title{
-    font-size:14px;
+  .play-circle{
+    opacity:1;
+    width:42px;
+    height:42px;
   }
 
-  audio{
-    height:34px;
+  .title{font-size:13px}
+
+  .player{
+    height:82px;
+    grid-template-columns:1fr auto;
+    padding:8px 3%;
+  }
+
+  .now img{
+    width:50px;
+    height:50px;
+  }
+
+  .progress-row,
+  .volume,
+  .control-btn{
+    display:none;
+  }
+
+  .buttons{
+    gap:8px;
+  }
+
+  .main-play{
+    width:44px;
+    height:44px;
+  }
+
+  body{
+    padding-bottom:95px;
   }
 }
 </style>
@@ -252,77 +399,126 @@ footer{
 <body>
 
 <header>
-
-  <div class="logo">
-    AMKINA <span>MUSIC</span>
-  </div>
+  <div class="logo">AMKINA <span>MUSIC</span></div>
 
   <nav>
     <a href="#">HOME</a>
     <a href="#music">MUSIC</a>
     <a href="#about">ABOUT</a>
   </nav>
-
 </header>
 
-
 <section class="hero">
-
   <div>
-
-    <div class="hero-label">
-      INDEPENDENT MUSIC
-    </div>
+    <div class="hero-small">AMKINA ORIGINAL SOUND</div>
 
     <h1>
-      SOUND<br>
+      MUSIC<br>
       WITHOUT<br>
-      BOUNDARIES.
+      LIMITS.
     </h1>
 
-    <p>
-      ORIGINAL MUSIC · AMKINA
-    </p>
-
+    <p>AI · SOUND · ORIGINALITY</p>
   </div>
-
 </section>
-
 
 <main id="music">
 
-  <div class="section-header">
-
+  <div class="section-top">
     <h2>Latest Releases</h2>
-
-    <span id="track-count">
-      Loading...
-    </span>
-
+    <div id="track-count">LOADING</div>
   </div>
 
   <div id="music-list" class="music-grid">
-
-    <div class="loading">
-      음악을 불러오는 중...
-    </div>
-
+    <div class="loading">음악을 불러오는 중...</div>
   </div>
 
 </main>
 
-
 <footer id="about">
-
-  <div>
-    © 2026 AMKINA MUSIC
-  </div>
-
-  <div>
-    INDEPENDENT MUSIC CREATOR
-  </div>
-
+  © 2026 AMKINA MUSIC · ORIGINAL MUSIC PLATFORM
 </footer>
+
+
+<div class="player">
+
+  <div class="now">
+
+    <img id="now-cover" alt="cover">
+
+    <div class="now-text">
+      <div id="now-title">Select a track</div>
+      <div id="now-artist">AMKINA MUSIC</div>
+    </div>
+
+  </div>
+
+
+  <div class="controls">
+
+    <div class="buttons">
+
+      <button
+        class="control-btn"
+        onclick="previousTrack()">
+        ◀
+      </button>
+
+      <button
+        id="main-play"
+        class="main-play"
+        onclick="togglePlay()">
+        ▶
+      </button>
+
+      <button
+        class="control-btn"
+        onclick="nextTrack()">
+        ▶▶
+      </button>
+
+    </div>
+
+    <div class="progress-row">
+
+      <span id="current-time" class="time">
+        0:00
+      </span>
+
+      <input
+        id="progress"
+        type="range"
+        min="0"
+        max="100"
+        value="0">
+
+      <span id="duration-time" class="time">
+        0:00
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="volume">
+
+    VOL
+
+    <input
+      id="volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.8">
+
+  </div>
+
+</div>
+
+
+<audio id="audio"></audio>
 
 
 <script>
@@ -338,23 +534,42 @@ SUPABASE_URL +
 "/rest/v1/tracks?select=*&order=id.desc";
 
 
+let tracks=[];
+let currentIndex=-1;
+
+const audio =
+document.getElementById("audio");
+
+const playButton =
+document.getElementById("main-play");
+
+const progress =
+document.getElementById("progress");
+
+const volume =
+document.getElementById("volume");
+
+
+function safe(value){
+  return value ?? "";
+}
+
+
 async function loadMusic(){
 
   const container =
     document.getElementById("music-list");
 
-  const counter =
-    document.getElementById("track-count");
-
   try{
 
-    const response = await fetch(API,{
-      headers:{
-        apikey:SUPABASE_ANON_KEY,
-        Authorization:
-          "Bearer " + SUPABASE_ANON_KEY
-      }
-    });
+    const response =
+      await fetch(API,{
+        headers:{
+          apikey:SUPABASE_ANON_KEY,
+          Authorization:
+            "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
 
     if(!response.ok){
       throw new Error(
@@ -362,10 +577,12 @@ async function loadMusic(){
       );
     }
 
-    const tracks =
+    tracks =
       await response.json();
 
-    counter.textContent =
+    document.getElementById(
+      "track-count"
+    ).textContent =
       tracks.length + " RELEASES";
 
     container.innerHTML="";
@@ -379,69 +596,64 @@ async function loadMusic(){
     }
 
 
-    tracks.forEach(track=>{
+    tracks.forEach((track,index)=>{
 
       const card =
         document.createElement("article");
 
       card.className="track";
 
-      const genre =
-        track.genre || "ORIGINAL";
-
-      const release =
-        track.release_date || "";
-
-      card.innerHTML = `
+      card.innerHTML=`
 
         <div class="cover-wrap">
 
           <img
             class="cover"
-            src="${track.cover_url || ''}"
-            alt="${track.title || 'AMKINA'}">
+            src="${safe(track.cover_url)}"
+            alt="${safe(track.title)}">
 
-          <div class="badge">
-            ${genre}
-          </div>
+          <button
+            class="play-circle"
+            aria-label="Play">
+            ▶
+          </button>
 
         </div>
-
 
         <div class="info">
 
           <div class="title">
-            ${track.title || "Untitled"}
+            ${safe(track.title) || "Untitled"}
           </div>
 
           <div class="artist">
-            ${track.artist || "AMKINA"}
+            ${safe(track.artist) || "AMKINA"}
           </div>
 
           <div class="meta">
-            ${release}
+            ${safe(track.genre) || "ORIGINAL"}
+            ${track.release_date
+              ? " · " + track.release_date
+              : ""}
           </div>
 
-          <audio
-            controls
-            preload="metadata"
-            src="${track.audio_url}">
-          </audio>
-
         </div>
-
       `;
+
+      card.addEventListener(
+        "click",
+        ()=>playTrack(index)
+      );
 
       container.appendChild(card);
 
     });
 
+  }
 
-  }catch(error){
+  catch(error){
 
     console.error(error);
-
-    counter.textContent="";
 
     container.innerHTML =
       '<div class="loading">음악을 불러오지 못했습니다.</div>';
@@ -449,6 +661,173 @@ async function loadMusic(){
   }
 
 }
+
+
+function playTrack(index){
+
+  if(!tracks[index]) return;
+
+  currentIndex=index;
+
+  const track=tracks[index];
+
+  audio.src=track.audio_url;
+
+  document.getElementById(
+    "now-cover"
+  ).src=track.cover_url || "";
+
+  document.getElementById(
+    "now-title"
+  ).textContent=
+    track.title || "Untitled";
+
+  document.getElementById(
+    "now-artist"
+  ).textContent=
+    track.artist || "AMKINA";
+
+  audio.play();
+
+}
+
+
+function togglePlay(){
+
+  if(currentIndex===-1){
+
+    if(tracks.length){
+      playTrack(0);
+    }
+
+    return;
+  }
+
+  if(audio.paused){
+    audio.play();
+  }else{
+    audio.pause();
+  }
+
+}
+
+
+function previousTrack(){
+
+  if(!tracks.length) return;
+
+  let next =
+    currentIndex <= 0
+      ? tracks.length-1
+      : currentIndex-1;
+
+  playTrack(next);
+
+}
+
+
+function nextTrack(){
+
+  if(!tracks.length) return;
+
+  let next =
+    currentIndex >= tracks.length-1
+      ? 0
+      : currentIndex+1;
+
+  playTrack(next);
+
+}
+
+
+function formatTime(seconds){
+
+  if(!Number.isFinite(seconds)){
+    return "0:00";
+  }
+
+  const m =
+    Math.floor(seconds/60);
+
+  const s =
+    Math.floor(seconds%60)
+      .toString()
+      .padStart(2,"0");
+
+  return m+":"+s;
+
+}
+
+
+audio.addEventListener(
+  "play",
+  ()=>{
+    playButton.textContent="❚❚";
+  }
+);
+
+
+audio.addEventListener(
+  "pause",
+  ()=>{
+    playButton.textContent="▶";
+  }
+);
+
+
+audio.addEventListener(
+  "ended",
+  nextTrack
+);
+
+
+audio.addEventListener(
+  "timeupdate",
+  ()=>{
+
+    if(!audio.duration) return;
+
+    progress.value =
+      (audio.currentTime /
+       audio.duration)*100;
+
+    document.getElementById(
+      "current-time"
+    ).textContent =
+      formatTime(audio.currentTime);
+
+    document.getElementById(
+      "duration-time"
+    ).textContent =
+      formatTime(audio.duration);
+
+  }
+);
+
+
+progress.addEventListener(
+  "input",
+  ()=>{
+
+    if(!audio.duration) return;
+
+    audio.currentTime =
+      (progress.value/100) *
+      audio.duration;
+
+  }
+);
+
+
+volume.addEventListener(
+  "input",
+  ()=>{
+    audio.volume=volume.value;
+  }
+);
+
+
+audio.volume=.8;
 
 loadMusic();
 
