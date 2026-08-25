@@ -1647,41 +1647,29 @@ function showHomePage(event){
 ========================= */
 
 function showMusicPage(event){
-    if(event) event.preventDefault();
+    event.preventDefault();
 
-    setActiveMenu(event ? event.currentTarget : null);
+    setActiveMenu(event.currentTarget);
 
     const hero = document.querySelector('.hero');
+    const music = document.getElementById('music');
 
-    const musicSection =
-        document.getElementById('music') ||
-        document.querySelector('.music-grid');
-
-    /* 홈의 큰 배너 숨기기 */
+    // MUSIC에서는 메인 배너 완전히 숨김
     if(hero){
         hero.style.display = 'none';
     }
 
-    /* 음악 목록 보이기 */
-    if(musicSection){
-
-        const container =
-            musicSection.closest('section') ||
-            musicSection.parentElement;
-
-        if(container){
-            container.style.display = '';
-        }
-
-        setTimeout(function(){
-            musicSection.scrollIntoView({
-                behavior:'smooth',
-                block:'start'
-            });
-        },50);
+    // 음악 영역 표시
+    if(music){
+        music.style.display = 'block';
     }
+
+    // 화면 맨 위로 이동
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
 }
-</script>
 </script>
 
 <style>
