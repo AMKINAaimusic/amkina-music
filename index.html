@@ -482,6 +482,73 @@ footer{
   font-weight:bold;
   cursor:pointer;
 }
+  /* ===== MOBILE VERSION ===== */
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 18px 20px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  header nav {
+    display: none;
+  }
+
+  .hero {
+    padding: 55px 20px 35px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    line-height: 0.95;
+  }
+
+  .hero p {
+    font-size: 12px;
+  }
+
+  main {
+    padding: 30px 20px 130px;
+  }
+
+  .section-top h2 {
+    font-size: 32px;
+  }
+
+  .music-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .music-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  #upload-area {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  #music-file {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  #upload-area button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 14px;
+  }
+}
 </style>
 </head>
 
