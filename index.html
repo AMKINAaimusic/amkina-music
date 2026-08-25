@@ -549,6 +549,71 @@ footer{
     font-size: 14px;
   }
 }
+  /* ===== AMKINA LEFT MENU ===== */
+
+header{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:210px;
+  height:100vh;
+  padding:24px 14px;
+  background:#ffffff;
+  border-right:1px solid #e7e9ee;
+  border-bottom:0;
+  display:block;
+  z-index:50;
+  box-sizing:border-box;
+}
+
+.logo{
+  padding:8px 12px 28px;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:#151922;
+}
+
+.logo span{
+  color:#69c83e;
+}
+
+header nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+header nav a{
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-height:44px;
+  padding:0 14px;
+  border-radius:10px;
+  color:#596273;
+  text-decoration:none;
+  font-size:14px;
+  letter-spacing:0;
+  box-sizing:border-box;
+}
+
+header nav a:hover{
+  background:#f3f5f7;
+  color:#151922;
+}
+
+header nav a:first-child{
+  background:#f0f2f5;
+  color:#151922;
+  font-weight:700;
+  border-left:3px solid #76e34b;
+}
+
+body{
+  padding-left:210px;
+}
 </style>
 </head>
 
@@ -558,13 +623,24 @@ footer{
   <div class="logo">AMKINA <span>MUSIC</span></div>
 
   <nav>
-    <a href="#">HOME</a>
-    <a href="#music">MUSIC</a>
-    <a href="#about">ABOUT</a>
-    <a href="#" id="login-btn">LOGIN</a>
+    <a href="#">⌂　홈</a>
+    <a href="#music">♫　음악</a>
+    <a href="#music">▦　최신 발매</a>
+    <a href="#">♡　플레이리스트</a>
+    <a href="#">♙　커뮤니티</a>
+    <a href="#">☺　마이페이지</a>
+    <a href="#">♢　알림센터</a>
+
+    <div style="height:1px;background:#e7e9ee;margin:12px 8px;"></div>
+
+    <a href="#">♬　스튜디오</a>
+    <a href="#">♪　라이브러리</a>
+    <a href="#">◉　AMKINA 앨범</a>
+    <a href="#">◉　RADIO</a>
+    <a href="#">☆　이벤트</a>
+    <a href="#about">○　ABOUT</a>
   </nav>
 </header>
-
 <section class="hero">
   <div>
     <div class="hero-small">AMKINA ORIGINAL SOUND</div>
