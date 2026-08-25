@@ -325,11 +325,63 @@ footer{
   font-size:10px;
   letter-spacing:1px;
 }
-
+.mobile-menu-btn{
+    display:none;
+}
 @media(max-width:700px){
 
-  nav{display:none}
+  nav{
+    display:none;
+}
+.mobile-menu-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:absolute;
+    right:20px;
+    top:18px;
+    width:42px;
+    height:42px;
+    border:1px solid #263126;
+    border-radius:10px;
+    background:#101510;
+    color:#9dff3f;
+    font-size:23px;
+    cursor:pointer;
+    z-index:1001;
+}
 
+header nav.mobile-open{
+    display:flex !important;
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    bottom:0 !important;
+    width:260px !important;
+    height:100vh !important;
+
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:4px !important;
+
+    padding:90px 18px 30px !important;
+
+    background:#070a08 !important;
+    border-right:1px solid rgba(157,255,63,.18) !important;
+
+    overflow-y:auto;
+    z-index:1000 !important;
+
+    box-shadow:20px 0 60px rgba(0,0,0,.55);
+}
+
+header nav.mobile-open a{
+    display:block !important;
+    width:100%;
+    padding:13px 14px !important;
+    border-radius:9px;
+    font-size:13px !important;
+}
   header{padding:0 4%}
 
   .hero{
@@ -987,6 +1039,10 @@ footer{
 
 <header>
   <div class="logo">AMKINA <span>MUSIC</span></div>
+
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="메뉴 열기">
+         ☰
+    </button>
 
   <nav>
    <a href="#" onclick="showHomePage(event)">⌂ 홈</a>
@@ -1710,6 +1766,14 @@ if(musicSearch){
             card.style.display = match ? '' : 'none';
         });
     });
+}
+  /* ===== MOBILE MENU ===== */
+function toggleMobileMenu(){
+    const nav = document.querySelector('header nav');
+
+    if(nav){
+        nav.classList.toggle('mobile-open');
+    }
 }
 </script>
 
