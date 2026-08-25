@@ -990,7 +990,7 @@ footer{
 
   <nav>
     <a href="#">⌂　홈</a>
-    <a href="#music">♫　음악</a>
+   <a href="#music" onclick="showMusicPage(event)">♫ 음악</a>
     <a href="#music">▦　최신 발매</a>
     <a href="#">♡　플레이리스트</a>
     <a href="#">♙　커뮤니티</a>
@@ -1593,6 +1593,44 @@ authSubmit.addEventListener("click", async () => {
   await uploadMusic(file);
   }
 </script>
+</script>
 
+<script>
+function showMusicPage(event){
+    event.preventDefault();
+
+    const musicSection =
+        document.getElementById('music') ||
+        document.querySelector('.music-grid');
+
+    if(musicSection){
+        musicSection.scrollIntoView({
+            behavior:'smooth',
+            block:'start'
+        });
+    }
+
+    document.querySelectorAll('header nav a').forEach(function(item){
+        item.classList.remove('menu-active');
+    });
+
+    event.currentTarget.classList.add('menu-active');
+}
+</script>
+
+<style>
+body > header nav a.menu-active{
+    color:#9dff3f !important;
+    background:linear-gradient(
+        90deg,
+        rgba(157,255,63,.17),
+        rgba(157,255,63,.035)
+    ) !important;
+    border-left:3px solid #9dff3f !important;
+}
+</style>
+
+</body>
+</html>
 </body>
 </html>
