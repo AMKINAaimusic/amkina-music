@@ -1036,6 +1036,38 @@ authSubmit.addEventListener("click", async () => {
     console.error(error);
   }
 });
+  async function uploadMusic(file) {
+  const session = JSON.parse(localStorage.getItem("amkina_session"));
+
+  if (!session?.access_token || !session?.user?.id) {
+    alert("먼저 로그인해주세요.");
+    return;
+  }
+
+  const filePath = `${session.user.id}/${Date.now()}-${file.name}`;
+
+  const response = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/music/${filePath}`,
+    {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${session.access_token}`,
+        "Content-Type": file.type
+      },
+      body: file
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error(error);
+    alert("음악 업로드 실패");
+    return;
+  }
+
+  alert("음악 업로드 완료!");
+  }
 </script>
 
 </body>
