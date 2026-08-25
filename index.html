@@ -1,19 +1,240 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AMKINA MUSIC</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AMKINA MUSIC</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#080808;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+
+header{
+    padding:30px 7%;
+    border-bottom:1px solid #222;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:800;
+    letter-spacing:3px;
+}
+
+.logo span{
+    color:#9be15d;
+}
+
+.hero{
+    padding:80px 7% 40px;
+}
+
+.hero h1{
+    font-size:52px;
+    margin:0 0 15px;
+}
+
+.hero p{
+    color:#888;
+    font-size:17px;
+}
+
+.section{
+    padding:20px 7% 80px;
+}
+
+.section h2{
+    font-size:26px;
+    margin-bottom:30px;
+}
+
+#music-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:28px;
+}
+
+.track{
+    background:#111;
+    border:1px solid #222;
+    border-radius:16px;
+    padding:14px;
+    transition:.25s;
+}
+
+.track:hover{
+    transform:translateY(-5px);
+    border-color:#555;
+}
+
+.cover{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:10px;
+    background:#181818;
+}
+
+.track h3{
+    margin:16px 0 5px;
+    font-size:18px;
+}
+
+.artist{
+    color:#999;
+    font-size:14px;
+    margin-bottom:15px;
+}
+
+audio{
+    width:100%;
+    height:38px;
+}
+
+.loading{
+    color:#888;
+}
+
+footer{
+    border-top:1px solid #222;
+    padding:30px 7%;
+    color:#666;
+    font-size:13px;
+}
+
+@media(max-width:600px){
+    .hero h1{
+        font-size:36px;
+    }
+
+    .hero{
+        padding-top:50px;
+    }
+}
+</style>
 </head>
 
 <body>
-  <h1>AMKINA MUSIC</h1>
-  <p>AI Music Creator</p>
 
-  <h2>My Music</h2>
+<header>
+    <div class="logo">AMKINA <span>MUSIC</span></div>
+</header>
 
-  <div id="music-list">
-    음악을 불러오는 중...
-  </div>
+<section class="hero">
+    <h1>AMKINA MUSIC</h1>
+    <p>AI MUSIC CREATOR · ORIGINAL MUSIC</p>
+</section>
+
+<section class="section">
+    <h2>Latest Music</h2>
+
+    <div id="music-list">
+        <div class="loading">음악을 불러오는 중...</div>
+    </div>
+</section>
+
+<footer>
+    © 2026 AMKINA MUSIC
+</footer>
+
+<script>
+
+const SUPABASE_URL =
+"https://bbtzasddvodrprpnbeos.supabase.co";
+
+const API =
+SUPABASE_URL +
+"/rest/v1/tracks?select=*&order=id.desc";
+
+const SUPABASE_ANON_KEY = "sb_publishable_0xwgASnyXne6PdTKMbh6MQ_oleIl594";
+
+async function loadMusic(){
+
+    const container =
+        document.getElementById("music-list");
+
+    try{
+
+        const response = await fetch(API,{
+            headers:{
+                "apikey":SUPABASE_ANON_KEY,
+                "Authorization":
+                "Bearer " + SUPABASE_ANON_KEY
+            }
+        });
+
+        if(!response.ok){
+            throw new Error("Database error");
+        }
+
+        const tracks = await response.json();
+
+        container.innerHTML="";
+
+        if(tracks.length===0){
+            container.innerHTML=
+            "<div>등록된 음악이 없습니다.</div>";
+            return;
+        }
+
+        tracks.forEach(track=>{
+
+            const card =
+            document.createElement("div");
+
+            card.className="track";
+
+            card.innerHTML=`
+
+                <img
+                class="cover"
+                src="${track.cover_url || ''}"
+                alt="${track.title || 'Album cover'}">
+
+                <h3>
+                ${track.title || "Untitled"}
+                </h3>
+
+                <div class="artist">
+                ${track.artist || "AMKINA"}
+                </div>
+
+                <audio controls preload="metadata">
+                    <source
+                    src="${track.audio_url}"
+                    type="audio/mpeg">
+                </audio>
+
+            `;
+
+            container.appendChild(card);
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML=
+        "<div>음악을 불러오지 못했습니다.</div>";
+
+    }
+}
+
+loadMusic();
+
+</script>
+
 </body>
 </html>
