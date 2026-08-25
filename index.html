@@ -1055,7 +1055,7 @@ footer{
 
     <div style="height:1px;background:#e7e9ee;margin:12px 8px;"></div>
 
-    <a href="#">♬　스튜디오</a>
+    <a href="#studio" onclick="showStudioPage(event)">♫ 스튜디오</a>
     <a href="#">♪　라이브러리</a>
     <a href="#">◉　AMKINA 앨범</a>
     <a href="#">◉　RADIO</a>
@@ -1111,7 +1111,85 @@ footer{
   </div>
 
 </main>
+<!-- ===== STUDIO PAGE ===== -->
 
+<section id="studio" class="studio-page" style="display:none;">
+
+    <div class="studio-header">
+        <div class="music-page-label">AMKINA CREATOR STUDIO</div>
+        <h1>STUDIO</h1>
+        <p>새로운 음악을 AMKINA MUSIC에 등록하세요.</p>
+    </div>
+
+    <div class="studio-panel">
+
+        <div class="studio-field">
+            <label>곡 제목</label>
+            <input
+                type="text"
+                id="studio-title"
+                placeholder="곡 제목을 입력하세요"
+            >
+        </div>
+
+        <div class="studio-field">
+            <label>아티스트</label>
+            <input
+                type="text"
+                id="studio-artist"
+                value="AMKINA"
+            >
+        </div>
+
+        <div class="studio-field">
+            <label>장르</label>
+            <input
+                type="text"
+                id="studio-genre"
+                placeholder="예: Electronic Pop"
+            >
+        </div>
+
+        <div class="studio-field">
+            <label>음원 파일</label>
+            <input
+                type="file"
+                id="studio-audio"
+                accept=".mp3,.wav,.flac,.m4a,.aac,.ogg"
+            >
+            <small>MP3 · WAV · FLAC · M4A · AAC · OGG</small>
+        </div>
+
+        <div class="studio-field">
+            <label>앨범 커버</label>
+            <input
+                type="file"
+                id="studio-cover"
+                accept="image/jpeg,image/png,image/webp"
+            >
+            <small>JPG · PNG · WEBP</small>
+        </div>
+
+        <div class="studio-field">
+            <label>곡 설명</label>
+            <textarea
+                id="studio-description"
+                placeholder="음악에 대한 설명을 입력하세요"
+                rows="5"
+            ></textarea>
+        </div>
+
+        <button
+    type="button"
+    class="studio-upload-btn"
+    onclick="uploadStudioMusic()"
+>
+    UPLOAD MUSIC
+</button>
+
+    </div>
+
+</section>
 <footer id="about">
   © 2026 AMKINA MUSIC · ORIGINAL MUSIC PLATFORM
 </footer>
@@ -1666,6 +1744,181 @@ authSubmit.addEventListener("click", async () => {
 
   await uploadMusic(file);
   }
+ /* ===== STUDIO MUSIC UPLOAD ===== */
+
+async function uploadStudioMusic(){
+
+    const title = document.getElementById('studio-title').value.trim();
+    const artist = document.getElementById('studio-artist').value.trim() || 'AMKINA';
+    const genre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
+
+    const audioInput = document.getElementById('studio-audio');
+    const coverInput = document.getElementById('studio-cover');
+
+    const audioFile = audioInput.files[0];
+    const coverFile = coverInput.files[0];
+
+    /* 입력 확인 */
+    if(!title){
+        alert('곡 제목을 입력해주세요.');
+        return;
+    }
+
+    if(!audioFile){
+        alert('음원 파일을 선택해주세요.');
+        return;
+    }
+
+    if(!coverFile){
+        alert('앨범 커버를 선택해주세요.');
+        return;
+    }
+
+    /* 로그인 확인 */
+    const session = JSON.parse(
+        localStorage.getItem('amkina_session')
+    );
+
+    if(!session?.access_token || !session?.user?.id){
+        alert('먼저 로그인해주세요.');
+        return;
+    }
+
+    try{
+
+        const userId = session.user.id;
+        const timestamp = Date.now();
+
+        /* =========================
+           1. 음원 업로드
+        ========================= */
+
+        const audioPath =
+            `${userId}/${timestamp}-${audioFile.name}`;
+
+        const audioResponse = await fetch(
+            `${SUPABASE_URL}/storage/v1/object/music/${audioPath}`,
+            {
+                method:'POST',
+
+                headers:{
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization':
+                        `Bearer ${session.access_token}`,
+                    'Content-Type': audioFile.type
+                },
+
+                body:audioFile
+            }
+        );
+
+        if(!audioResponse.ok){
+            const error = await audioResponse.text();
+            console.error(error);
+            throw new Error('음원 업로드 실패');
+        }
+
+        /* =========================
+           2. 커버 업로드
+        ========================= */
+
+        const coverPath =
+            `${userId}/${timestamp}-${coverFile.name}`;
+
+        const coverResponse = await fetch(
+            `${SUPABASE_URL}/storage/v1/object/covers/${coverPath}`,
+            {
+                method:'POST',
+
+                headers:{
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization':
+                        `Bearer ${session.access_token}`,
+                    'Content-Type': coverFile.type
+                },
+
+                body:coverFile
+            }
+        );
+
+        if(!coverResponse.ok){
+            const error = await coverResponse.text();
+            console.error(error);
+            throw new Error('커버 업로드 실패');
+        }
+
+        /* =========================
+           3. Public URL 생성
+        ========================= */
+
+        const audioUrl =
+            `${SUPABASE_URL}/storage/v1/object/public/music/${audioPath}`;
+
+        const coverUrl =
+            `${SUPABASE_URL}/storage/v1/object/public/covers/${coverPath}`;
+
+        /* =========================
+           4. tracks 테이블 등록
+        ========================= */
+
+        const trackResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/tracks`,
+            {
+                method:'POST',
+
+                headers:{
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization':
+                        `Bearer ${session.access_token}`,
+                    'Content-Type':'application/json',
+                    'Prefer':'return=representation'
+                },
+
+                body:JSON.stringify({
+                    title:title,
+                    artist:artist,
+                    genre:genre,
+                    audio_url:audioUrl,
+                    cover_url:coverUrl,
+                    release_date:
+                        new Date().toISOString().slice(0,10)
+                })
+            }
+        );
+
+        if(!trackResponse.ok){
+            const error = await trackResponse.text();
+            console.error(error);
+            throw new Error('곡 정보 등록 실패');
+        }
+
+        alert('음악 등록 완료!');
+
+        /* 입력창 초기화 */
+
+        document.getElementById('studio-title').value = '';
+        document.getElementById('studio-genre').value = '';
+        document.getElementById('studio-description').value = '';
+
+        audioInput.value = '';
+        coverInput.value = '';
+
+        /* MUSIC 목록 새로 불러오기 */
+
+        if(typeof loadTracks === 'function'){
+            await loadTracks();
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            '업로드 중 문제가 발생했습니다.\n' +
+            error.message
+        );
+    }
+}
 </script>
 
 <script>
@@ -1690,6 +1943,7 @@ function showHomePage(event){
     setActiveMenu(event ? event.currentTarget : null);
 
     const hero = document.querySelector('.hero');
+  const studio = document.getElementById('studio');
     const musicSection =
         document.getElementById('music') ||
         document.querySelector('.music-grid');
@@ -1706,7 +1960,10 @@ function showHomePage(event){
             container.style.display = '';
         }
     }
-
+// HOME에서는 스튜디오 숨김
+if(studio){
+    studio.style.display = 'none';
+}
     window.scrollTo({
         top:0,
         behavior:'smooth'
@@ -1725,6 +1982,12 @@ function showMusicPage(event){
 
     const hero = document.querySelector('.hero');
     const music = document.getElementById('music');
+  const studio = document.getElementById('studio');
+
+  // MUSIC에서는 스튜디오 숨김
+if(studio){
+    studio.style.display = 'none';
+}
 
     // MUSIC에서는 메인 배너 완전히 숨김
     if(hero){
@@ -1737,6 +2000,42 @@ function showMusicPage(event){
     }
 
     // 화면 맨 위로 이동
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+  /* ===== STUDIO ===== */
+function showStudioPage(event){
+    event.preventDefault();
+
+    setActiveMenu(event.currentTarget);
+
+    const hero = document.querySelector('.hero');
+    const music = document.getElementById('music');
+    const studio = document.getElementById('studio');
+
+    // 홈 배너 숨김
+    if(hero){
+        hero.style.setProperty('display', 'none', 'important');
+    }
+
+    // 음악 페이지 숨김
+    if(music){
+        music.style.display = 'none';
+    }
+
+    // 스튜디오 페이지 표시
+    if(studio){
+        studio.style.display = 'block';
+    }
+
+    // 모바일 메뉴 닫기
+    const nav = document.querySelector('header nav');
+    if(nav){
+        nav.classList.remove('mobile-open');
+    }
+
     window.scrollTo({
         top: 0,
         behavior: 'smooth'
