@@ -586,7 +586,400 @@ body > header nav a:first-child{
     background:#1a1e23 !important;
     border-left:3px solid #a3ff68 !important;
 }
+/* ==================================================
+   AMKINA MUSIC — PREMIUM DARK UI 2026
+   ================================================== */
 
+:root{
+  --am-bg:#050706;
+  --am-panel:#090c0a;
+  --am-panel2:#0d110e;
+  --am-line:#202820;
+  --am-green:#9dff3f;
+  --am-green2:#68e62d;
+  --am-text:#f4f7f3;
+  --am-muted:#89918a;
+}
+
+/* 전체 */
+body{
+  background:
+    radial-gradient(circle at 70% 10%,rgba(90,255,40,.045),transparent 32%),
+    #050706 !important;
+  color:var(--am-text) !important;
+  padding-left:235px !important;
+}
+
+/* ================= LEFT SIDEBAR ================= */
+
+body > header{
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:90px !important;
+
+  width:235px !important;
+  height:auto !important;
+
+  padding:32px 20px !important;
+
+  display:block !important;
+
+  background:
+    linear-gradient(180deg,#080b09 0%,#050706 100%) !important;
+
+  border-right:1px solid rgba(157,255,63,.18) !important;
+  border-bottom:0 !important;
+
+  box-shadow:
+    10px 0 40px rgba(0,0,0,.35),
+    inset -1px 0 rgba(157,255,63,.04);
+
+  z-index:40 !important;
+}
+
+/* LOGO */
+
+body > header .logo{
+  color:#fff !important;
+  font-size:22px !important;
+  font-weight:900 !important;
+  letter-spacing:3px !important;
+  padding:8px 12px 28px !important;
+  line-height:1.15;
+}
+
+body > header .logo span{
+  color:var(--am-green) !important;
+  display:block;
+  margin-top:5px;
+
+  text-shadow:
+    0 0 18px rgba(157,255,63,.35);
+}
+
+/* MENU */
+
+body > header nav{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:5px !important;
+
+  background:transparent !important;
+}
+
+body > header nav a{
+  position:relative;
+
+  display:flex !important;
+  align-items:center !important;
+
+  min-height:43px;
+
+  padding:0 13px !important;
+
+  color:#9ca49d !important;
+  background:transparent !important;
+
+  border-radius:9px;
+
+  font-size:12px !important;
+  letter-spacing:.5px !important;
+
+  transition:
+    background .2s ease,
+    color .2s ease,
+    transform .2s ease !important;
+}
+
+body > header nav a:hover{
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(157,255,63,.12),
+      rgba(157,255,63,.025)
+    ) !important;
+
+  transform:translateX(3px);
+}
+
+/* HOME 선택 */
+
+body > header nav a:first-child{
+  color:var(--am-green) !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(157,255,63,.17),
+      rgba(157,255,63,.035)
+    ) !important;
+
+  border-left:3px solid var(--am-green) !important;
+
+  box-shadow:
+    inset 0 0 25px rgba(157,255,63,.035);
+}
+
+/* ================= HERO ================= */
+
+.hero{
+  margin:28px 32px 20px !important;
+
+  min-height:390px !important;
+
+  padding:65px 70px !important;
+
+  border:1px solid rgba(157,255,63,.14);
+  border-radius:18px;
+
+  background:
+    radial-gradient(circle at 77% 45%,
+      rgba(120,255,50,.16),
+      transparent 25%),
+    radial-gradient(circle at 65% 70%,
+      rgba(60,150,30,.09),
+      transparent 32%),
+    linear-gradient(135deg,#080b09,#030504) !important;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.25),
+    inset 0 0 80px rgba(157,255,63,.018);
+
+  overflow:hidden;
+}
+
+.hero-small{
+  color:var(--am-green) !important;
+  letter-spacing:5px !important;
+}
+
+.hero h1{
+  font-size:clamp(55px,6vw,90px) !important;
+  line-height:.88 !important;
+
+  text-shadow:
+    0 5px 35px rgba(0,0,0,.55);
+}
+
+.hero p{
+  color:#778078 !important;
+}
+
+/* ================= CONTENT ================= */
+
+main{
+  padding:28px 32px 100px !important;
+}
+
+.section-top{
+  padding-left:13px;
+  border-left:3px solid var(--am-green);
+}
+
+.section-top h2{
+  font-size:24px !important;
+  letter-spacing:-.5px;
+}
+
+#track-count{
+  color:#687069 !important;
+}
+
+/* ================= UPLOAD ================= */
+
+#upload-area{
+  padding:15px 18px !important;
+
+  border:1px solid #1e251f;
+  border-radius:13px;
+
+  background:#090c0a;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+#upload-area button{
+  width:auto !important;
+  min-height:38px !important;
+
+  padding:0 18px;
+
+  border:1px solid rgba(157,255,63,.35);
+  border-radius:9px;
+
+  background:rgba(157,255,63,.08);
+  color:var(--am-green);
+
+  font-weight:700;
+  cursor:pointer;
+}
+
+#upload-area button:hover{
+  background:var(--am-green);
+  color:#050705;
+}
+
+/* ================= ALBUM CARDS ================= */
+
+.music-grid{
+  grid-template-columns:
+    repeat(auto-fill,minmax(190px,1fr)) !important;
+
+  gap:18px !important;
+}
+
+.track{
+  background:
+    linear-gradient(180deg,#0c100d,#080a09) !important;
+
+  border:1px solid #202620 !important;
+
+  border-radius:14px !important;
+
+  padding:10px !important;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.15);
+}
+
+.track:hover{
+  transform:translateY(-6px) !important;
+
+  border-color:
+    rgba(157,255,63,.45) !important;
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.35),
+    0 0 25px rgba(157,255,63,.055);
+}
+
+.cover{
+  border-radius:10px !important;
+}
+
+.play-circle{
+  background:var(--am-green) !important;
+
+  box-shadow:
+    0 0 22px rgba(157,255,63,.3);
+}
+
+.title{
+  color:#f5f7f5;
+}
+
+.artist{
+  color:#8b938c !important;
+}
+
+.meta{
+  color:#555d56 !important;
+}
+
+/* ================= PLAYER ================= */
+
+.player{
+  left:235px !important;
+
+  height:90px !important;
+
+  background:
+    rgba(7,9,8,.97) !important;
+
+  border-top:
+    1px solid rgba(157,255,63,.15) !important;
+
+  box-shadow:
+    0 -15px 45px rgba(0,0,0,.35);
+
+  backdrop-filter:blur(22px);
+}
+
+.main-play{
+  background:var(--am-green) !important;
+  color:#050705 !important;
+
+  box-shadow:
+    0 0 22px rgba(157,255,63,.22);
+}
+
+.control-btn{
+  color:#aeb5af !important;
+}
+
+.control-btn:hover{
+  color:var(--am-green) !important;
+}
+
+#progress,
+#volume{
+  accent-color:var(--am-green) !important;
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+  margin-left:0 !important;
+  border-color:#171c18 !important;
+  color:#555d56 !important;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:768px){
+
+  body{
+    padding-left:0 !important;
+  }
+
+  body > header{
+    position:relative !important;
+    width:100% !important;
+    height:64px !important;
+    bottom:auto !important;
+    padding:12px 18px !important;
+  }
+
+  body > header .logo{
+    padding:0 !important;
+  }
+
+  body > header .logo span{
+    display:inline;
+  }
+
+  body > header nav{
+    display:none !important;
+  }
+
+  .hero{
+    margin:12px !important;
+    padding:45px 25px !important;
+    min-height:300px !important;
+  }
+
+  .hero h1{
+    font-size:48px !important;
+  }
+
+  main{
+    padding:18px 12px 110px !important;
+  }
+
+  .music-grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .player{
+    left:0 !important;
+  }
+}
 </style>
 </head>
 
