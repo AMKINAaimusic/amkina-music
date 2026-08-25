@@ -1793,8 +1793,8 @@ async function uploadStudioMusic(){
            1. 음원 업로드
         ========================= */
 
-        const audioPath =
-            `${userId}/${timestamp}-${audioFile.name}`;
+   const audioExt = audioFile.name.split('.').pop().toLowerCase();
+const audioPath = `${userId}/${timestamp}-audio.${audioExt}`;
 
         const audioResponse = await fetch(
             `${SUPABASE_URL}/storage/v1/object/music/${audioPath}`,
@@ -1821,9 +1821,9 @@ async function uploadStudioMusic(){
         /* =========================
            2. 커버 업로드
         ========================= */
-
-        const coverPath =
-            `${userId}/${timestamp}-${coverFile.name}`;
+      
+const coverExt = coverFile.name.split('.').pop().toLowerCase();
+const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
 
         const coverResponse = await fetch(
             `${SUPABASE_URL}/storage/v1/object/covers/${coverPath}`,
