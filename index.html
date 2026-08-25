@@ -989,7 +989,7 @@ footer{
   <div class="logo">AMKINA <span>MUSIC</span></div>
 
   <nav>
-    <a href="#">⌂　홈</a>
+   <a href="#" onclick="showHomePage(event)">⌂ 홈</a>
    <a href="#music" onclick="showMusicPage(event)">♫ 음악</a>
     <a href="#music">▦　최신 발매</a>
     <a href="#">♡　플레이리스트</a>
@@ -1593,29 +1593,95 @@ authSubmit.addEventListener("click", async () => {
   await uploadMusic(file);
   }
 </script>
-</script>
 
 <script>
+<script>
+function setActiveMenu(clickedMenu){
+    document.querySelectorAll('body > header nav a').forEach(function(item){
+        item.classList.remove('menu-active');
+    });
+
+    if(clickedMenu){
+        clickedMenu.classList.add('menu-active');
+    }
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+function showHomePage(event){
+    if(event) event.preventDefault();
+
+    setActiveMenu(event ? event.currentTarget : null);
+
+    const hero = document.querySelector('.hero');
+    const musicSection =
+        document.getElementById('music') ||
+        document.querySelector('.music-grid');
+
+    if(hero){
+        hero.style.display = '';
+    }
+
+    if(musicSection){
+        const container =
+            musicSection.closest('section') ||
+            musicSection.parentElement;
+
+        if(container){
+            container.style.display = '';
+        }
+    }
+
+    window.scrollTo({
+        top:0,
+        behavior:'smooth'
+    });
+}
+
+
+/* =========================
+   MUSIC
+========================= */
+
 function showMusicPage(event){
-    event.preventDefault();
+    if(event) event.preventDefault();
+
+    setActiveMenu(event ? event.currentTarget : null);
+
+    const hero = document.querySelector('.hero');
 
     const musicSection =
         document.getElementById('music') ||
         document.querySelector('.music-grid');
 
-    if(musicSection){
-        musicSection.scrollIntoView({
-            behavior:'smooth',
-            block:'start'
-        });
+    /* 홈의 큰 배너 숨기기 */
+    if(hero){
+        hero.style.display = 'none';
     }
 
-    document.querySelectorAll('header nav a').forEach(function(item){
-        item.classList.remove('menu-active');
-    });
+    /* 음악 목록 보이기 */
+    if(musicSection){
 
-    event.currentTarget.classList.add('menu-active');
+        const container =
+            musicSection.closest('section') ||
+            musicSection.parentElement;
+
+        if(container){
+            container.style.display = '';
+        }
+
+        setTimeout(function(){
+            musicSection.scrollIntoView({
+                behavior:'smooth',
+                block:'start'
+            });
+        },50);
+    }
 }
+</script>
 </script>
 
 <style>
@@ -1630,7 +1696,5 @@ body > header nav a.menu-active{
 }
 </style>
 
-</body>
-</html>
 </body>
 </html>
