@@ -1622,8 +1622,8 @@ function showHomePage(event){
         document.querySelector('.music-grid');
 
     if(hero){
-        hero.style.display = '';
-    }
+    hero.style.setProperty('display', 'none', 'important');
+}
 
     if(musicSection){
         const container =
@@ -1656,7 +1656,7 @@ function showMusicPage(event){
 
     // MUSIC에서는 메인 배너 완전히 숨김
     if(hero){
-        hero.style.display = 'none';
+   hero.style.setProperty('display', 'none', 'important');
     }
 
     // 음악 영역 표시
