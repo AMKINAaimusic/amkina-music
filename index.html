@@ -393,6 +393,95 @@ footer{
     padding-bottom:95px;
   }
 }
+  /* LOGIN / SIGN UP MODAL */
+#auth-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.78);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:20px;
+}
+
+.auth-box{
+  position:relative;
+  width:100%;
+  max-width:380px;
+  padding:34px 26px 28px;
+  background:#111;
+  border:1px solid #292929;
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  text-align:center;
+}
+
+.auth-box h2{
+  margin:0 0 8px;
+  font-size:24px;
+  letter-spacing:1px;
+}
+
+#auth-title{
+  color:#a3ff68;
+  margin-bottom:22px;
+  font-size:13px;
+  letter-spacing:2px;
+}
+
+.auth-box input{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  background:#080808;
+  border:1px solid #333;
+  border-radius:10px;
+  color:#fff;
+  font-size:16px;
+  outline:none;
+}
+
+.auth-box input:focus{
+  border-color:#a3ff68;
+}
+
+#auth-submit{
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  border:0;
+  border-radius:10px;
+  background:#a3ff68;
+  color:#070707;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#auth-close{
+  position:absolute;
+  top:12px;
+  right:14px;
+  background:none;
+  border:0;
+  color:#888;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.auth-switch{
+  margin-top:18px;
+  color:#888;
+  font-size:13px;
+}
+
+#auth-mode{
+  background:none;
+  border:0;
+  color:#a3ff68;
+  font-weight:bold;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -405,6 +494,7 @@ footer{
     <a href="#">HOME</a>
     <a href="#music">MUSIC</a>
     <a href="#about">ABOUT</a>
+    <a href="#" id="login-btn">LOGIN</a>
   </nav>
 </header>
 
@@ -438,7 +528,23 @@ footer{
 <footer id="about">
   © 2026 AMKINA MUSIC · ORIGINAL MUSIC PLATFORM
 </footer>
+<div id="auth-modal" style="display:none;">
+  <div class="auth-box">
+    <button id="auth-close">×</button>
+    <h2>AMKINA MUSIC</h2>
+    <p id="auth-title">LOGIN</p>
 
+    <input type="email" id="auth-email" placeholder="Email">
+    <input type="password" id="auth-password" placeholder="Password">
+
+    <button id="auth-submit">LOGIN</button>
+
+    <p class="auth-switch">
+      <span id="auth-message">계정이 없으신가요?</span>
+      <button id="auth-mode">SIGN UP</button>
+    </p>
+  </div>
+</div>
 
 <div class="player">
 
@@ -842,7 +948,94 @@ volume.addEventListener(
 audio.volume=.8;
 
 loadMusic();
+// ===== LOGIN / SIGN UP =====
 
+const loginBtn = document.getElementById("login-btn");
+const authModal = document.getElementById("auth-modal");
+const authClose = document.getElementById("auth-close");
+const authMode = document.getElementById("auth-mode");
+const authSubmit = document.getElementById("auth-submit");
+const authEmail = document.getElementById("auth-email");
+const authPassword = document.getElementById("auth-password");
+const authTitle = document.getElementById("auth-title");
+const authMessage = document.getElementById("auth-message");
+
+let signupMode = false;
+
+loginBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  authModal.style.display = "flex";
+});
+
+authClose.addEventListener("click", () => {
+  authModal.style.display = "none";
+});
+
+authMode.addEventListener("click", () => {
+  signupMode = !signupMode;
+
+  authTitle.textContent = signupMode ? "SIGN UP" : "LOGIN";
+  authSubmit.textContent = signupMode ? "SIGN UP" : "LOGIN";
+  authMessage.textContent =
+    signupMode ? "이미 계정이 있으신가요?" : "계정이 없으신가요?";
+  authMode.textContent = signupMode ? "LOGIN" : "SIGN UP";
+});
+
+authSubmit.addEventListener("click", async () => {
+
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+
+  if (!email || !password) {
+    alert("이메일과 비밀번호를 입력해주세요.");
+    return;
+  }
+
+  const endpoint = signupMode ? "signup" : "token?grant_type=password";
+
+  try {
+
+    const response = await fetch(
+      SUPABASE_URL + "/auth/v1/" + endpoint,
+      {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.msg || data.error_description || data.message || "오류가 발생했습니다.");
+      return;
+    }
+
+    if (signupMode) {
+      alert("회원가입 완료! 이메일 인증 메일을 확인해주세요.");
+      signupMode = false;
+      authTitle.textContent = "LOGIN";
+      authSubmit.textContent = "LOGIN";
+      authMessage.textContent = "계정이 없으신가요?";
+      authMode.textContent = "SIGN UP";
+    } else {
+      localStorage.setItem("amkina_session", JSON.stringify(data));
+      alert("로그인되었습니다.");
+      authModal.style.display = "none";
+      loginBtn.textContent = "LOGOUT";
+    }
+
+  } catch (error) {
+    alert("연결 오류가 발생했습니다.");
+    console.error(error);
+  }
+});
 </script>
 
 </body>
