@@ -1023,6 +1023,24 @@ footer{
 </section>
 
 <main id="music">
+  
+<div class="music-page-head">
+  <div>
+    <div class="music-page-label">EXPLORE AMKINA</div>
+    <h1>MUSIC</h1>
+    <p>AMKINA MUSIC의 모든 트랙을 만나보세요.</p>
+  </div>
+
+  <div class="music-search-box">
+    <span>⌕</span>
+    <input
+      type="search"
+      id="music-search"
+      placeholder="곡명 또는 아티스트 검색"
+      autocomplete="off"
+    >
+  </div>
+</div>
 <div id="upload-area" style="margin-bottom:24px;">
   <input type="file" id="music-file" accept=".mp3,.wav,.flac,.m4a,.aac,.ogg">
   <button type="button" onclick="uploadSelectedMusic()">UPLOAD MUSIC</button>
@@ -1668,6 +1686,31 @@ function showMusicPage(event){
         behavior: 'smooth'
     });
 }
+  /* ===== MUSIC SEARCH ===== */
+
+const musicSearch = document.getElementById('music-search');
+
+if(musicSearch){
+    musicSearch.addEventListener('input', function(){
+
+        const keyword = this.value.trim().toLowerCase();
+
+        document.querySelectorAll('#music-list .track').forEach(function(card){
+
+            const title =
+                card.querySelector('.title')?.textContent.toLowerCase() || '';
+
+            const artist =
+                card.querySelector('.artist')?.textContent.toLowerCase() || '';
+
+            const match =
+                title.includes(keyword) ||
+                artist.includes(keyword);
+
+            card.style.display = match ? '' : 'none';
+        });
+    });
+}
 </script>
 
 <style>
@@ -1679,6 +1722,90 @@ body > header nav a.menu-active{
         rgba(157,255,63,.035)
     ) !important;
     border-left:3px solid #9dff3f !important;
+}
+
+
+/* ===== MUSIC PAGE HEADER ===== */
+
+.music-page-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:30px;
+    margin:5px 0 32px;
+    padding:28px 30px;
+    background:linear-gradient(135deg,#0b0f0c,#070907);
+    border:1px solid rgba(157,255,63,.13);
+    border-radius:16px;
+}
+
+.music-page-label{
+    color:#9dff3f;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:3px;
+    margin-bottom:8px;
+}
+
+.music-page-head h1{
+    margin:0;
+    color:#ffffff;
+    font-size:42px;
+    letter-spacing:-2px;
+}
+
+.music-page-head p{
+    margin:9px 0 0;
+    color:#747d75;
+    font-size:12px;
+}
+
+.music-search-box{
+    width:min(360px,100%);
+    height:46px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 15px;
+    background:#050706;
+    border:1px solid #252c26;
+    border-radius:11px;
+}
+
+.music-search-box:focus-within{
+    border-color:rgba(157,255,63,.55);
+    box-shadow:0 0 0 3px rgba(157,255,63,.05);
+}
+
+.music-search-box span{
+    color:#9dff3f;
+    font-size:18px;
+}
+
+#music-search{
+    flex:1;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#ffffff;
+    font-size:13px;
+}
+
+#music-search::placeholder{
+    color:#59605a;
+}
+
+@media(max-width:768px){
+    .music-page-head{
+        flex-direction:column;
+        align-items:flex-start;
+        padding:22px;
+    }
+
+    .music-search-box{
+        width:100%;
+    }
 }
 </style>
 
