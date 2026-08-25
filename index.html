@@ -513,7 +513,10 @@ footer{
 </section>
 
 <main id="music">
-
+<div id="upload-area" style="margin-bottom:24px;">
+  <input type="file" id="music-file" accept="audio/*">
+  <button type="button" onclick="uploadSelectedMusic()">UPLOAD MUSIC</button>
+</div>
   <div class="section-top">
     <h2>Latest Releases</h2>
     <div id="track-count">LOADING</div>
@@ -1067,6 +1070,17 @@ authSubmit.addEventListener("click", async () => {
   }
 
   alert("음악 업로드 완료!");
+  }
+  async function uploadSelectedMusic() {
+  const input = document.getElementById("music-file");
+  const file = input.files[0];
+
+  if (!file) {
+    alert("음악 파일을 선택해주세요.");
+    return;
+  }
+
+  await uploadMusic(file);
   }
 </script>
 
