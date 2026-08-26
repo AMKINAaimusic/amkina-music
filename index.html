@@ -3560,33 +3560,6 @@ body > header nav a:first-child{
 }
 </style>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const menuBtn = document.querySelector(".mobile-menu-btn");
-    const nav = document.querySelector("body > header nav");
-
-    if (!menuBtn || !nav) return;
-
-    menuBtn.removeAttribute("onclick");
-
-    menuBtn.addEventListener("click", function(e){
-        e.preventDefault();
-        e.stopPropagation();
-
-        const isOpen = nav.classList.contains("mobile-open");
-
-        if(isOpen){
-            nav.classList.remove("mobile-open");
-            nav.style.removeProperty("display");
-            menuBtn.textContent = "☰";
-        }else{
-            nav.classList.add("mobile-open");
-            nav.style.setProperty("display","flex","important");
-            menuBtn.textContent = "×";
-        }
-    });
-
-});
 
 function closeMobileMenu(){
 
