@@ -348,7 +348,7 @@ footer{
     color:#9dff3f;
     font-size:23px;
     cursor:pointer;
-    z-index:1001;
+    z-index:10001 !important;
 }
 
 header nav.mobile-open{
@@ -377,11 +377,14 @@ header nav.mobile-open{
 
 header nav.mobile-open a{
     display:block !important;
-    width:100%;
+    width:100% !important;
     padding:13px 14px !important;
-    border-radius:9px;
+    border-radius:9px !important;
     font-size:13px !important;
+    position:relative !important;
+    z-index:100000 !important;
     pointer-events:auto !important;
+    touch-action:manipulation !important;
 }
   header{padding:0 4%}
 
