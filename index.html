@@ -3552,7 +3552,25 @@ body > header nav a:first-child{
 }
 </style>
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const menuBtn = document.querySelector(".mobile-menu-btn");
+    const nav = document.querySelector("body > header nav");
 
+    if (!menuBtn || !nav) return;
+
+    menuBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        nav.classList.toggle("mobile-open");
+
+        if (nav.classList.contains("mobile-open")) {
+            menuBtn.textContent = "×";
+        } else {
+            menuBtn.textContent = "☰";
+        }
+    });
+});
 function closeMobileMenu(){
 
     const nav = document.querySelector("body > header nav");
