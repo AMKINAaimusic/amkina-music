@@ -4812,6 +4812,55 @@ body > header::after{
     }
 
   }
+  /* =========================================
+   AMKINA LOGIN BUTTON - FINAL
+   ========================================= */
+
+/* 로그인 메뉴 */
+body > header nav #login-btn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    width:100% !important;
+    min-height:52px !important;
+
+    margin-top:20px !important;
+    padding:0 20px !important;
+
+    background:#111 !important;
+    color:#fff !important;
+
+    border:1px solid #111 !important;
+    border-radius:14px !important;
+
+    font-size:15px !important;
+    font-weight:700 !important;
+    letter-spacing:-0.2px !important;
+
+    box-sizing:border-box !important;
+    transition:
+        transform .2s ease,
+        background .2s ease !important;
+}
+
+/* 기존 ◎ 아이콘 제거 */
+body > header nav #login-btn .nav-icon{
+    display:none !important;
+}
+
+/* 로그인 글자 */
+body > header nav #login-btn .nav-text{
+    color:#fff !important;
+    font-weight:700 !important;
+}
+
+/* LOGIN 화살표 */
+body > header nav #login-btn::after{
+    content:"→";
+    margin-left:auto;
+    font-size:18px;
+   
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
