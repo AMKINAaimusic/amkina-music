@@ -3860,6 +3860,70 @@ body > header nav a:first-child{
         background:#fff !important;
     }
 }
+  /* =========================================
+   AMKINA PC MAIN CONTENT FIX
+   ========================================= */
+
+@media (min-width:701px){
+
+    /* 사이드바를 제외한 실제 화면 폭 */
+    .hero{
+        margin-left:230px !important;
+        width:calc(100% - 230px) !important;
+        max-width:none !important;
+
+        padding:38px 42px 110px !important;
+
+        box-sizing:border-box !important;
+        overflow:hidden !important;
+
+        background:#fff !important;
+    }
+
+    /* 배너 슬라이드 영역 */
+    .hero-slider{
+        box-sizing:border-box !important;
+        overflow:hidden !important;
+    }
+
+    .hero-slide{
+        width:100% !important;
+        max-width:1180px !important;
+
+        margin:0 auto !important;
+
+        overflow:hidden !important;
+        border-radius:20px !important;
+
+        background:#080808 !important;
+    }
+
+    /* 핵심: 이미지가 화면 밖으로 잘리지 않게 */
+    .hero-slide img{
+        display:block !important;
+
+        width:100% !important;
+        height:auto !important;
+        max-width:100% !important;
+
+        object-fit:contain !important;
+        object-position:center !important;
+
+        margin:0 auto !important;
+    }
+
+    /* 메인 콘텐츠 */
+    main{
+        margin-left:230px !important;
+        width:calc(100% - 230px) !important;
+        max-width:none !important;
+
+        box-sizing:border-box !important;
+
+        padding-left:42px !important;
+        padding-right:42px !important;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
