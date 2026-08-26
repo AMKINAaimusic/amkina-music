@@ -4705,6 +4705,113 @@ body > header::after{
         width: 18px;
     }
 }
+  /* =========================================
+   AMKINA HERO SIZE - FINAL OVERRIDE
+   PC + MOBILE
+   ========================================= */
+
+/* PC 배너 */
+.hero-slider{
+    width: calc(100% - 48px) !important;
+    max-width: 1200px !important;
+    height: 420px !important;
+
+    margin: 24px auto 40px !important;
+    padding: 0 !important;
+
+    position: relative !important;
+    overflow: hidden !important;
+
+    border-radius: 20px !important;
+    background: #000 !important;
+}
+
+/* 슬라이드 */
+.hero-slider .hero-slide{
+    position: absolute !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .7s ease !important;
+}
+
+/* 현재 슬라이드 */
+.hero-slider .hero-slide.active{
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 이미지 */
+.hero-slider .hero-slide img{
+    width: 100% !important;
+    height: 100% !important;
+
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+}
+
+/* 점 */
+.hero-slider .hero-dots{
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+
+    transform: translateX(-50%) !important;
+
+    display: flex !important;
+    gap: 7px !important;
+
+    z-index: 20 !important;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 768px){
+
+    .hero-slider{
+        width: calc(100% - 32px) !important;
+        height: 220px !important;
+
+        margin: 18px 16px 28px !important;
+
+        border-radius: 18px !important;
+    }
+
+    .hero-slider .hero-slide{
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .hero-slider .hero-slide img{
+        width: 100% !important;
+        height: 100% !important;
+
+        object-fit: contain !important;
+        object-position: center !important;
+    }
+
+    .hero-slider .hero-dots{
+        bottom: 10px !important;
+    }
+}
+
+
+/* 작은 휴대폰 */
+@media (max-width: 480px){
+
+    .hero-slider{
+        height: 190px !important;
+    }
+
+  }
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
