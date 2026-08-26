@@ -7273,24 +7273,34 @@ window.showMusicPage = function(event) {
 /* ================= STUDIO ================= */
 
 window.showStudioPage = function(event) {
-
     if (event) event.preventDefault();
 
-    hideAllAmkinaPages();
+    // 커뮤니티 강제 종료
+    const community = document.getElementById("community");
+    if (community) {
+        community.style.setProperty("display", "none", "important");
+        community.classList.remove("active");
+    }
 
+    // 홈/음악 화면 종료
+    const hero = document.querySelector(".hero");
+    const heroSlider = document.querySelector(".hero-slider");
+    const music = document.getElementById("music");
+
+    if (hero) hero.style.setProperty("display", "none", "important");
+    if (heroSlider) heroSlider.style.setProperty("display", "none", "important");
+    if (music) music.style.setProperty("display", "none", "important");
+
+    // 스튜디오만 표시
     const studio = document.getElementById("studio");
 
     if (studio) {
-        studio.style.display = "block";
+        studio.style.setProperty("display", "block", "important");
+        studio.classList.add("active");
     }
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    window.scrollTo(0, 0);
 };
-
-
 /* ================= COMMUNITY ================= */
 
 window.showCommunityPage = function(event) {
