@@ -2237,7 +2237,10 @@ function showStudioPage(event){
     studio.style.setProperty('opacity', '1', 'important');
 
     // 모바일 메뉴 닫기
-    closeMobileMenu();
+    const nav = document.querySelector('header nav');
+if(nav){
+    nav.classList.remove('mobile-open');
+}
 
     // 맨 위로
     window.scrollTo(0, 0);
