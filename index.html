@@ -2194,7 +2194,7 @@ if(studio){
     if(music){
         music.style.display = 'block';
     }
-
+closeMobileMenu();
     // 화면 맨 위로 이동
     window.scrollTo({
         top: 0,
@@ -2227,10 +2227,7 @@ function showStudioPage(event){
     }
 
     // 모바일 메뉴 닫기
-    const nav = document.querySelector('header nav');
-    if(nav){
-        nav.classList.remove('mobile-open');
-    }
+closeMobileMenu();
 
     window.scrollTo({
         top: 0,
@@ -3565,40 +3562,46 @@ body > header nav a:first-child{
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  const menuBtn = document.querySelector(".mobile-menu-btn");
-  const nav = document.querySelector("body > header nav");
+    const menuBtn = document.querySelector(".mobile-menu-btn");
+    const nav = document.querySelector("body > header nav");
 
-  if (!menuBtn || !nav) return;
+    if (!menuBtn || !nav) return;
 
-  /* 기존 onclick 제거 */
-  menuBtn.removeAttribute("onclick");
+    menuBtn.removeAttribute("onclick");
 
-  /* 메뉴 버튼 클릭 */
-  menuBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
+    menuBtn.addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
 
-    nav.classList.toggle("mobile-open");
+        const isOpen = nav.classList.contains("mobile-open");
 
-    if (nav.classList.contains("mobile-open")) {
-      nav.style.setProperty("display", "flex", "important");
-      menuBtn.textContent = "×";
-    } else {
-      nav.style.setProperty("display", "none", "important");
-      menuBtn.textContent = "☰";
-    }
-  });
-
-  /* 메뉴 항목 누르면 메뉴 닫기 */
-  nav.querySelectorAll("a").forEach(function (link) {
-    link.addEventListener("click", function () {
-      nav.classList.remove("mobile-open");
-      nav.style.setProperty("display", "none", "important");
-      menuBtn.textContent = "☰";
+        if(isOpen){
+            nav.classList.remove("mobile-open");
+            nav.style.removeProperty("display");
+            menuBtn.textContent = "☰";
+        }else{
+            nav.classList.add("mobile-open");
+            nav.style.setProperty("display","flex","important");
+            menuBtn.textContent = "×";
+        }
     });
-  });
 
 });
+
+function closeMobileMenu(){
+
+    const nav = document.querySelector("body > header nav");
+    const menuBtn = document.querySelector(".mobile-menu-btn");
+
+    if(nav){
+        nav.classList.remove("mobile-open");
+        nav.style.removeProperty("display");
+    }
+
+    if(menuBtn){
+        menuBtn.textContent = "☰";
+    }
+}
 </script>
 </body>
 </html>
