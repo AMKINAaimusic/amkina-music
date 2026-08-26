@@ -4949,6 +4949,113 @@ header nav a#login-btn:active{
     background:#000000 !important;
     color:#ffffff !important;
 }
+  /* =========================================
+   AMKINA PREMIUM LOGIN BUTTON
+   ========================================= */
+
+#login-btn{
+    width:100% !important;
+    height:58px !important;
+    margin-top:28px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+
+    padding:0 20px !important;
+
+    background:#fff !important;
+    border:1px solid #d9d9d9 !important;
+    border-radius:14px !important;
+
+    color:#111 !important;
+    text-decoration:none !important;
+
+    font-size:15px !important;
+    font-weight:700 !important;
+    letter-spacing:-0.2px !important;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.04) !important;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease !important;
+}
+
+
+/* 로그인 앞 작은 원형 아이콘 */
+#login-btn::before{
+    content:"●" !important;
+
+    width:28px !important;
+    height:28px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    background:#111 !important;
+    color:#fff !important;
+
+    border-radius:50% !important;
+
+    font-size:8px !important;
+    margin-right:12px !important;
+}
+
+
+/* 오른쪽 화살표 */
+#login-btn::after{
+    content:"→" !important;
+
+    margin-left:auto !important;
+
+    font-size:20px !important;
+    font-weight:400 !important;
+    color:#111 !important;
+}
+
+
+/* 기존 아이콘 숨김 */
+#login-btn .nav-icon{
+    display:none !important;
+}
+
+
+/* 로그인 글씨 */
+#login-btn .nav-text{
+    color:#111 !important;
+    font-size:15px !important;
+    font-weight:700 !important;
+    margin-right:auto !important;
+}
+
+
+/* PC 마우스 효과 */
+#login-btn:hover{
+    background:#f7f7f7 !important;
+    border-color:#bdbdbd !important;
+    transform:translateY(-1px) !important;
+}
+
+
+/* 모바일 */
+@media(max-width:768px){
+
+    #login-btn{
+        height:56px !important;
+        margin-top:24px !important;
+        padding:0 18px !important;
+        border-radius:14px !important;
+    }
+
+    #login-btn .nav-text{
+        font-size:16px !important;
+    }
+
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
