@@ -3398,6 +3398,94 @@ body > header nav a:first-child{
     box-shadow:0 5px 15px rgba(0,0,0,.18) !important;
   }
 }
+  /* ===== PC FINAL CLEAN FIX ===== */
+@media screen and (min-width: 769px) {
+
+  /* 홈 MUSIC 상단 검은 박스 제거 */
+  body #music .music-page-head {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 10px 0 22px !important;
+    margin: 0 0 20px !important;
+  }
+
+  body #music .music-page-head h1 {
+    color: #111 !important;
+  }
+
+  body #music .music-page-label {
+    color: #777 !important;
+  }
+
+  body #music .music-page-head p {
+    color: #888 !important;
+  }
+
+  /* 검색창만 오른쪽에 깔끔하게 */
+  body #music .music-search-box {
+    background: #fff !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+
+  body #music #music-search {
+    color: #111 !important;
+  }
+
+  body #music .music-search-box span {
+    color: #333 !important;
+  }
+
+  /* ★ 현재 보이는 검은 업로드 바 강제 삭제 */
+  body #upload-area {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+
+  /* Latest Releases 초록선 제거 */
+  body #music .section-top {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    padding-bottom: 14px !important;
+    margin-bottom: 22px !important;
+  }
+
+  body #music .section-top h2 {
+    color: #111 !important;
+  }
+
+  /* 카드 영역 */
+  body #music .music-grid {
+    gap: 28px !important;
+  }
+
+  body #music .track {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  body #music .track:hover {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* 재생버튼 네온그린 제거 */
+  body #music .play-circle {
+    background: #111 !important;
+    color: #fff !important;
+    box-shadow: 0 5px 18px rgba(0,0,0,.18) !important;
+  }
+}
 </style>
 
 </body>
