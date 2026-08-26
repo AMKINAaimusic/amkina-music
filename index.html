@@ -1152,18 +1152,9 @@ footer{
    <img src="AMKINA.png" alt="AMKINA MUSIC">
   </div>
 
-  <div class="hero-slide">
-    <img src="banner2.jpg" alt="AMKINA MUSIC">
-  </div>
-
-  <div class="hero-slide">
-    <img src="banner3.jpg" alt="AMKINA MUSIC">
-  </div>
-
   <div class="hero-dots">
     <button class="hero-dot active"></button>
-    <button class="hero-dot"></button>
-    <button class="hero-dot"></button>
+  
   </div>
 
 </section>
@@ -3279,6 +3270,32 @@ body > header nav a:first-child{
 
   .hero-dots{
     bottom:14px;
+  }
+}
+  /* ===== PC HERO SLIDER FIX ===== */
+
+@media (min-width:769px){
+
+  .hero-slider{
+    height:360px !important;
+    min-height:360px !important;
+    margin:28px 32px 25px !important;
+    background:#000 !important;
+  }
+
+  .hero-slide{
+    width:100% !important;
+    height:100% !important;
+  }
+
+  .hero-slide img{
+    width:100% !important;
+    height:100% !important;
+
+    object-fit:contain !important;
+    object-position:center !important;
+
+    background:#000 !important;
   }
 }
 </style>
