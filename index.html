@@ -5631,6 +5631,508 @@ header nav a#login-btn:active{
         display:none !important;
     }
 }
+  /* ==========================================================
+   AMKINA PLAYER — FINAL OVERRIDE
+   이 코드 아래로 플레이어 CSS 추가하지 말 것
+========================================================== */
+
+/* ===== 전체 플레이어 ===== */
+.player{
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+
+    width:100% !important;
+    height:86px !important;
+    min-height:86px !important;
+
+    box-sizing:border-box !important;
+    padding:0 30px !important;
+
+    display:grid !important;
+    grid-template-columns:260px minmax(300px, 1fr) 180px !important;
+    align-items:center !important;
+    gap:30px !important;
+
+    background:rgba(15,15,16,.97) !important;
+    backdrop-filter:blur(20px) !important;
+    -webkit-backdrop-filter:blur(20px) !important;
+
+    border:0 !important;
+    border-top:1px solid rgba(255,255,255,.08) !important;
+
+    box-shadow:0 -8px 30px rgba(0,0,0,.12) !important;
+
+    color:#fff !important;
+    z-index:999999 !important;
+}
+
+
+/* ==========================================================
+   왼쪽 — 현재 재생곡
+========================================================== */
+
+.player .now{
+    display:flex !important;
+    align-items:center !important;
+
+    min-width:0 !important;
+    gap:13px !important;
+}
+
+.player #now-cover{
+    display:block !important;
+
+    width:54px !important;
+    height:54px !important;
+    min-width:54px !important;
+
+    object-fit:cover !important;
+
+    background:#222 !important;
+
+    border:0 !important;
+    border-radius:9px !important;
+
+    box-shadow:none !important;
+}
+
+.player .now-text{
+    display:block !important;
+    min-width:0 !important;
+}
+
+.player #now-title{
+    margin:0 !important;
+
+    color:#fff !important;
+
+    font-size:14px !important;
+    font-weight:700 !important;
+    line-height:1.3 !important;
+
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+.player #now-artist{
+    margin-top:5px !important;
+
+    color:#85858b !important;
+
+    font-size:11px !important;
+    font-weight:500 !important;
+    line-height:1.2 !important;
+
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+
+/* ==========================================================
+   가운데 — 컨트롤
+========================================================== */
+
+.player .controls{
+    width:100% !important;
+    max-width:620px !important;
+
+    margin:0 auto !important;
+    padding:0 !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:6px !important;
+}
+
+.player .buttons{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:22px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+}
+
+
+/* 이전 / 다음 */
+.player .control-btn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    width:30px !important;
+    height:30px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    background:transparent !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    box-shadow:none !important;
+
+    color:#929298 !important;
+
+    font-size:15px !important;
+    line-height:1 !important;
+
+    cursor:pointer !important;
+
+    transition:
+        color .18s ease,
+        transform .18s ease !important;
+}
+
+.player .control-btn:hover{
+    color:#fff !important;
+    transform:scale(1.08) !important;
+}
+
+
+/* 메인 재생 */
+.player #main-play{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    width:40px !important;
+    height:40px !important;
+
+    min-width:40px !important;
+
+    margin:0 !important;
+    padding:0 0 0 2px !important;
+
+    background:#fff !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    box-shadow:none !important;
+
+    color:#111 !important;
+
+    font-size:15px !important;
+    line-height:1 !important;
+
+    cursor:pointer !important;
+
+    transition:transform .18s ease !important;
+}
+
+.player #main-play:hover{
+    transform:scale(1.06) !important;
+}
+
+
+/* ==========================================================
+   진행바
+========================================================== */
+
+.player .progress-row{
+    width:100% !important;
+
+    display:grid !important;
+    grid-template-columns:34px minmax(100px,1fr) 34px !important;
+    align-items:center !important;
+
+    gap:9px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+}
+
+.player .time{
+    color:#69696f !important;
+
+    font-size:9px !important;
+    font-weight:500 !important;
+    line-height:1 !important;
+
+    text-align:center !important;
+}
+
+
+/* 진행 슬라이더 */
+.player #progress{
+    display:block !important;
+
+    width:100% !important;
+    height:3px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    border:0 !important;
+    border-radius:999px !important;
+
+    outline:none !important;
+
+    background:#3a3a3e !important;
+
+    accent-color:#fff !important;
+
+    cursor:pointer !important;
+}
+
+.player #progress::-webkit-slider-thumb{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    width:9px !important;
+    height:9px !important;
+
+    background:#fff !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    box-shadow:none !important;
+}
+
+.player #progress::-moz-range-thumb{
+    width:9px !important;
+    height:9px !important;
+
+    background:#fff !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+}
+
+
+/* ==========================================================
+   오른쪽 — 볼륨
+========================================================== */
+
+.player .volume{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+
+    gap:10px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    color:#77777d !important;
+
+    font-size:9px !important;
+    font-weight:600 !important;
+    letter-spacing:1px !important;
+}
+
+.player #volume{
+    width:95px !important;
+    height:3px !important;
+
+    margin:0 !important;
+    padding:0 !important;
+
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    border:0 !important;
+    border-radius:999px !important;
+
+    outline:none !important;
+
+    background:#3a3a3e !important;
+
+    accent-color:#fff !important;
+
+    cursor:pointer !important;
+}
+
+.player #volume::-webkit-slider-thumb{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    width:9px !important;
+    height:9px !important;
+
+    background:#fff !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+}
+
+
+/* ==========================================================
+   MOBILE — 미니 플레이어
+========================================================== */
+
+@media(max-width:768px){
+
+    .player{
+        left:0 !important;
+        right:0 !important;
+        bottom:0 !important;
+
+        width:100% !important;
+        height:70px !important;
+        min-height:70px !important;
+
+        padding:0 14px !important;
+
+        display:grid !important;
+        grid-template-columns:minmax(0,1fr) auto !important;
+        align-items:center !important;
+
+        gap:12px !important;
+
+        background:rgba(18,18,19,.98) !important;
+
+        border-top:1px solid rgba(255,255,255,.08) !important;
+    }
+
+
+    /* 곡 정보 */
+    .player .now{
+        min-width:0 !important;
+        gap:10px !important;
+    }
+
+    .player #now-cover{
+        width:46px !important;
+        height:46px !important;
+        min-width:46px !important;
+
+        border-radius:7px !important;
+    }
+
+    .player #now-title{
+        font-size:13px !important;
+        font-weight:700 !important;
+    }
+
+    .player #now-artist{
+        margin-top:3px !important;
+
+        font-size:10px !important;
+        color:#7e7e84 !important;
+    }
+
+
+    /* 컨트롤 */
+    .player .controls{
+        width:auto !important;
+        max-width:none !important;
+
+        margin:0 !important;
+
+        display:block !important;
+    }
+
+    .player .buttons{
+        display:flex !important;
+        gap:0 !important;
+    }
+
+
+    /* 모바일에서는 이전/다음 제거 */
+    .player .control-btn{
+        display:none !important;
+    }
+
+
+    /* 재생 버튼 */
+    .player #main-play{
+        width:42px !important;
+        height:42px !important;
+        min-width:42px !important;
+
+        font-size:15px !important;
+    }
+
+
+    /* 진행바를 플레이어 맨 위로 */
+    .player .progress-row{
+        position:absolute !important;
+
+        top:0 !important;
+        left:0 !important;
+        right:0 !important;
+
+        width:100% !important;
+
+        display:block !important;
+
+        margin:0 !important;
+        padding:0 !important;
+    }
+
+    .player #progress{
+        width:100% !important;
+        height:2px !important;
+
+        border-radius:0 !important;
+    }
+
+    .player #progress::-webkit-slider-thumb{
+        width:0 !important;
+        height:0 !important;
+    }
+
+    .player #progress::-moz-range-thumb{
+        width:0 !important;
+        height:0 !important;
+        border:0 !important;
+    }
+
+
+    /* 시간 제거 */
+    .player .time{
+        display:none !important;
+    }
+
+
+    /* 모바일 볼륨 제거 */
+    .player .volume{
+        display:none !important;
+    }
+}
+
+
+/* ==========================================================
+   SMALL MOBILE
+========================================================== */
+
+@media(max-width:420px){
+
+    .player{
+        height:66px !important;
+        min-height:66px !important;
+
+        padding:0 12px !important;
+    }
+
+    .player #now-cover{
+        width:43px !important;
+        height:43px !important;
+        min-width:43px !important;
+    }
+
+    .player #main-play{
+        width:40px !important;
+        height:40px !important;
+        min-width:40px !important;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
