@@ -5240,6 +5240,397 @@ header nav a#login-btn:active{
         display:none !important;
     }
 }
+  /* =====================================================
+   AMKINA MUSIC PLAYER — PREMIUM BLACK & WHITE
+   ===================================================== */
+
+/* 전체 플레이어 */
+.bottom-player{
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+
+    height:88px !important;
+    padding:0 34px !important;
+
+    display:grid !important;
+    grid-template-columns:280px 1fr 220px !important;
+    align-items:center !important;
+
+    background:rgba(13,14,16,.97) !important;
+    backdrop-filter:blur(20px) !important;
+    -webkit-backdrop-filter:blur(20px) !important;
+
+    border-top:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -8px 30px rgba(0,0,0,.12) !important;
+
+    color:white !important;
+    z-index:99999 !important;
+}
+
+
+/* ===============================
+   현재 재생곡
+   =============================== */
+
+.now-playing{
+    display:flex !important;
+    align-items:center !important;
+    gap:14px !important;
+    min-width:0 !important;
+}
+
+.now-playing img,
+#now-cover{
+    width:56px !important;
+    height:56px !important;
+
+    object-fit:cover !important;
+    border-radius:8px !important;
+
+    background:#202124 !important;
+}
+
+.now-text{
+    min-width:0 !important;
+}
+
+#now-title{
+    color:#fff !important;
+    font-size:14px !important;
+    font-weight:700 !important;
+
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+#now-artist{
+    margin-top:4px !important;
+
+    color:#888b91 !important;
+    font-size:11px !important;
+    font-weight:500 !important;
+}
+
+
+/* ===============================
+   중앙 컨트롤
+   =============================== */
+
+.controls{
+    width:min(620px,100%) !important;
+    margin:auto !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:7px !important;
+}
+
+.buttons{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:24px !important;
+}
+
+
+/* 이전 / 다음 */
+
+.control-btn{
+    width:30px !important;
+    height:30px !important;
+
+    padding:0 !important;
+    border:0 !important;
+
+    background:transparent !important;
+    color:#8e9196 !important;
+
+    font-size:17px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    cursor:pointer !important;
+    transition:.18s ease !important;
+}
+
+.control-btn:hover{
+    color:white !important;
+    transform:scale(1.08) !important;
+}
+
+
+/* 메인 재생버튼 */
+
+#main-play{
+    width:42px !important;
+    height:42px !important;
+
+    padding:0 !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    background:#fff !important;
+    color:#0d0e10 !important;
+
+    font-size:16px !important;
+
+    box-shadow:none !important;
+
+    cursor:pointer !important;
+
+    transition:
+        transform .18s ease,
+        background .18s ease !important;
+}
+
+#main-play:hover{
+    transform:scale(1.07) !important;
+    background:#f0f0f0 !important;
+}
+
+
+/* ===============================
+   재생 진행바
+   =============================== */
+
+.progress-row{
+    width:100% !important;
+
+    display:grid !important;
+    grid-template-columns:32px 1fr 32px !important;
+    align-items:center !important;
+
+    gap:10px !important;
+}
+
+.time{
+    color:#686b70 !important;
+
+    font-size:9px !important;
+    font-weight:500 !important;
+
+    text-align:center !important;
+}
+
+
+/* 진행바 */
+
+#progress{
+    width:100% !important;
+    height:3px !important;
+
+    margin:0 !important;
+
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    border-radius:20px !important;
+
+    background:#3a3c40 !important;
+
+    cursor:pointer !important;
+}
+
+
+/* Chrome / Edge */
+
+#progress::-webkit-slider-thumb{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    width:10px !important;
+    height:10px !important;
+
+    border-radius:50% !important;
+
+    background:white !important;
+    border:0 !important;
+
+    cursor:pointer !important;
+}
+
+
+/* Firefox */
+
+#progress::-moz-range-thumb{
+    width:10px !important;
+    height:10px !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    background:white !important;
+}
+
+
+/* ===============================
+   볼륨
+   =============================== */
+
+.volume{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+
+    gap:12px !important;
+
+    color:#777b80 !important;
+
+    font-size:9px !important;
+    letter-spacing:1.2px !important;
+}
+
+#volume{
+    width:100px !important;
+    height:3px !important;
+
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    background:#3a3c40 !important;
+    border-radius:20px !important;
+
+    cursor:pointer !important;
+}
+
+#volume::-webkit-slider-thumb{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    width:10px !important;
+    height:10px !important;
+
+    border-radius:50% !important;
+
+    background:#fff !important;
+    border:0 !important;
+}
+
+
+/* =====================================================
+   MOBILE PLAYER
+   ===================================================== */
+
+@media(max-width:768px){
+
+    .bottom-player{
+        height:76px !important;
+
+        padding:0 16px !important;
+
+        display:grid !important;
+        grid-template-columns:1fr auto !important;
+        gap:12px !important;
+    }
+
+
+    /* 곡 정보 */
+
+    .now-playing{
+        gap:11px !important;
+        min-width:0 !important;
+    }
+
+    .now-playing img,
+    #now-cover{
+        width:48px !important;
+        height:48px !important;
+
+        border-radius:7px !important;
+    }
+
+    #now-title{
+        font-size:14px !important;
+    }
+
+    #now-artist{
+        font-size:11px !important;
+    }
+
+
+    /* 모바일에서는 중앙 컨트롤을 오른쪽으로 */
+
+    .controls{
+        width:auto !important;
+        margin:0 !important;
+        display:block !important;
+    }
+
+    .buttons{
+        gap:0 !important;
+    }
+
+
+    /* 이전 / 다음 숨김 */
+
+    .control-btn{
+        display:none !important;
+    }
+
+
+    /* 재생버튼 */
+
+    #main-play{
+        width:46px !important;
+        height:46px !important;
+
+        font-size:17px !important;
+    }
+
+
+    /* 모바일 진행바는 플레이어 맨 위에 얇게 */
+
+    .progress-row{
+        position:absolute !important;
+
+        left:0 !important;
+        right:0 !important;
+        top:-2px !important;
+
+        display:block !important;
+
+        width:100% !important;
+    }
+
+    #progress{
+        width:100% !important;
+        height:2px !important;
+        display:block !important;
+    }
+
+    #progress::-webkit-slider-thumb{
+        width:0 !important;
+        height:0 !important;
+    }
+
+
+    /* 시간 숨김 */
+
+    .time{
+        display:none !important;
+    }
+
+
+    /* 모바일 볼륨 숨김 */
+
+    .volume{
+        display:none !important;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
