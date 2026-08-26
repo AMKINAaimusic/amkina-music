@@ -1115,79 +1115,130 @@ footer{
 
 <section id="studio" class="studio-page" style="display:none;">
 
-    <div class="studio-header">
-        <div class="music-page-label">AMKINA CREATOR STUDIO</div>
-        <h1>STUDIO</h1>
-        <p>새로운 음악을 AMKINA MUSIC에 등록하세요.</p>
-    </div>
+  <div class="studio-header">
+    <div class="music-page-label">AMKINA CREATOR STUDIO</div>
+    <h1>STUDIO</h1>
+    <p>새로운 사운드를 세상에 공개하세요.</p>
+  </div>
+
+  <div class="studio-layout">
 
     <div class="studio-panel">
 
-        <div class="studio-field">
-            <label>곡 제목</label>
-            <input
-                type="text"
-                id="studio-title"
-                placeholder="곡 제목을 입력하세요"
-            >
-        </div>
+      <div class="studio-panel-head">
+        <span class="studio-step">NEW RELEASE</span>
+        <h2>Upload your music</h2>
+        <p>트랙 정보와 음원을 등록하세요.</p>
+      </div>
 
-        <div class="studio-field">
-            <label>아티스트</label>
-            <input
-                type="text"
-                id="studio-artist"
-                value="AMKINA"
-            >
-        </div>
+      <div class="studio-field">
+        <label>TRACK TITLE</label>
+        <input
+          type="text"
+          id="studio-title"
+          placeholder="곡 제목을 입력하세요"
+        >
+      </div>
 
-        <div class="studio-field">
-            <label>장르</label>
-            <input
-                type="text"
-                id="studio-genre"
-                placeholder="예: Electronic Pop"
-            >
-        </div>
+      <div class="studio-field">
+        <label>ARTIST</label>
+        <input
+          type="text"
+          id="studio-artist"
+          value="AMKINA"
+          placeholder="아티스트"
+        >
+      </div>
 
-        <div class="studio-field">
-            <label>음원 파일</label>
-            <input
-                type="file"
-                id="studio-audio"
-                accept=".mp3,.wav,.flac,.m4a,.aac,.ogg"
-            >
-            <small>MP3 · WAV · FLAC · M4A · AAC · OGG</small>
-        </div>
+      <div class="studio-field">
+        <label>GENRE</label>
+        <input
+          type="text"
+          id="studio-genre"
+          placeholder="예: Electronic Pop"
+        >
+      </div>
 
-        <div class="studio-field">
-            <label>앨범 커버</label>
-            <input
-                type="file"
-                id="studio-cover"
-                accept="image/jpeg,image/png,image/webp"
-            >
-            <small>JPG · PNG · WEBP</small>
-        </div>
+      <div class="studio-field">
+        <label>AUDIO FILE</label>
 
-        <div class="studio-field">
-            <label>곡 설명</label>
-            <textarea
-                id="studio-description"
-                placeholder="음악에 대한 설명을 입력하세요"
-                rows="5"
-            ></textarea>
+        <div class="studio-file-box">
+          <input
+            type="file"
+            id="studio-audio"
+            accept=".mp3,.wav,.flac,.m4a,.aac,.ogg,audio/*"
+          >
+          <span>MP3 · WAV · FLAC · M4A · AAC · OGG</span>
         </div>
+      </div>
 
-        <button
-    type="button"
-    class="studio-upload-btn"
-    onclick="uploadStudioMusic()"
->
-    UPLOAD MUSIC
-</button>
+      <div class="studio-field">
+        <label>ALBUM COVER</label>
+
+        <div class="studio-file-box">
+          <input
+            type="file"
+            id="studio-cover"
+            accept=".jpg,.jpeg,.png,.webp,image/*"
+          >
+          <span>JPG · PNG · WEBP</span>
+        </div>
+      </div>
+
+      <div class="studio-field">
+        <label>DESCRIPTION</label>
+        <textarea
+          id="studio-description"
+          rows="5"
+          placeholder="음악에 대한 이야기를 들려주세요."
+        ></textarea>
+      </div>
+
+      <button
+        type="button"
+        class="studio-upload-btn"
+        onclick="uploadStudioMusic()"
+      >
+        UPLOAD MUSIC
+      </button>
 
     </div>
+
+
+    <aside class="studio-side-card">
+
+      <div class="studio-side-label">AMKINA MUSIC</div>
+
+      <h2>
+        YOUR SOUND.<br>
+        YOUR IDENTITY.
+      </h2>
+
+      <p>
+        하나의 트랙에서<br>
+        새로운 이야기가 시작됩니다.
+      </p>
+
+      <div class="studio-side-line"></div>
+
+      <div class="studio-format">
+        <span>AUDIO</span>
+        <strong>HIGH QUALITY</strong>
+      </div>
+
+      <div class="studio-format">
+        <span>COVER</span>
+        <strong>ORIGINAL ARTWORK</strong>
+      </div>
+
+      <div class="studio-format">
+        <span>PLATFORM</span>
+        <strong>AMKINA MUSIC</strong>
+      </div>
+
+    </aside>
+
+  </div>
 
 </section>
 <footer id="about">
@@ -2169,6 +2220,273 @@ body > header nav a.menu-active{
     .music-search-box{
         width:100%;
     }
+}
+  /* =========================================
+   AMKINA CREATOR STUDIO - PREMIUM
+========================================= */
+
+#studio{
+  padding:48px 42px 90px;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(123,255,0,.07), transparent 30%),
+    #050806;
+}
+
+#studio .studio-header{
+  max-width:1180px;
+  margin:0 auto 32px;
+}
+
+#studio .music-page-label{
+  color:#8cff00;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:3px;
+  margin-bottom:12px;
+}
+
+#studio .studio-header h1{
+  margin:0;
+  color:#fff;
+  font-size:52px;
+  font-weight:900;
+  letter-spacing:-2px;
+}
+
+#studio .studio-header p{
+  margin:10px 0 0;
+  color:#7f8982;
+  font-size:14px;
+}
+
+#studio .studio-layout{
+  max-width:1180px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:minmax(0, 1.55fr) minmax(280px, .75fr);
+  gap:22px;
+  align-items:start;
+}
+
+#studio .studio-panel,
+#studio .studio-side-card{
+  border:1px solid rgba(140,255,0,.16);
+  background:rgba(10,15,11,.88);
+  border-radius:18px;
+}
+
+#studio .studio-panel{
+  padding:32px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+#studio .studio-panel-head{
+  padding-bottom:24px;
+  margin-bottom:26px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+#studio .studio-step,
+#studio .studio-side-label{
+  color:#8cff00;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:2.5px;
+}
+
+#studio .studio-panel-head h2{
+  color:#fff;
+  font-size:27px;
+  margin:8px 0 5px;
+}
+
+#studio .studio-panel-head p{
+  color:#707b73;
+  margin:0;
+  font-size:13px;
+}
+
+#studio .studio-field{
+  margin-bottom:20px;
+}
+
+#studio .studio-field label{
+  display:block;
+  color:#a7b0aa;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.7px;
+  margin-bottom:8px;
+}
+
+#studio .studio-field input[type="text"],
+#studio .studio-field textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;
+  background:#080c09;
+  color:#fff;
+  padding:14px 15px;
+  font-family:inherit;
+  font-size:14px;
+  outline:none;
+  transition:.2s ease;
+}
+
+#studio .studio-field textarea{
+  resize:vertical;
+  min-height:115px;
+}
+
+#studio .studio-field input[type="text"]:focus,
+#studio .studio-field textarea:focus{
+  border-color:#8cff00;
+  box-shadow:0 0 0 3px rgba(140,255,0,.08);
+}
+
+#studio .studio-field input::placeholder,
+#studio .studio-field textarea::placeholder{
+  color:#414a44;
+}
+
+#studio .studio-file-box{
+  min-height:64px;
+  padding:12px 14px;
+  box-sizing:border-box;
+  border:1px dashed rgba(140,255,0,.28);
+  border-radius:10px;
+  background:rgba(140,255,0,.025);
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+#studio .studio-file-box input[type="file"]{
+  color:#aeb6b0;
+  max-width:100%;
+  font-size:12px;
+}
+
+#studio .studio-file-box span{
+  margin-left:auto;
+  color:#566058;
+  font-size:10px;
+  white-space:nowrap;
+  letter-spacing:.5px;
+}
+
+#studio .studio-upload-btn{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:16px 20px;
+  margin-top:7px;
+  background:#8cff00;
+  color:#071000;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:1.4px;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+#studio .studio-upload-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 30px rgba(140,255,0,.16);
+}
+
+#studio .studio-side-card{
+  padding:32px;
+  position:sticky;
+  top:25px;
+  overflow:hidden;
+}
+
+#studio .studio-side-card h2{
+  color:#fff;
+  font-size:34px;
+  line-height:1.05;
+  letter-spacing:-1.5px;
+  margin:16px 0 18px;
+}
+
+#studio .studio-side-card > p{
+  color:#778078;
+  font-size:13px;
+  line-height:1.8;
+}
+
+#studio .studio-side-line{
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    #8cff00,
+    rgba(140,255,0,0)
+  );
+  margin:30px 0 16px;
+}
+
+#studio .studio-format{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+#studio .studio-format span{
+  color:#59635b;
+  font-size:9px;
+  letter-spacing:1.5px;
+}
+
+#studio .studio-format strong{
+  color:#c8d0ca;
+  font-size:10px;
+  letter-spacing:.8px;
+  text-align:right;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+  #studio{
+    padding:30px 16px 70px;
+  }
+
+  #studio .studio-header h1{
+    font-size:40px;
+  }
+
+  #studio .studio-layout{
+    grid-template-columns:1fr;
+  }
+
+  #studio .studio-panel{
+    padding:22px 18px;
+    border-radius:14px;
+  }
+
+  #studio .studio-side-card{
+    position:static;
+    padding:24px 20px;
+    border-radius:14px;
+  }
+
+  #studio .studio-side-card h2{
+    font-size:29px;
+  }
+
+  #studio .studio-file-box{
+    display:block;
+  }
+
+  #studio .studio-file-box span{
+    display:block;
+    margin:9px 0 0;
+  }
 }
 </style>
 
