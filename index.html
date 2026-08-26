@@ -3562,6 +3562,43 @@ body > header nav a:first-child{
   }
 }
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+  const menuBtn = document.querySelector(".mobile-menu-btn");
+  const nav = document.querySelector("body > header nav");
+
+  if (!menuBtn || !nav) return;
+
+  /* 기존 onclick 제거 */
+  menuBtn.removeAttribute("onclick");
+
+  /* 메뉴 버튼 클릭 */
+  menuBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    nav.classList.toggle("mobile-open");
+
+    if (nav.classList.contains("mobile-open")) {
+      nav.style.setProperty("display", "flex", "important");
+      menuBtn.textContent = "×";
+    } else {
+      nav.style.setProperty("display", "none", "important");
+      menuBtn.textContent = "☰";
+    }
+  });
+
+  /* 메뉴 항목 누르면 메뉴 닫기 */
+  nav.querySelectorAll("a").forEach(function (link) {
+    link.addEventListener("click", function () {
+      nav.classList.remove("mobile-open");
+      nav.style.setProperty("display", "none", "important");
+      menuBtn.textContent = "☰";
+    });
+  });
+
+});
+</script>
 </body>
 </html>
