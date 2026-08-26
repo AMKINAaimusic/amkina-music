@@ -7199,6 +7199,122 @@ document.addEventListener("DOMContentLoaded",()=>{
   }));
   document.getElementById("community-search")?.addEventListener("input",renderCommunityPosts);
 });
+  /* =====================================================
+   AMKINA PAGE SWITCH FIX
+   페이지 중복 표시 완전 방지
+===================================================== */
+
+function hideAllAmkinaPages() {
+
+    // HOME
+    const hero = document.querySelector(".hero");
+    const heroSlider = document.querySelector(".hero-slider");
+    const music = document.getElementById("music");
+
+    if (hero) hero.style.display = "none";
+    if (heroSlider) heroSlider.style.display = "none";
+    if (music) music.style.display = "none";
+
+    // STUDIO
+    const studio = document.getElementById("studio");
+    if (studio) studio.style.display = "none";
+
+    // COMMUNITY
+    const community = document.getElementById("community");
+    if (community) community.style.display = "none";
+
+}
+
+
+/* ================= HOME ================= */
+
+window.showHomePage = function(event) {
+
+    if (event) event.preventDefault();
+
+    hideAllAmkinaPages();
+
+    const hero = document.querySelector(".hero");
+    const heroSlider = document.querySelector(".hero-slider");
+    const music = document.getElementById("music");
+
+    if (hero) hero.style.display = "";
+    if (heroSlider) heroSlider.style.display = "";
+    if (music) music.style.display = "";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+
+/* ================= MUSIC ================= */
+
+window.showMusicPage = function(event) {
+
+    if (event) event.preventDefault();
+
+    hideAllAmkinaPages();
+
+    const music = document.getElementById("music");
+
+    if (music) {
+        music.style.display = "";
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+
+/* ================= STUDIO ================= */
+
+window.showStudioPage = function(event) {
+
+    if (event) event.preventDefault();
+
+    hideAllAmkinaPages();
+
+    const studio = document.getElementById("studio");
+
+    if (studio) {
+        studio.style.display = "block";
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+
+/* ================= COMMUNITY ================= */
+
+window.showCommunityPage = function(event) {
+
+    if (event) event.preventDefault();
+
+    hideAllAmkinaPages();
+
+    const community = document.getElementById("community");
+
+    if (community) {
+        community.style.display = "block";
+    }
+
+    // 기존 커뮤니티 게시글 불러오기 함수가 있으면 실행
+    if (typeof loadCommunityPosts === "function") {
+        loadCommunityPosts();
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
 </script>
 
 </body>
