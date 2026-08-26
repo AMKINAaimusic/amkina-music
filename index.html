@@ -3950,6 +3950,149 @@ body > header nav a:first-child{
     display: block !important;
   }
 }
+  /* ==================================================
+   AMKINA PREMIUM STREAMING SIDEBAR
+   WHITE / BLACK THEME
+================================================== */
+
+@media (min-width:769px){
+
+/* 사이드바 전체 */
+body > header{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    width:240px !important;
+    height:100vh !important;
+    padding:34px 18px 110px !important;
+    box-sizing:border-box !important;
+
+    background:rgba(255,255,255,.97) !important;
+    border-right:1px solid #eeeeee !important;
+    box-shadow:8px 0 35px rgba(0,0,0,.045) !important;
+
+    overflow-y:auto !important;
+    z-index:1000 !important;
+}
+
+
+/* MUSIC 로고 */
+body > header::before{
+    content:"AMKINA";
+    display:block;
+
+    margin:0 12px 32px;
+
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:5px;
+
+    color:#111;
+}
+
+
+/* NAV */
+body > header nav{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:5px !important;
+}
+
+
+/* 메뉴 기본 */
+body > header nav a{
+    position:relative;
+
+    display:flex !important;
+    align-items:center !important;
+
+    min-height:46px !important;
+    padding:0 15px !important;
+
+    border-radius:12px !important;
+
+    color:#777 !important;
+    background:transparent !important;
+
+    font-size:13px !important;
+    font-weight:600 !important;
+    letter-spacing:-.2px;
+
+    text-decoration:none !important;
+
+    transition:
+        background .18s ease,
+        color .18s ease,
+        transform .18s ease !important;
+}
+
+
+/* 마우스 올렸을 때 */
+body > header nav a:hover{
+    color:#111 !important;
+    background:#f5f5f5 !important;
+    transform:translateX(2px);
+}
+
+
+/* 현재 선택된 메뉴 */
+body > header nav a.menu-active{
+    color:#111 !important;
+    background:#f1f1f1 !important;
+    font-weight:800 !important;
+}
+
+
+/* 선택 메뉴 왼쪽 표시 */
+body > header nav a.menu-active::before{
+    content:"";
+    position:absolute;
+
+    left:0;
+    top:12px;
+
+    width:3px;
+    height:22px;
+
+    border-radius:10px;
+    background:#111;
+}
+
+
+/* 구분선 */
+body > header nav div{
+    background:#eeeeee !important;
+    margin:15px 8px !important;
+}
+
+
+/* 스크롤바 숨김 */
+body > header{
+    scrollbar-width:none;
+}
+
+body > header::-webkit-scrollbar{
+    display:none;
+}
+
+
+/* 메인 화면을 사이드바만큼 이동 */
+body > main,
+body > .hero,
+body > section{
+    margin-left:240px;
+}
+
+
+/* 플레이어가 사이드바를 덮지 않게 */
+.player,
+.music-player,
+#player{
+    left:240px !important;
+    width:calc(100% - 240px) !important;
+}
+
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
