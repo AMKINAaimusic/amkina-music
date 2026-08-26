@@ -1133,20 +1133,20 @@ footer{
   <nav>
    <a href="#" onclick="showHomePage(event)">⌂ 홈</a>
    <a href="#music" onclick="showMusicPage(event)">♫ 음악</a>
-    <a href="#music">▦　최신 발매</a>
-    <a href="#">♡　플레이리스트</a>
-    <a href="#">♙　커뮤니티</a>
-    <a href="#">☺　마이페이지</a>
-    <a href="#">♢　알림센터</a>
+    <a href="#music">▦　최신 발매</a>span class="coming-soon">준비중</span></a>
+    <a href="#">♡　플레이리스트</a>span class="coming-soon">준비중</span></a>
+    <a href="#">♙　커뮤니티</a>span class="coming-soon">준비중</span></a>
+    <a href="#">☺　마이페이지</a>span class="coming-soon">준비중</span></a>
+    <a href="#">♢　알림센터</a>span class="coming-soon">준비중</span></a>
 
     <div style="height:1px;background:#e7e9ee;margin:12px 8px;"></div>
 
     <a href="#studio" onclick="showStudioPage(event); return false;">♫ 스튜디오</a>
-    <a href="#">♪　라이브러리</a>
-    <a href="#">◉　AMKINA 앨범</a>
-    <a href="#">◉　RADIO</a>
-    <a href="#">☆　이벤트</a>
-    <a href="#about">○　ABOUT</a>
+    <a href="#">♪　라이브러리</a>span class="coming-soon">준비중</span></a>
+    <a href="#">◉　AMKINA 앨범</a>span class="coming-soon">준비중</span></a>
+    <a href="#">◉　RADIO</a>span class="coming-soon">준비중</span></a>
+    <a href="#">☆　이벤트</a>span class="coming-soon">준비중</span></a>
+    <a href="#about">○　ABOUT</a>span class="coming-soon">준비중</span></a>
     <a href="#" id="login-btn">☺　로그인</a>
   </nav>
 </header>
@@ -4092,6 +4092,27 @@ body > section{
     width:calc(100% - 240px) !important;
 }
 
+}
+  /* ===== 준비중 배지 ===== */
+
+.coming-soon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    margin-left:auto;
+    padding:3px 7px;
+
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:-0.2px;
+
+    color:#666;
+    background:#f3f3f3;
+    border:1px solid #dedede;
+    border-radius:20px;
+
+    white-space:nowrap;
 }
 </style>
 <script>
