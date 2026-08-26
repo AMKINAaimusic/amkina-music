@@ -1308,14 +1308,18 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 </header>
 <section class="hero hero-slider">
 
-  <div class="hero-slide active">
-   <img src="AMKINA 로고 스몰.png" alt="AMKINA MUSIC">
-  </div>
+    <div class="hero-slide active">
+        <img src="배너 2.png" alt="AMKINA MUSIC">
+    </div>
 
-  <div class="hero-dots">
-    <button class="hero-dot active"></button>
-  
-  </div>
+    <div class="hero-slide">
+        <img src="AMKINA 로고 스몰.png" alt="AMKINA MUSIC BANNER 2">
+    </div>
+
+    <div class="hero-dots">
+        <button class="hero-dot active"></button>
+        <button class="hero-dot"></button>
+    </div>
 
 </section>
 
@@ -4602,6 +4606,105 @@ body > header::after{
 .upload-box{
     display:none !important;
 }
+  /* =========================================
+   AMKINA HERO BANNER SLIDER
+   ========================================= */
+
+.hero-slider{
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* 배너 기본 상태 */
+.hero-slider .hero-slide{
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.8s ease,
+        visibility 0.8s ease;
+
+    pointer-events: none;
+}
+
+/* 현재 보이는 배너 */
+.hero-slider .hero-slide.active{
+    position: relative !important;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* 배너 이미지 */
+.hero-slider .hero-slide img{
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
+/* 아래 점 */
+.hero-dots{
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    z-index: 20;
+}
+
+/* 기본 점 */
+.hero-dot{
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.45);
+    cursor: pointer;
+
+    transition: all .3s ease;
+}
+
+/* 현재 배너 점 */
+.hero-dot.active{
+    width: 22px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+
+/* ==============================
+   MOBILE
+   ============================== */
+
+@media (max-width: 768px){
+
+    .hero-dots{
+        bottom: 12px;
+        gap: 6px;
+    }
+
+    .hero-dot{
+        width: 6px;
+        height: 6px;
+    }
+
+    .hero-dot.active{
+        width: 18px;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -4637,6 +4740,57 @@ function closeMobileMenu(){
         menuBtn.textContent = "☰";
     }
 }
+</script>
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const slides = document.querySelectorAll(".hero-slider .hero-slide");
+    const dots = document.querySelectorAll(".hero-slider .hero-dot");
+
+    if (slides.length < 2) return;
+
+    let currentSlide = 0;
+
+    function showHeroSlide(index) {
+
+        slides.forEach(function(slide) {
+            slide.classList.remove("active");
+        });
+
+        dots.forEach(function(dot) {
+            dot.classList.remove("active");
+        });
+
+        slides[index].classList.add("active");
+
+        if (dots[index]) {
+            dots[index].classList.add("active");
+        }
+
+        currentSlide = index;
+    }
+
+    /* 점 누르면 해당 배너로 이동 */
+    dots.forEach(function(dot, index) {
+        dot.addEventListener("click", function() {
+            showHeroSlide(index);
+        });
+    });
+
+    /* 3초마다 자동 전환 */
+    setInterval(function() {
+
+        let nextSlide = currentSlide + 1;
+
+        if (nextSlide >= slides.length) {
+            nextSlide = 0;
+        }
+
+        showHeroSlide(nextSlide);
+
+    }, 3000);
+
+});
 </script>
 </body>
 </html>
