@@ -5056,6 +5056,190 @@ header nav a#login-btn:active{
     }
 
 }
+  /* =========================================
+   AMKINA MODERN BOTTOM PLAYER
+   ========================================= */
+
+.player,
+.music-player,
+#player{
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+
+    height:82px !important;
+    min-height:82px !important;
+
+    background:rgba(15,15,16,.96) !important;
+    backdrop-filter:blur(18px) !important;
+    -webkit-backdrop-filter:blur(18px) !important;
+
+    border-top:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 -8px 30px rgba(0,0,0,.10) !important;
+
+    color:#fff !important;
+    z-index:9999 !important;
+}
+
+
+/* 앨범 이미지 */
+.player img,
+.music-player img,
+#player img{
+    width:52px !important;
+    height:52px !important;
+
+    object-fit:cover !important;
+    border-radius:8px !important;
+
+    background:#222 !important;
+}
+
+
+/* 곡 제목 */
+.player .title,
+.music-player .title,
+#player .title{
+    color:#fff !important;
+    font-size:14px !important;
+    font-weight:700 !important;
+    letter-spacing:-.2px !important;
+}
+
+
+/* 아티스트 */
+.player .artist,
+.music-player .artist,
+#player .artist{
+    color:#8f8f94 !important;
+    font-size:11px !important;
+    font-weight:500 !important;
+}
+
+
+/* 재생 버튼 */
+.player button,
+.music-player button,
+#player button{
+    border:0 !important;
+    box-shadow:none !important;
+    cursor:pointer !important;
+}
+
+
+/* 중앙 재생 버튼 */
+.player .play-btn,
+.music-player .play-btn,
+#player .play-btn{
+    width:44px !important;
+    height:44px !important;
+
+    border-radius:50% !important;
+
+    background:#fff !important;
+    color:#111 !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    transition:.18s ease !important;
+}
+
+.player .play-btn:hover,
+.music-player .play-btn:hover,
+#player .play-btn:hover{
+    transform:scale(1.06) !important;
+}
+
+
+/* 이전 / 다음 */
+.player .prev-btn,
+.player .next-btn,
+.music-player .prev-btn,
+.music-player .next-btn,
+#player .prev-btn,
+#player .next-btn{
+    background:transparent !important;
+    color:#aaa !important;
+    font-size:18px !important;
+}
+
+.player .prev-btn:hover,
+.player .next-btn:hover{
+    color:#fff !important;
+}
+
+
+/* 진행바 */
+.player input[type="range"],
+.music-player input[type="range"],
+#player input[type="range"]{
+    height:3px !important;
+    accent-color:#fff !important;
+    cursor:pointer !important;
+}
+
+
+/* VOL 글자 */
+.player .volume-label,
+.music-player .volume-label,
+#player .volume-label{
+    color:#777 !important;
+    font-size:10px !important;
+    letter-spacing:1px !important;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media(max-width:768px){
+
+    .player,
+    .music-player,
+    #player{
+        height:72px !important;
+        min-height:72px !important;
+    }
+
+    .player img,
+    .music-player img,
+    #player img{
+        width:48px !important;
+        height:48px !important;
+        border-radius:7px !important;
+    }
+
+    .player .title,
+    .music-player .title,
+    #player .title{
+        font-size:14px !important;
+    }
+
+    .player .artist,
+    .music-player .artist,
+    #player .artist{
+        font-size:11px !important;
+    }
+
+    .player .play-btn,
+    .music-player .play-btn,
+    #player .play-btn{
+        width:42px !important;
+        height:42px !important;
+    }
+
+    /* 모바일에서는 볼륨 제거 */
+    .player .volume,
+    .music-player .volume,
+    #player .volume,
+    .player .volume-label{
+        display:none !important;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
