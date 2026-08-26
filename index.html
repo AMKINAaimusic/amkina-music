@@ -3571,6 +3571,169 @@ body > header nav a:first-child{
     background: #f2f2f2 !important;
   }
 }
+  /* =========================================
+   AMKINA MOBILE MENU - CLEAN BLACK & WHITE
+   ========================================= */
+
+@media (max-width:700px){
+
+    /* 메뉴 전체 */
+    header nav.mobile-open{
+        display:flex !important;
+        position:fixed !important;
+        top:0 !important;
+        left:0 !important;
+        bottom:0 !important;
+
+        width:78vw !important;
+        max-width:310px !important;
+        height:100dvh !important;
+
+        flex-direction:column !important;
+        align-items:stretch !important;
+
+        padding:72px 18px 32px !important;
+        gap:3px !important;
+
+        background:#ffffff !important;
+        border-right:1px solid #e8e8e8 !important;
+
+        overflow-y:auto !important;
+        z-index:9999 !important;
+
+        box-shadow:12px 0 40px rgba(0,0,0,.10) !important;
+    }
+
+
+    /* 모든 메뉴 */
+    header nav.mobile-open a{
+        display:flex !important;
+        align-items:center !important;
+
+        width:100% !important;
+        min-height:48px !important;
+
+        padding:0 14px !important;
+        margin:1px 0 !important;
+
+        color:#666 !important;
+        background:transparent !important;
+
+        border:none !important;
+        border-radius:10px !important;
+
+        font-size:14px !important;
+        font-weight:500 !important;
+        letter-spacing:-0.2px !important;
+
+        text-decoration:none !important;
+
+        transition:
+            background .18s ease,
+            color .18s ease,
+            transform .18s ease !important;
+    }
+
+
+    /* 눌렀을 때 */
+    header nav.mobile-open a:active{
+        transform:scale(.98) !important;
+        background:#f3f3f3 !important;
+    }
+
+
+    /* 현재 선택 메뉴 */
+    header nav.mobile-open a.menu-active{
+        color:#111 !important;
+        background:#f3f3f3 !important;
+
+        font-weight:700 !important;
+
+        border-left:3px solid #111 !important;
+        border-radius:10px !important;
+
+        padding-left:11px !important;
+    }
+
+
+    /* 메뉴 중간 구분선 */
+    header nav.mobile-open > div{
+        height:1px !important;
+        min-height:1px !important;
+
+        margin:13px 8px !important;
+        padding:0 !important;
+
+        background:#e9e9e9 !important;
+    }
+
+
+    /* 스튜디오 */
+    header nav.mobile-open a[href="#studio"]{
+        margin-top:2px !important;
+
+        color:#111 !important;
+        font-weight:700 !important;
+    }
+
+
+    /* 로그인 */
+    header nav.mobile-open #login-btn{
+        margin-top:7px !important;
+
+        border:1px solid #e4e4e4 !important;
+        background:#fafafa !important;
+
+        color:#555 !important;
+    }
+
+
+    /* X 버튼 */
+    .mobile-menu-btn{
+        position:fixed !important;
+
+        top:18px !important;
+        right:18px !important;
+
+        width:46px !important;
+        height:46px !important;
+
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+
+        padding:0 !important;
+
+        background:#111 !important;
+        color:#fff !important;
+
+        border:1px solid #222 !important;
+        border-radius:12px !important;
+
+        font-size:0 !important;
+        line-height:1 !important;
+
+        z-index:10001 !important;
+
+        box-shadow:0 6px 20px rgba(0,0,0,.18) !important;
+    }
+
+
+    /* 메뉴 열렸을 때 X 모양 */
+    .mobile-menu-btn::before{
+        content:"×";
+        font-size:32px;
+        font-weight:300;
+        line-height:1;
+    }
+
+
+    /* 메뉴가 닫혔을 때는 삼선 */
+    body:not(:has(header nav.mobile-open)) .mobile-menu-btn::before{
+        content:"☰";
+        font-size:23px;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
