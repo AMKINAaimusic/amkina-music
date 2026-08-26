@@ -4860,7 +4860,66 @@ body > header nav #login-btn::after{
     content:"→";
     margin-left:auto;
     font-size:18px;
-   
+   /* ===== AMKINA LOGIN BUTTON FIX ===== */
+
+header nav a#login-btn,
+body > header nav a#login-btn,
+body > header nav.mobile-open a#login-btn{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+
+    width:100% !important;
+    height:60px !important;
+    box-sizing:border-box !important;
+
+    margin:20px 0 10px !important;
+    padding:0 20px !important;
+
+    background:#111111 !important;
+    background-image:none !important;
+
+    border:1px solid #111111 !important;
+    border-radius:16px !important;
+
+    color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* 로그인 글씨 */
+header nav a#login-btn .nav-text,
+body > header nav.mobile-open a#login-btn .nav-text{
+    display:block !important;
+    color:#ffffff !important;
+    opacity:1 !important;
+
+    font-size:16px !important;
+    font-weight:700 !important;
+}
+
+/* 기존 아이콘 제거 */
+header nav a#login-btn .nav-icon{
+    display:none !important;
+}
+
+/* 오른쪽 화살표 */
+header nav a#login-btn::after{
+    content:"→" !important;
+
+    display:block !important;
+    margin-left:auto !important;
+
+    color:#ffffff !important;
+    font-size:22px !important;
+    font-weight:400 !important;
+}
+
+/* 터치/마우스 */
+header nav a#login-btn:hover,
+header nav a#login-btn:active{
+    background:#000000 !important;
+    color:#ffffff !important;
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
