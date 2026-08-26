@@ -2063,6 +2063,70 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
 </script>
 
 <script>
+  </script>
+
+<script>
+/* ===== AMKINA HERO AUTO SLIDER ===== */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const slides = document.querySelectorAll(".hero-slide");
+  const dots = document.querySelectorAll(".hero-dot");
+
+  if(slides.length === 0) return;
+
+  let currentSlide = 0;
+  let sliderTimer;
+
+  function showSlide(index){
+
+    slides.forEach(function(slide){
+      slide.classList.remove("active");
+    });
+
+    dots.forEach(function(dot){
+      dot.classList.remove("active");
+    });
+
+    currentSlide = index;
+
+    slides[currentSlide].classList.add("active");
+
+    if(dots[currentSlide]){
+      dots[currentSlide].classList.add("active");
+    }
+  }
+
+  function nextSlide(){
+    let next = currentSlide + 1;
+
+    if(next >= slides.length){
+      next = 0;
+    }
+
+    showSlide(next);
+  }
+
+  function startSlider(){
+    clearInterval(sliderTimer);
+    sliderTimer = setInterval(nextSlide, 3000);
+  }
+
+  dots.forEach(function(dot, index){
+    dot.addEventListener("click", function(){
+      showSlide(index);
+      startSlider();
+    });
+  });
+
+  showSlide(0);
+  startSlider();
+
+});
+</script>
+
+<script>
+function setActiveMenu(clickedMenu){
 function setActiveMenu(clickedMenu){
     document.querySelectorAll('body > header nav a').forEach(function(item){
         item.classList.remove('menu-active');
