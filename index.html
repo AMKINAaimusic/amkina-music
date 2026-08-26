@@ -1197,6 +1197,52 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-community-style">
+.community-page{background:#fff;color:#111;min-height:70vh}
+.community-shell{max-width:1180px;margin:0 auto;padding:46px 34px 130px}
+.community-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:25px;border-bottom:1px solid #e8e8e8}
+.community-kicker{font-size:10px;font-weight:800;letter-spacing:2.5px;color:#8a8a8f;margin-bottom:8px}
+.community-head h1{font-size:38px;letter-spacing:-1.8px;margin:0 0 8px}
+.community-head p{margin:0;color:#85858b;font-size:13px}
+.community-write-btn{height:44px;padding:0 22px;border:0;border-radius:10px;background:#111;color:#fff;font-weight:800;cursor:pointer}
+.community-toolbar{display:flex;align-items:center;gap:8px;padding:22px 0}
+.community-filter{height:36px;padding:0 14px;border:1px solid #e2e2e4;border-radius:999px;background:#fff;color:#666;font-size:12px;font-weight:700;cursor:pointer}
+.community-filter.active{background:#111;color:#fff;border-color:#111}
+.community-search{margin-left:auto;width:260px}
+.community-search input{width:100%;height:38px;border:1px solid #dedee1;border-radius:10px;padding:0 13px;outline:none;background:#fafafa;color:#111}
+.community-notice{padding:14px 16px;background:#f7f7f8;border-radius:10px;color:#666;font-size:12px;margin-bottom:12px}
+.community-list{border-top:1px solid #ededee}
+.community-post{display:grid;grid-template-columns:90px minmax(0,1fr) 120px;gap:18px;align-items:center;padding:19px 6px;border-bottom:1px solid #ededee;cursor:pointer}
+.community-post:hover{background:#fafafa}
+.community-cat{font-size:10px;font-weight:800;color:#8b8d92;letter-spacing:.5px}
+.community-post-title{font-size:15px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.community-post-preview{margin-top:5px;color:#8b8d92;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.community-meta{text-align:right;color:#9a9ca1;font-size:10px;line-height:1.6}
+.community-empty{text-align:center;color:#999;padding:70px 20px;font-size:13px}
+.community-modal{position:fixed;inset:0;z-index:2000000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:18px}
+.community-modal-card{position:relative;width:min(620px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.24)}
+.community-modal-close{position:absolute;right:16px;top:14px;border:0;background:transparent;font-size:25px;color:#777;cursor:pointer}
+.community-modal-card h2{margin:0 0 20px;font-size:24px}
+.community-modal-card select,.community-modal-card input,.community-modal-card textarea{width:100%;box-sizing:border-box;border:1px solid #dedee1;border-radius:10px;background:#fafafa;color:#111;padding:12px 13px;margin-bottom:10px;font:inherit;outline:none}
+.community-modal-card textarea{resize:vertical}
+.community-compose-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.community-compose-bottom span{font-size:11px;color:#888}
+.community-compose-bottom button{border:0;border-radius:9px;background:#111;color:#fff;font-weight:800;padding:11px 20px;cursor:pointer}
+.community-detail-card{width:min(720px,100%)}
+.community-detail-category{font-size:10px;color:#888;font-weight:800;letter-spacing:1px}
+.community-detail-title{font-size:27px;letter-spacing:-1px;margin:8px 0}
+.community-detail-meta{font-size:11px;color:#999;padding-bottom:18px;border-bottom:1px solid #eee}
+.community-detail-content{white-space:pre-wrap;font-size:14px;line-height:1.8;padding:22px 0;color:#333}
+.community-delete{border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 12px;font-size:11px;cursor:pointer}
+@media(max-width:768px){
+ .community-shell{padding:28px 16px 105px}.community-head{align-items:flex-start}.community-head h1{font-size:30px}.community-head p{font-size:12px}
+ .community-write-btn{height:40px;padding:0 15px}.community-toolbar{overflow-x:auto;flex-wrap:nowrap}.community-filter{flex:0 0 auto}.community-search{display:none}
+ .community-post{grid-template-columns:62px minmax(0,1fr);gap:10px;padding:16px 3px}.community-meta{display:none}
+ .community-post-title{font-size:14px}.community-modal-card{padding:24px 18px;border-radius:16px}
+}
+</style>
+
 </head>
 
 <body>
@@ -1234,10 +1280,9 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
         <span class="coming-soon">준비중</span>
     </a>
 
-    <a href="#" class="coming-link">
+    <a href="#community" onclick="showCommunityPage(event); return false;" id="community-nav">
         <span class="nav-icon">♙</span>
         <span class="nav-text">커뮤니티</span>
-        <span class="coming-soon">준비중</span>
     </a>
 
     <a href="#" class="coming-link">
@@ -1383,6 +1428,64 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 
 </main>
 <!-- ===== STUDIO PAGE ===== -->
+
+
+<section id="community" class="community-page" style="display:none;">
+  <div class="community-shell">
+    <div class="community-head">
+      <div>
+        <div class="community-kicker">AMKINA COMMUNITY</div>
+        <h1>커뮤니티</h1>
+        <p>음악을 듣고, 이야기하고, 서로의 작업을 발견해보세요.</p>
+      </div>
+      <button type="button" class="community-write-btn" onclick="openCommunityComposer()">글쓰기</button>
+    </div>
+
+    <div class="community-toolbar">
+      <button class="community-filter active" data-filter="all">전체</button>
+      <button class="community-filter" data-filter="music">음악 이야기</button>
+      <button class="community-filter" data-filter="feedback">피드백</button>
+      <button class="community-filter" data-filter="free">자유</button>
+      <div class="community-search">
+        <input id="community-search" type="search" placeholder="게시글 검색">
+      </div>
+    </div>
+
+    <div id="community-notice" class="community-notice">
+      AMKINA MUSIC 커뮤니티입니다. 서로를 존중하는 대화를 부탁드립니다.
+    </div>
+
+    <div id="community-list" class="community-list">
+      <div class="community-empty">게시글을 불러오는 중...</div>
+    </div>
+  </div>
+</section>
+
+<div id="community-compose-modal" class="community-modal" style="display:none;">
+  <div class="community-modal-card">
+    <button type="button" class="community-modal-close" onclick="closeCommunityComposer()">×</button>
+    <div class="community-kicker">NEW POST</div>
+    <h2>새 글 작성</h2>
+    <select id="community-category">
+      <option value="music">음악 이야기</option>
+      <option value="feedback">피드백</option>
+      <option value="free">자유</option>
+    </select>
+    <input id="community-title" maxlength="100" placeholder="제목">
+    <textarea id="community-content" maxlength="3000" rows="8" placeholder="내용을 입력하세요."></textarea>
+    <div class="community-compose-bottom">
+      <span id="community-compose-status"></span>
+      <button type="button" onclick="submitCommunityPost()">게시하기</button>
+    </div>
+  </div>
+</div>
+
+<div id="community-detail-modal" class="community-modal" style="display:none;">
+  <div class="community-modal-card community-detail-card">
+    <button type="button" class="community-modal-close" onclick="closeCommunityDetail()">×</button>
+    <div id="community-detail"></div>
+  </div>
+</div>
 
 <section id="studio" class="studio-page" style="display:none;">
 
@@ -6951,5 +7054,152 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+
+<script id="amkina-community-script">
+let communityPosts=[];
+let communityFilter="all";
+
+function amkinaSession(){
+  try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}
+}
+function communityHeaders(auth=false){
+  const s=amkinaSession();
+  const h={"apikey":SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+  h.Authorization="Bearer "+(auth && s?.access_token ? s.access_token : SUPABASE_ANON_KEY);
+  return h;
+}
+function escapeCommunity(v=""){
+  return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function communityCategory(v){
+  return ({music:"음악 이야기",feedback:"피드백",free:"자유"})[v]||"자유";
+}
+function communityDate(v){
+  if(!v)return "";
+  return new Date(v).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+
+function showCommunityPage(event){
+  if(event) event.preventDefault();
+  const music=document.getElementById("music");
+  const studio=document.getElementById("studio");
+  const community=document.getElementById("community");
+  const hero=document.querySelector(".hero");
+  if(music) music.style.display="none";
+  if(studio) studio.style.display="none";
+  if(hero) hero.style.display="none";
+  if(community) community.style.display="block";
+  document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));
+  document.getElementById("community-nav")?.classList.add("menu-active");
+  document.querySelector("body > header nav")?.classList.remove("mobile-open");
+  window.scrollTo({top:0,behavior:"smooth"});
+  loadCommunityPosts();
+}
+
+async function loadCommunityPosts(){
+  const list=document.getElementById("community-list");
+  if(!list)return;
+  list.innerHTML='<div class="community-empty">게시글을 불러오는 중...</div>';
+  try{
+    const r=await fetch(SUPABASE_URL+"/rest/v1/community_posts?select=*&order=created_at.desc&limit=100",{headers:communityHeaders(false)});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    communityPosts=await r.json();
+    renderCommunityPosts();
+  }catch(e){
+    console.error(e);
+    list.innerHTML='<div class="community-empty">커뮤니티 DB 연결이 필요합니다.<br>함께 드린 SQL을 Supabase에서 한 번 실행해주세요.</div>';
+  }
+}
+
+function renderCommunityPosts(){
+  const list=document.getElementById("community-list");
+  const q=(document.getElementById("community-search")?.value||"").trim().toLowerCase();
+  const rows=communityPosts.filter(p=>{
+    const filterOk=communityFilter==="all"||p.category===communityFilter;
+    const searchOk=!q||String(p.title||"").toLowerCase().includes(q)||String(p.content||"").toLowerCase().includes(q);
+    return filterOk&&searchOk;
+  });
+  if(!rows.length){list.innerHTML='<div class="community-empty">아직 게시글이 없습니다. 첫 글을 남겨보세요.</div>';return}
+  list.innerHTML=rows.map(p=>`
+    <article class="community-post" onclick="openCommunityDetail('${p.id}')">
+      <div class="community-cat">${escapeCommunity(communityCategory(p.category))}</div>
+      <div>
+        <div class="community-post-title">${escapeCommunity(p.title)}</div>
+        <div class="community-post-preview">${escapeCommunity(p.content)}</div>
+      </div>
+      <div class="community-meta">${escapeCommunity(p.author_name||"AMKINA USER")}<br>${communityDate(p.created_at)}</div>
+    </article>`).join("");
+}
+
+function openCommunityComposer(){
+  const s=amkinaSession();
+  if(!s?.access_token||!s?.user?.id){
+    alert("커뮤니티 글 작성은 로그인이 필요합니다.");
+    document.getElementById("auth-modal").style.display="flex";
+    return;
+  }
+  document.getElementById("community-compose-modal").style.display="flex";
+}
+function closeCommunityComposer(){document.getElementById("community-compose-modal").style.display="none"}
+
+async function submitCommunityPost(){
+  const s=amkinaSession();
+  if(!s?.access_token||!s?.user?.id){alert("다시 로그인해주세요.");return}
+  const title=document.getElementById("community-title").value.trim();
+  const content=document.getElementById("community-content").value.trim();
+  const category=document.getElementById("community-category").value;
+  if(title.length<2||content.length<2){alert("제목과 내용을 입력해주세요.");return}
+  const status=document.getElementById("community-compose-status");
+  status.textContent="게시 중...";
+  try{
+    const r=await fetch(SUPABASE_URL+"/rest/v1/community_posts",{
+      method:"POST",headers:{...communityHeaders(true),"Prefer":"return=representation"},
+      body:JSON.stringify({
+        user_id:s.user.id,
+        author_name:(s.user.email||"AMKINA USER").split("@")[0],
+        category,title,content
+      })
+    });
+    if(!r.ok) throw new Error(await r.text());
+    document.getElementById("community-title").value="";
+    document.getElementById("community-content").value="";
+    closeCommunityComposer();
+    await loadCommunityPosts();
+  }catch(e){console.error(e);alert("게시글 등록에 실패했습니다. Supabase SQL/RLS 설정을 확인해주세요.")}
+  finally{status.textContent=""}
+}
+
+function openCommunityDetail(id){
+  const p=communityPosts.find(x=>String(x.id)===String(id)); if(!p)return;
+  const s=amkinaSession(); const mine=s?.user?.id===p.user_id;
+  document.getElementById("community-detail").innerHTML=`
+    <div class="community-detail-category">${escapeCommunity(communityCategory(p.category))}</div>
+    <h2 class="community-detail-title">${escapeCommunity(p.title)}</h2>
+    <div class="community-detail-meta">${escapeCommunity(p.author_name||"AMKINA USER")} · ${communityDate(p.created_at)}</div>
+    <div class="community-detail-content">${escapeCommunity(p.content)}</div>
+    ${mine?`<button class="community-delete" onclick="deleteCommunityPost('${p.id}')">내 글 삭제</button>`:""}
+  `;
+  document.getElementById("community-detail-modal").style.display="flex";
+}
+function closeCommunityDetail(){document.getElementById("community-detail-modal").style.display="none"}
+
+async function deleteCommunityPost(id){
+  if(!confirm("이 게시글을 삭제할까요?"))return;
+  try{
+    const r=await fetch(SUPABASE_URL+"/rest/v1/community_posts?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:communityHeaders(true)});
+    if(!r.ok) throw new Error(await r.text());
+    closeCommunityDetail(); await loadCommunityPosts();
+  }catch(e){console.error(e);alert("삭제하지 못했습니다.")}
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.querySelectorAll(".community-filter").forEach(btn=>btn.addEventListener("click",()=>{
+    document.querySelectorAll(".community-filter").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); communityFilter=btn.dataset.filter; renderCommunityPosts();
+  }));
+  document.getElementById("community-search")?.addEventListener("input",renderCommunityPosts);
+});
+</script>
+
 </body>
 </html>
