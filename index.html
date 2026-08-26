@@ -4114,6 +4114,203 @@ body > section{
 
     white-space:nowrap;
 }
+  /* =====================================================
+   AMKINA DESKTOP SIDEBAR — PREMIUM BLACK & WHITE
+===================================================== */
+
+@media (min-width:769px){
+
+/* ===== 사이드바 ===== */
+body > header{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+
+    width:240px !important;
+    height:100vh !important;
+    box-sizing:border-box !important;
+
+    padding:32px 18px 120px !important;
+
+    background:#ffffff !important;
+    border-right:1px solid #e8e8e8 !important;
+
+    box-shadow:
+        8px 0 30px rgba(0,0,0,.04) !important;
+
+    overflow-y:auto !important;
+    scrollbar-width:none !important;
+
+    z-index:9999 !important;
+}
+
+body > header::-webkit-scrollbar{
+    display:none !important;
+}
+
+
+/* ===== 기존 MUSIC 글자 ===== */
+body > header > *:first-child{
+    color:#111111 !important;
+}
+
+
+/* ===== 메뉴 영역 ===== */
+body > header nav{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:3px !important;
+}
+
+
+/* ===== 모든 메뉴 ===== */
+body > header nav a{
+    position:relative !important;
+
+    display:flex !important;
+    align-items:center !important;
+
+    width:100% !important;
+    min-height:44px !important;
+
+    box-sizing:border-box !important;
+
+    padding:0 13px !important;
+
+    color:#555555 !important;
+    background:transparent !important;
+
+    border:none !important;
+    border-radius:10px !important;
+
+    font-size:13px !important;
+    font-weight:600 !important;
+    letter-spacing:-0.2px !important;
+
+    text-decoration:none !important;
+
+    opacity:1 !important;
+
+    transition:
+        background .18s ease,
+        color .18s ease,
+        transform .18s ease !important;
+}
+
+
+/* ===== 아이콘도 선명하게 ===== */
+body > header nav a *{
+    opacity:1 !important;
+}
+
+
+/* ===== 마우스 올림 ===== */
+body > header nav a:hover{
+    background:#f4f4f4 !important;
+    color:#111111 !important;
+    transform:translateX(2px) !important;
+}
+
+
+/* ===== 현재 선택 메뉴 ===== */
+body > header nav a.menu-active{
+    background:#111111 !important;
+    color:#ffffff !important;
+
+    font-weight:700 !important;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.10) !important;
+}
+
+
+/* 기존 초록색 왼쪽선 제거 */
+body > header nav a.menu-active::before{
+    display:none !important;
+}
+
+
+/* ===== 메뉴 구분선 ===== */
+body > header nav div{
+    height:1px !important;
+
+    margin:15px 8px !important;
+
+    background:#eeeeee !important;
+}
+
+
+/* ===== 준비중 배지 ===== */
+body > header nav .coming-soon{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    margin-left:auto !important;
+
+    padding:3px 7px !important;
+
+    background:#f1f1f1 !important;
+    border:1px solid #dddddd !important;
+    border-radius:20px !important;
+
+    color:#777777 !important;
+
+    font-size:9px !important;
+    font-weight:700 !important;
+
+    line-height:1 !important;
+
+    white-space:nowrap !important;
+}
+
+
+/* 선택 메뉴 안의 준비중 */
+body > header nav a.menu-active .coming-soon{
+    background:#ffffff !important;
+    color:#111111 !important;
+    border-color:#ffffff !important;
+}
+
+
+/* ===== MUSIC 로고 ===== */
+body > header::before{
+    content:"AMKINA";
+    display:block !important;
+
+    margin:5px 12px 27px !important;
+
+    color:#111111 !important;
+
+    font-size:21px !important;
+    font-weight:900 !important;
+
+    letter-spacing:4px !important;
+}
+
+
+/* ===== 기존 초록색 계열 최대한 제거 ===== */
+body > header nav a{
+    border-left:none !important;
+}
+
+
+/* ===== 하단 그림자 정리 ===== */
+body > header::after{
+    content:"AMKINA MUSIC";
+    display:block;
+
+    margin:26px 13px 0;
+
+    color:#bbbbbb;
+
+    font-size:9px;
+    font-weight:700;
+
+    letter-spacing:2px;
+}
+
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
