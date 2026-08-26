@@ -2204,27 +2204,42 @@ closeMobileMenu();
 }
   /* ===== STUDIO ===== */
 function showStudioPage(event){
-    if(event) event.preventDefault();
+    if(event){
+        event.preventDefault();
+        event.stopPropagation();
+    }
 
     const hero = document.querySelector('.hero');
     const music = document.getElementById('music');
     const studio = document.getElementById('studio');
 
+    if(!studio){
+        alert('STUDIO 영역을 찾을 수 없습니다.');
+        return false;
+    }
+
+    // 홈 배너 숨기기
     if(hero){
         hero.style.setProperty('display', 'none', 'important');
     }
 
+    // MUSIC 숨기기
     if(music){
         music.style.setProperty('display', 'none', 'important');
     }
 
-    if(studio){
-        studio.style.setProperty('display', 'block', 'important');
-    }
+    // STUDIO 강제 표시
+    studio.style.setProperty('display', 'block', 'important');
+    studio.style.setProperty('visibility', 'visible', 'important');
+    studio.style.setProperty('opacity', '1', 'important');
 
+    // 모바일 메뉴 닫기
     closeMobileMenu();
 
+    // 맨 위로
     window.scrollTo(0, 0);
+
+    return false;
 }
   /* ===== MUSIC SEARCH ===== */
 
