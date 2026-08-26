@@ -6133,6 +6133,199 @@ header nav a#login-btn:active{
         min-width:40px !important;
     }
 }
+  /* =====================================================
+   AMKINA PLAYER - PC FINAL FORCE OVERRIDE
+===================================================== */
+
+@media (min-width:769px){
+
+/* 전체 바 */
+body .player{
+    position:fixed !important;
+    left:50% !important;
+    right:auto !important;
+    bottom:18px !important;
+
+    transform:translateX(-50%) !important;
+
+    width:calc(100% - 80px) !important;
+    max-width:1500px !important;
+
+    height:76px !important;
+    min-height:76px !important;
+
+    padding:0 22px !important;
+
+    display:grid !important;
+    grid-template-columns:240px 1fr 160px !important;
+    align-items:center !important;
+    gap:25px !important;
+
+    background:#0d0d0e !important;
+
+    border:1px solid rgba(255,255,255,.08) !important;
+    border-radius:18px !important;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.18) !important;
+
+    overflow:hidden !important;
+}
+
+
+/* 앨범 정보 */
+body .player .now{
+    display:flex !important;
+    align-items:center !important;
+    gap:12px !important;
+}
+
+body .player #now-cover{
+    width:48px !important;
+    height:48px !important;
+    min-width:48px !important;
+
+    object-fit:cover !important;
+
+    border-radius:10px !important;
+
+    background:#1b1b1d !important;
+}
+
+body .player #now-title{
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+}
+
+body .player #now-artist{
+    color:#777 !important;
+    font-size:10px !important;
+    margin-top:4px !important;
+}
+
+
+/* 가운데 */
+body .player .controls{
+    width:100% !important;
+    max-width:600px !important;
+
+    justify-self:center !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+
+    gap:6px !important;
+}
+
+
+/* 버튼 묶음 */
+body .player .buttons{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    gap:18px !important;
+}
+
+
+/* 이전 / 다음 */
+body .player .control-btn{
+    width:28px !important;
+    height:28px !important;
+
+    padding:0 !important;
+
+    background:none !important;
+    border:none !important;
+
+    color:#777 !important;
+
+    font-size:14px !important;
+}
+
+
+/* 재생 */
+body .player #main-play{
+    width:38px !important;
+    height:38px !important;
+
+    min-width:38px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    padding:0 0 0 2px !important;
+
+    background:#fff !important;
+
+    color:#111 !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    font-size:14px !important;
+
+    box-shadow:none !important;
+}
+
+
+/* 진행바 */
+body .player .progress-row{
+    width:100% !important;
+
+    display:grid !important;
+    grid-template-columns:30px 1fr 30px !important;
+
+    align-items:center !important;
+    gap:8px !important;
+}
+
+body .player .time{
+    color:#666 !important;
+    font-size:8px !important;
+}
+
+body .player #progress{
+    width:100% !important;
+    height:3px !important;
+
+    appearance:none !important;
+    -webkit-appearance:none !important;
+
+    background:#343438 !important;
+
+    border:none !important;
+    border-radius:100px !important;
+}
+
+
+/* 볼륨 */
+body .player .volume{
+    display:flex !important;
+    justify-content:flex-end !important;
+    align-items:center !important;
+
+    gap:10px !important;
+
+    color:#666 !important;
+
+    font-size:9px !important;
+}
+
+body .player #volume{
+    width:80px !important;
+}
+
+
+/* 페이지가 플레이어에 가리지 않게 */
+body{
+    padding-bottom:110px !important;
+}
+
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
