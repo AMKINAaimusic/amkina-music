@@ -2142,14 +2142,15 @@ function showHomePage(event){
     setActiveMenu(event ? event.currentTarget : null);
 
     const hero = document.querySelector('.hero');
-  const studio = document.getElementById('studio');
+    const studio = document.getElementById('studio');
     const musicSection =
         document.getElementById('music') ||
         document.querySelector('.music-grid');
 
     if(hero){
-       hero.style.setProperty('display', 'flex', 'important');
-}
+        hero.style.setProperty('display', 'flex', 'important');
+    }
+
     if(musicSection){
         const container =
             musicSection.closest('section') ||
@@ -2158,17 +2159,17 @@ function showHomePage(event){
         if(container){
             container.style.display = '';
         }
-    } 
-// HOME에서는 스튜디오 숨김
-if(studio){
-    studio.style.display = 'none';
-}
+    }
+
+    if(studio){
+        studio.style.display = 'none';
+    }
+
     window.scrollTo({
-        top:0,
-        behavior:'smooth'
+        top: 0,
+        behavior: 'smooth'
     });
 }
-
 
 /* =========================
    MUSIC
