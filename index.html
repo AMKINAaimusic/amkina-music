@@ -2223,7 +2223,7 @@ function showStudioPage(event){
 
     // 스튜디오 페이지 표시
     if(studio){
-        studio.style.display = 'block';
+        studio.style.setProperty('display', 'block', 'important');
     }
 
     // 모바일 메뉴 닫기
