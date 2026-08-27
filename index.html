@@ -6967,6 +6967,388 @@ html body .player #volume{
         min-width:40px !important;
     }
 }
+  /* =========================================================
+   AMKINA PLAYER — FINAL PREMIUM DESIGN
+   이 블록을 CSS 제일 마지막에 그대로 붙여넣기
+========================================================= */
+
+/* ---------- PC ---------- */
+
+html body .player{
+    position:fixed !important;
+    left:210px !important;       /* 사이드바 다음부터 */
+    right:0 !important;
+    bottom:0 !important;
+    z-index:99999 !important;
+
+    width:auto !important;
+    height:82px !important;
+    min-height:82px !important;
+
+    padding:0 32px !important;
+    margin:0 !important;
+
+    display:grid !important;
+    grid-template-columns:280px minmax(350px,1fr) 170px !important;
+    align-items:center !important;
+    gap:28px !important;
+
+    background:rgba(15,16,18,.97) !important;
+    backdrop-filter:blur(24px) !important;
+    -webkit-backdrop-filter:blur(24px) !important;
+
+    border:0 !important;
+    border-top:1px solid rgba(255,255,255,.08) !important;
+    border-radius:0 !important;
+
+    box-shadow:0 -10px 35px rgba(0,0,0,.10) !important;
+    color:#fff !important;
+}
+
+
+/* ---------- 앨범 정보 ---------- */
+
+html body .player .now{
+    display:flex !important;
+    align-items:center !important;
+    gap:13px !important;
+    min-width:0 !important;
+}
+
+html body .player #now-cover{
+    width:52px !important;
+    height:52px !important;
+    min-width:52px !important;
+
+    object-fit:cover !important;
+    border-radius:7px !important;
+
+    background:#222 !important;
+    border:1px solid rgba(255,255,255,.06) !important;
+}
+
+html body .player .now-text{
+    min-width:0 !important;
+}
+
+html body .player #now-title{
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    line-height:1.35 !important;
+
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+html body .player #now-artist{
+    margin-top:4px !important;
+
+    color:#85878d !important;
+    font-size:10px !important;
+    font-weight:500 !important;
+
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+
+/* ---------- 중앙 컨트롤 ---------- */
+
+html body .player .controls{
+    width:100% !important;
+    max-width:650px !important;
+    justify-self:center !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+
+    gap:7px !important;
+}
+
+html body .player .buttons{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:20px !important;
+}
+
+
+/* 이전 / 다음 */
+
+html body .player .control-btn{
+    width:30px !important;
+    height:30px !important;
+    min-width:30px !important;
+
+    padding:0 !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    background:transparent !important;
+    color:#96999e !important;
+
+    font-size:12px !important;
+
+    cursor:pointer !important;
+
+    transition:
+        color .18s ease,
+        transform .18s ease !important;
+}
+
+html body .player .control-btn:hover{
+    color:#fff !important;
+    transform:scale(1.10) !important;
+}
+
+
+/* 메인 재생 버튼 */
+
+html body .player #main-play{
+    width:38px !important;
+    height:38px !important;
+    min-width:38px !important;
+
+    padding:0 !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    border:0 !important;
+    border-radius:50% !important;
+
+    background:#fff !important;
+    color:#111214 !important;
+
+    font-size:14px !important;
+    line-height:1 !important;
+
+    cursor:pointer !important;
+
+    box-shadow:none !important;
+
+    transition:
+        transform .18s ease,
+        background .18s ease !important;
+}
+
+html body .player #main-play:hover{
+    transform:scale(1.06) !important;
+    background:#eeeeee !important;
+}
+
+
+/* ---------- 진행바 ---------- */
+
+html body .player .progress-row{
+    width:100% !important;
+
+    display:grid !important;
+    grid-template-columns:34px minmax(100px,1fr) 34px !important;
+    align-items:center !important;
+    gap:9px !important;
+}
+
+html body .player .time{
+    display:block !important;
+
+    color:#70737a !important;
+    font-size:8px !important;
+    font-weight:500 !important;
+
+    text-align:center !important;
+}
+
+html body .player #progress{
+    display:block !important;
+
+    width:100% !important;
+    height:3px !important;
+
+    margin:0 !important;
+
+    accent-color:#ffffff !important;
+
+    cursor:pointer !important;
+}
+
+
+/* ---------- 볼륨 ---------- */
+
+html body .player .volume{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+
+    gap:10px !important;
+
+    color:#777a80 !important;
+    font-size:9px !important;
+    letter-spacing:.5px !important;
+}
+
+html body .player #volume{
+    display:block !important;
+
+    width:90px !important;
+    height:3px !important;
+
+    accent-color:#ffffff !important;
+
+    cursor:pointer !important;
+}
+
+
+/* 플레이어에 가려지지 않게 */
+
+html body{
+    padding-bottom:82px !important;
+}
+
+
+/* =========================================================
+   MOBILE PLAYER
+========================================================= */
+
+@media (max-width:768px){
+
+    html body .player{
+        left:0 !important;
+        right:0 !important;
+        bottom:0 !important;
+
+        width:100% !important;
+
+        height:72px !important;
+        min-height:72px !important;
+
+        padding:0 15px !important;
+
+        display:grid !important;
+        grid-template-columns:minmax(0,1fr) 44px !important;
+        align-items:center !important;
+        gap:12px !important;
+
+        background:rgba(15,16,18,.98) !important;
+
+        border-radius:0 !important;
+        border:0 !important;
+        border-top:1px solid rgba(255,255,255,.08) !important;
+
+        box-shadow:0 -8px 25px rgba(0,0,0,.13) !important;
+
+        transform:none !important;
+    }
+
+
+    /* 곡 정보 */
+
+    html body .player .now{
+        display:flex !important;
+        align-items:center !important;
+
+        gap:11px !important;
+        min-width:0 !important;
+    }
+
+    html body .player #now-cover{
+        width:46px !important;
+        height:46px !important;
+        min-width:46px !important;
+
+        border-radius:7px !important;
+    }
+
+    html body .player #now-title{
+        font-size:13px !important;
+        color:#fff !important;
+    }
+
+    html body .player #now-artist{
+        margin-top:3px !important;
+
+        font-size:10px !important;
+        color:#888b91 !important;
+    }
+
+
+    /* 모바일에서는 가운데 컨트롤을
+       재생 버튼 하나만 사용 */
+
+    html body .player .controls{
+        width:44px !important;
+
+        display:flex !important;
+        justify-content:center !important;
+        align-items:center !important;
+
+        gap:0 !important;
+    }
+
+    html body .player .buttons{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+
+        gap:0 !important;
+    }
+
+    html body .player .control-btn{
+        display:none !important;
+    }
+
+    html body .player #main-play{
+        display:flex !important;
+
+        width:42px !important;
+        height:42px !important;
+        min-width:42px !important;
+
+        background:#fff !important;
+        color:#111214 !important;
+
+        border-radius:50% !important;
+
+        font-size:15px !important;
+    }
+
+
+    /* 모바일에서는 진행바/시간 숨김 */
+
+    html body .player .progress-row{
+        display:none !important;
+    }
+
+    html body .player .time{
+        display:none !important;
+    }
+
+
+    /* 모바일 볼륨 숨김 */
+
+    html body .player .volume{
+        display:none !important;
+    }
+
+    html body .player #volume{
+        display:none !important;
+    }
+
+
+    html body{
+        padding-bottom:72px !important;
+    }
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
