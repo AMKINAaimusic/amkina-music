@@ -1243,6 +1243,63 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-desktop-blackwhite-2026">
+/* ===== DESKTOP ONLY: AMKINA BLACK & WHITE REDESIGN ===== */
+@media (min-width:769px){
+  :root{--ak-side:250px!important;--ak-accent:#111!important;--am-green:#111!important;--am-green2:#111!important}
+  html,body{background:#f7f7f5!important;color:#111!important}
+  body{padding-left:var(--ak-side)!important;padding-bottom:112px!important}
+
+  body>header{width:var(--ak-side)!important;padding:26px 18px 125px!important;background:#fff!important;border-right:1px solid #e5e5e2!important;box-shadow:6px 0 24px rgba(0,0,0,.035)!important}
+  body>header .logo,body>header .logo span{color:#0b0b0b!important;text-shadow:none!important;display:block!important;font-size:22px!important;line-height:.88!important;letter-spacing:4px!important}
+  body>header nav a{color:#4e5350!important;border-radius:8px!important;font-weight:700!important}
+  body>header nav a:hover{background:#f3f3f1!important;color:#000!important;transform:none!important}
+  body>header nav a.menu-active{background:#111!important;color:#fff!important;border:0!important;box-shadow:0 6px 16px rgba(0,0,0,.12)!important}
+  body>header nav .nav-section-label{color:#9a9d9b!important}
+  body>header nav .nav-divider{background:#e8e8e5!important}
+
+  /* Hero: reference-like premium black banner */
+  .hero-slider{position:relative!important;margin:16px 24px 28px!important;aspect-ratio:auto!important;height:400px!important;max-height:none!important;border:0!important;border-radius:18px!important;background:#050505!important;box-shadow:0 14px 34px rgba(0,0,0,.10)!important;overflow:hidden!important}
+  .hero-slider .hero-slide{display:none!important}
+  .hero-slider .hero-slide.active{display:block!important;position:absolute!important;inset:0!important}
+  .hero-slider .hero-slide img{display:none!important}
+  .hero-slider::before{content:"EXPLORE AMKINA\A\A DISCOVER\A GOOD MUSIC";white-space:pre;position:absolute;z-index:3;left:48px;top:62px;color:#fff;font-weight:900;font-size:48px;line-height:1.12;letter-spacing:-1.5px}
+  .hero-slider::after{display:block!important;content:""!important;position:absolute!important;inset:0!important;background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.13) 14px,transparent 15px),radial-gradient(ellipse at 70% 48%,rgba(255,255,255,.06),transparent 42%)!important;mask-image:linear-gradient(to right,transparent 35%,#000 58%,#000 100%)!important;opacity:.8!important;pointer-events:none!important}
+  .hero-dots{display:none!important}
+
+  main#music{padding:0 24px 125px!important}
+  .music-page-head{position:absolute!important;z-index:5!important;top:275px!important;right:55px!important;width:350px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;display:block!important}
+  .music-page-head>div:first-child{display:none!important}
+  .music-search-box{width:100%!important;height:48px!important;margin:0!important;background:#080808!important;border:1px solid #3a3a3a!important;border-radius:10px!important;color:#fff!important}
+  .music-search-box span{color:#fff!important}
+  #music-search{color:#fff!important}
+  #music-search::placeholder{color:#aaa!important}
+
+  .section-top{margin:0 8px 22px!important;padding-left:14px!important;border-left:3px solid #111!important}
+  .section-top h2{font-size:25px!important;color:#111!important;font-weight:900!important}
+  #track-count{color:#888!important;letter-spacing:1.5px!important}
+  .music-grid{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:22px!important;padding:0 8px!important}
+  .track{min-width:0!important;padding:0 0 12px!important;background:#fff!important;border:1px solid #e5e5e2!important;border-radius:12px!important;overflow:hidden!important;box-shadow:0 7px 20px rgba(0,0,0,.045)!important}
+  .track:hover{transform:translateY(-4px)!important;border-color:#d2d2cf!important;box-shadow:0 12px 26px rgba(0,0,0,.09)!important}
+  .cover{border-radius:0!important;width:100%!important;aspect-ratio:1!important}
+  .info{padding:13px 13px 2px!important}
+  .title{color:#111!important;font-size:14px!important;font-weight:800!important}.artist{color:#666!important}.meta{color:#8a8a8a!important}
+  .play-circle{background:#fff!important;color:#000!important;border:1px solid #ddd!important;box-shadow:0 4px 14px rgba(0,0,0,.15)!important}
+
+  footer{background:#fff!important;border-top:1px solid #e6e6e3!important;color:#858585!important;padding:30px 32px!important}
+
+  /* Full-width premium desktop player */
+  .player{left:0!important;width:100%!important;height:104px!important;padding:12px 30px!important;grid-template-columns:1fr 1.45fr 1fr!important;background:#050505!important;border-top:1px solid #222!important;box-shadow:0 -10px 30px rgba(0,0,0,.14)!important;z-index:3000000!important}
+  .now img{width:64px!important;height:64px!important;border-radius:7px!important;background:#161616!important}.now-text{color:#fff!important}#now-title{font-size:14px!important}#now-artist{color:#aaa!important}
+  .buttons{gap:24px!important}.control-btn{color:#ddd!important;font-size:19px!important}.control-btn:hover{color:#fff!important}.main-play{width:48px!important;height:48px!important;background:#fff!important;color:#000!important;border:0!important;box-shadow:none!important}
+  .progress-row{max-width:610px!important;margin-top:8px!important}.time{color:#777!important}#progress,#volume{accent-color:#fff!important}.volume{color:#aaa!important;gap:12px!important}#volume{width:135px!important}
+
+  /* other pages stay clean and never stack visually */
+  .community-page,.studio-page{background:#fff!important;color:#111!important}
+}
+</style>
+
 </head>
 
 <body>
