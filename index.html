@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1356,6 +1357,67 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
   .now img{width:64px!important;height:64px!important;border-radius:6px!important;margin-right:14px!important}.now-text{color:#fff!important}#now-title{font-size:14px!important;color:#fff!important}#now-artist{font-size:11px!important;color:#aaa!important}
   .buttons{gap:25px!important}.control-btn{color:#e5e5e5!important;font-size:18px!important}.main-play{width:50px!important;height:50px!important;background:#fff!important;color:#000!important;border:0!important;border-radius:50%!important;font-size:17px!important}
   .progress-row{max-width:620px!important;margin-top:7px!important}.time{color:#999!important;font-size:9px!important}#progress,#volume{accent-color:#fff!important}.volume{color:#bbb!important;gap:13px!important}#volume{width:140px!important}
+}
+</style>
+
+
+<style id="amkina-community-comments-v1">
+.community-comments{
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid #ececec;
+}
+.community-comments-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.community-comments-head strong{font-size:15px;color:#111}
+#community-comment-count{color:#888;font-size:11px}
+.community-comment-compose{
+  display:flex;gap:8px;align-items:flex-end;
+  padding:12px;border:1px solid #e3e3e3;border-radius:12px;background:#fafafa;
+}
+.community-comment-compose textarea{
+  flex:1;min-height:58px;max-height:130px;margin:0!important;
+  padding:8px 4px!important;border:0!important;background:transparent!important;
+  resize:vertical;outline:none;font-size:13px;line-height:1.55;
+}
+.community-comment-submit{
+  flex:0 0 auto;height:38px;padding:0 16px;border:0;border-radius:9px;
+  background:#111;color:#fff;font-size:12px;font-weight:800;cursor:pointer;
+}
+.community-comment-submit:disabled{opacity:.45;cursor:default}
+.community-comment-login{
+  padding:14px;border:1px solid #e7e7e7;border-radius:11px;
+  background:#fafafa;color:#777;font-size:12px;text-align:center;
+}
+.community-comment-login button{
+  border:0;background:transparent;color:#111;font-weight:800;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.community-comment-list{margin-top:14px}
+.community-comment{
+  padding:15px 2px;border-bottom:1px solid #efefef;
+}
+.community-comment-top{
+  display:flex;align-items:center;gap:8px;margin-bottom:7px;
+}
+.community-comment-author{font-size:12px;font-weight:800;color:#222}
+.community-comment-date{font-size:10px;color:#aaa}
+.community-comment-delete{
+  margin-left:auto;border:0;background:transparent;color:#aaa;
+  font-size:10px;cursor:pointer;padding:3px 0;
+}
+.community-comment-delete:hover{color:#e53935}
+.community-comment-body{
+  color:#444;font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word;
+}
+.community-comment-empty{padding:24px 4px;text-align:center;color:#aaa;font-size:12px}
+@media(max-width:768px){
+  .community-detail-card{max-height:82vh!important}
+  .community-comments{margin-top:18px;padding-top:18px}
+  .community-comment-compose{padding:10px}
+  .community-comment-submit{height:36px;padding:0 13px}
 }
 </style>
 
@@ -7673,19 +7735,177 @@ async function submitCommunityPost(){
   finally{status.textContent=""}
 }
 
-function openCommunityDetail(id){
-  const p=communityPosts.find(x=>String(x.id)===String(id)); if(!p)return;
-  const s=amkinaSession(); const mine=s?.user?.id===p.user_id;
+let currentCommunityPostId=null;
+let communityComments=[];
+
+async function openCommunityDetail(id){
+  const p=communityPosts.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  currentCommunityPostId=String(p.id);
+  const s=amkinaSession();
+  const mine=s?.user?.id===p.user_id;
+
   document.getElementById("community-detail").innerHTML=`
     <div class="community-detail-category">${escapeCommunity(communityCategory(p.category))}</div>
     <h2 class="community-detail-title">${escapeCommunity(p.title)}</h2>
     <div class="community-detail-meta">${escapeCommunity(p.author_name||"AMKINA USER")} · ${communityDate(p.created_at)}</div>
     <div class="community-detail-content">${escapeCommunity(p.content)}</div>
     ${mine?`<button class="community-delete" onclick="deleteCommunityPost('${p.id}')">내 글 삭제</button>`:""}
+
+    <section class="community-comments">
+      <div class="community-comments-head">
+        <strong>댓글</strong>
+        <span id="community-comment-count">0</span>
+      </div>
+
+      ${s?.access_token && s?.user?.id ? `
+        <div class="community-comment-compose">
+          <textarea id="community-comment-input" maxlength="1000" placeholder="댓글을 입력해주세요."></textarea>
+          <button id="community-comment-submit" class="community-comment-submit"
+                  type="button" onclick="submitCommunityComment()">등록</button>
+        </div>
+      ` : `
+        <div class="community-comment-login">
+          댓글을 작성하려면
+          <button type="button" onclick="openCommunityLogin()">로그인</button>
+          해주세요.
+        </div>
+      `}
+
+      <div id="community-comment-list" class="community-comment-list">
+        <div class="community-comment-empty">댓글을 불러오는 중...</div>
+      </div>
+    </section>
   `;
+
   document.getElementById("community-detail-modal").style.display="flex";
+  await loadCommunityComments(currentCommunityPostId);
 }
-function closeCommunityDetail(){document.getElementById("community-detail-modal").style.display="none"}
+
+function closeCommunityDetail(){
+  document.getElementById("community-detail-modal").style.display="none";
+  currentCommunityPostId=null;
+  communityComments=[];
+}
+
+function openCommunityLogin(){
+  document.getElementById("community-detail-modal").style.display="none";
+  document.getElementById("auth-modal").style.display="flex";
+}
+
+async function loadCommunityComments(postId){
+  const list=document.getElementById("community-comment-list");
+  if(!list)return;
+
+  try{
+    const url=SUPABASE_URL+"/rest/v1/community_comments?post_id=eq."
+      +encodeURIComponent(String(postId))
+      +"&select=*&order=created_at.asc";
+
+    const r=await fetch(url,{headers:communityHeaders(false)});
+    if(!r.ok)throw new Error(await r.text());
+
+    communityComments=await r.json();
+    renderCommunityComments();
+  }catch(e){
+    console.error("댓글 불러오기 실패:",e);
+    list.innerHTML='<div class="community-comment-empty">댓글을 불러오지 못했습니다.<br>Supabase 댓글 SQL을 먼저 실행해주세요.</div>';
+  }
+}
+
+function renderCommunityComments(){
+  const list=document.getElementById("community-comment-list");
+  const count=document.getElementById("community-comment-count");
+  if(!list)return;
+
+  if(count)count.textContent=communityComments.length.toLocaleString();
+
+  if(!communityComments.length){
+    list.innerHTML='<div class="community-comment-empty">아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</div>';
+    return;
+  }
+
+  const s=amkinaSession();
+
+  list.innerHTML=communityComments.map(c=>{
+    const mine=s?.user?.id===c.user_id;
+    return `
+      <div class="community-comment">
+        <div class="community-comment-top">
+          <span class="community-comment-author">${escapeCommunity(c.author_name||"AMKINA USER")}</span>
+          <span class="community-comment-date">${communityDate(c.created_at)}</span>
+          ${mine?`<button type="button" class="community-comment-delete"
+                   onclick="deleteCommunityComment('${c.id}')">삭제</button>`:""}
+        </div>
+        <div class="community-comment-body">${escapeCommunity(c.content||"")}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function submitCommunityComment(){
+  const s=amkinaSession();
+  if(!s?.access_token||!s?.user?.id){
+    alert("댓글 작성은 로그인이 필요합니다.");
+    openCommunityLogin();
+    return;
+  }
+  if(!currentCommunityPostId)return;
+
+  const input=document.getElementById("community-comment-input");
+  const button=document.getElementById("community-comment-submit");
+  const content=(input?.value||"").trim();
+
+  if(!content){
+    alert("댓글을 입력해주세요.");
+    input?.focus();
+    return;
+  }
+
+  if(button)button.disabled=true;
+
+  try{
+    const r=await fetch(SUPABASE_URL+"/rest/v1/community_comments",{
+      method:"POST",
+      headers:{...communityHeaders(true),"Prefer":"return=representation"},
+      body:JSON.stringify({
+        post_id:String(currentCommunityPostId),
+        user_id:s.user.id,
+        author_name:(s.user.email||"AMKINA USER").split("@")[0],
+        content:content
+      })
+    });
+
+    if(!r.ok)throw new Error(await r.text());
+
+    if(input)input.value="";
+    await loadCommunityComments(currentCommunityPostId);
+  }catch(e){
+    console.error("댓글 등록 실패:",e);
+    alert("댓글 등록에 실패했습니다. Supabase 댓글 SQL/RLS 설정을 확인해주세요.");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+
+async function deleteCommunityComment(id){
+  const s=amkinaSession();
+  if(!s?.access_token||!s?.user?.id)return;
+  if(!confirm("이 댓글을 삭제할까요?"))return;
+
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/community_comments?id=eq."+encodeURIComponent(id),
+      {method:"DELETE",headers:communityHeaders(true)}
+    );
+    if(!r.ok)throw new Error(await r.text());
+    await loadCommunityComments(currentCommunityPostId);
+  }catch(e){
+    console.error("댓글 삭제 실패:",e);
+    alert("댓글을 삭제하지 못했습니다.");
+  }
+}
 
 async function deleteCommunityPost(id){
   if(!confirm("이 게시글을 삭제할까요?"))return;
@@ -7833,3 +8053,4 @@ window.showCommunityPage = function(event) {
 
 </body>
 </html>
+```
