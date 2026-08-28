@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2044,6 +2045,57 @@ body.compact-lyrics-open{padding-bottom:214px!important}
 @media(max-width:768px){
   .compact-lyrics-panel{display:none!important}
   body.compact-lyrics-open{padding-bottom:0!important}
+}
+</style>
+
+
+
+<style id="amkina-blackwhite-menu-final-fix">
+/* ===== FINAL FIX: SIDEBAR ACTIVE MENU — BLACK & WHITE ===== */
+/* This block is intentionally last so it overrides old green menu rules. */
+
+@media (min-width:769px){
+  body > header nav a.menu-active,
+  body > header nav a:first-child.menu-active{
+    background:#f2f2f0 !important;
+    color:#111111 !important;
+    border-left:3px solid #111111 !important;
+    box-shadow:none !important;
+  }
+
+  body > header nav a.menu-active .nav-icon,
+  body > header nav a.menu-active .nav-text,
+  body > header nav a:first-child.menu-active .nav-icon,
+  body > header nav a:first-child.menu-active .nav-text{
+    color:#111111 !important;
+  }
+
+  body > header nav a:hover{
+    background:#f5f5f3 !important;
+    color:#111111 !important;
+  }
+
+  body > header nav a.menu-active .coming-soon{
+    background:#e8e8e6 !important;
+    border-color:#ddddda !important;
+    color:#777777 !important;
+  }
+}
+
+/* Mobile menu also uses monochrome active state */
+@media (max-width:768px){
+  header nav.mobile-open a.menu-active,
+  header nav.mobile-open a:first-child.menu-active{
+    background:#f2f2f0 !important;
+    color:#111111 !important;
+    border-left:3px solid #111111 !important;
+    box-shadow:none !important;
+  }
+
+  header nav.mobile-open a.menu-active .nav-icon,
+  header nav.mobile-open a.menu-active .nav-text{
+    color:#111111 !important;
+  }
 }
 </style>
 
@@ -9238,5 +9290,109 @@ function toggleCompactLyrics(){
 }
 </script>
 
+
+
+<style id="amkina-owner-edit-menu-style">
+.track-card{position:relative}
+.amkina-owner-edit-btn{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  z-index:8;
+  width:28px;
+  height:28px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:#777;
+  font-size:20px;
+  line-height:24px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.amkina-owner-edit-btn:hover{background:#f1f1f1;color:#111}
+@media(max-width:768px){
+  .amkina-owner-edit-btn{
+    right:14px;
+    top:12px;
+    bottom:auto;
+    width:34px;
+    height:34px;
+    font-size:22px;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 1px 5px rgba(0,0,0,.08);
+  }
+}
+</style>
+
+<script id="amkina-owner-edit-menu-script">
+function amkinaCanEditTrack(track){
+  const s=typeof amkinaGetSession==="function" ? amkinaGetSession() : null;
+  if(!s?.user?.id || !track) return false;
+  const isAdmin=String(s.user.email||"").toLowerCase()==="psy88all@naver.com";
+  const mine=!!(track.uploader_id && String(track.uploader_id)===String(s.user.id));
+  return isAdmin || mine;
+}
+
+function amkinaAttachOwnerEditButtons(){
+  if(!Array.isArray(window.tracks) && typeof tracks==="undefined") return;
+  const list=(typeof tracks!=="undefined" && Array.isArray(tracks)) ? tracks : window.tracks;
+
+  document.querySelectorAll(".track-card").forEach((card)=>{
+    const existing=card.querySelector(".amkina-owner-edit-btn");
+    if(existing) existing.remove();
+
+    let track=null;
+
+    // Prefer a card data-id if the current renderer provides one.
+    const id=card.dataset?.id || card.dataset?.trackId || card.getAttribute("data-track-id");
+    if(id!=null) track=list.find(t=>String(t.id)===String(id));
+
+    // Fallback: infer from play button onclick containing the track id.
+    if(!track){
+      const clickable=card.querySelector("[onclick]");
+      const oc=clickable?.getAttribute("onclick")||"";
+      const m=oc.match(/(?:playTrack|selectTrack|openTrackEdit)\s*\(\s*['"]?([^,'")]+)/);
+      if(m) track=list.find(t=>String(t.id)===String(m[1]));
+    }
+
+    // Last fallback: exact title + artist shown in card.
+    if(!track){
+      const txt=(card.innerText||"").trim();
+      track=list.find(t=>txt.includes(String(t.title||"")) && txt.includes(String(t.artist||"")));
+    }
+
+    if(!track || !amkinaCanEditTrack(track)) return;
+
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="amkina-owner-edit-btn";
+    btn.title="내 곡 수정";
+    btn.setAttribute("aria-label","내 곡 수정");
+    btn.textContent="⋯";
+    btn.addEventListener("click",(e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      openTrackEdit(track.id);
+    });
+    card.appendChild(btn);
+  });
+}
+
+// Re-attach after track list redraws.
+const amkinaOwnerObserver=new MutationObserver(()=>{
+  clearTimeout(window.__amkinaOwnerEditTimer);
+  window.__amkinaOwnerEditTimer=setTimeout(amkinaAttachOwnerEditButtons,50);
+});
+document.addEventListener("DOMContentLoaded",()=>{
+  amkinaOwnerObserver.observe(document.body,{childList:true,subtree:true});
+  setTimeout(amkinaAttachOwnerEditButtons,250);
+});
+</script>
+
 </body>
 </html>
+```
