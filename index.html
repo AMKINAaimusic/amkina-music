@@ -9680,6 +9680,38 @@ document.addEventListener("click",function(e){
 const socialObserver=new MutationObserver(()=>{clearTimeout(window.__socialTimer);window.__socialTimer=setTimeout(refreshTrackSocial,120)});
 document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(document.getElementById("music-list")||document.body,{childList:true,subtree:true});setTimeout(refreshTrackSocial,700)});
 </script>
+
+<script id="amkina-social-click-priority-fix">
+/* 좋아요/댓글 클릭을 카드 재생 클릭보다 먼저 처리 */
+document.addEventListener("click", function(e){
+  const like=e.target.closest(".track-like-btn");
+  if(like){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    if(typeof toggleTrackLike==="function"){
+      toggleTrackLike(like.dataset.likeTrack);
+    }
+    return false;
+  }
+
+  const comment=e.target.closest(".track-comment-btn");
+  if(comment){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    if(typeof openTrackComments==="function"){
+      openTrackComments(comment.dataset.commentTrack);
+    }
+    return false;
+  }
+
+  const edit=e.target.closest(".track-edit-btn");
+  if(edit){
+    e.stopPropagation();
+  }
+}, true);
+</script>
 </body>
 </html>
 ```
