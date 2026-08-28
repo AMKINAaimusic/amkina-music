@@ -2099,6 +2099,9 @@ body.compact-lyrics-open{padding-bottom:214px!important}
 }
 </style>
 
+<style id="amkina-chart100-page-switch-fix">
+#chart100-page.active{display:block!important;visibility:visible!important;opacity:1!important}
+</style>
 </head>
 
 <body>
@@ -2124,10 +2127,9 @@ body.compact-lyrics-open{padding-bottom:214px!important}
         <span class="nav-text">음악</span>
     </a>
 
-    <a href="#" class="coming-link">
+    <a href="#chart100" id="chart100-nav" onclick="return openChart100(event);">
         <span class="nav-icon">▦</span>
-        <span class="nav-text">chrat 100</span>
-        <span class="coming-soon">준비중</span>
+        <span class="nav-text">CHART 100</span>
     </a>
 
     <a href="#" class="coming-link">
@@ -9393,6 +9395,155 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
+
+
+<style id="amkina-chart100-style">
+#chart100-page{display:none;padding:34px 30px 150px;background:#fafafa;min-height:100vh;color:#111}
+#chart100-page.active{display:block}
+.chart100-wrap{max-width:1400px;margin:0 auto}
+.chart100-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:18px;margin-bottom:10px}
+.chart100-kicker{font-size:11px;font-weight:800;letter-spacing:.24em;color:#888}
+.chart100-title{font-size:38px;line-height:1;margin:8px 0 7px;font-weight:900}
+.chart100-sub{font-size:13px;color:#777}
+.chart100-tabs{display:flex;gap:8px}
+.chart100-tab{border:1px solid #ddd;background:#fff;border-radius:999px;padding:9px 15px;font-size:12px;font-weight:700}
+.chart100-tab.active{background:#111;color:#fff;border-color:#111}
+.chart100-row{display:grid;grid-template-columns:68px 56px minmax(180px,1fr) 150px 110px 90px;gap:16px;align-items:center;padding:12px 8px;border-bottom:1px solid #e8e8e8;cursor:pointer}
+.chart100-row:hover{background:#f3f3f3}
+.chart100-rank{font-size:23px;font-weight:900;text-align:center}
+.chart100-cover{width:54px;height:54px;object-fit:cover;border-radius:7px;background:#eee}
+.chart100-song{min-width:0}
+.chart100-song b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart100-song span,.chart100-genre,.chart100-stat{font-size:12px;color:#777}
+.chart100-stat{text-align:right;color:#444}
+.chart100-empty{padding:80px 0;text-align:center;color:#999}
+@media(max-width:768px){
+ #chart100-page{padding:22px 18px 130px}
+ .chart100-head{display:block}
+ .chart100-title{font-size:30px}
+ .chart100-tabs{margin-top:18px}
+ .chart100-row{grid-template-columns:38px 54px minmax(0,1fr) 58px;gap:10px;padding:12px 0}
+ .chart100-rank{font-size:18px}
+ .chart100-cover{width:52px;height:52px}
+ .chart100-genre,.chart100-like{display:none}
+ .chart100-stat{font-size:11px}
+}
+</style>
+
+<section id="chart100-page" aria-label="AMKINA CHART 100">
+ <div class="chart100-wrap">
+  <div class="chart100-head">
+   <div>
+    <div class="chart100-kicker">AMKINA MUSIC CHART</div>
+    <h1 class="chart100-title">CHART 100</h1>
+    <div class="chart100-sub">AMKINA MUSIC 누적 재생수를 기준으로 집계한 인기 음원 차트입니다.</div>
+   </div>
+   <div class="chart100-tabs">
+    <button class="chart100-tab active" type="button">누적</button>
+    <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">일간</button>
+    <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">주간</button>
+   </div>
+  </div>
+  <div id="chart100-list"></div>
+ </div>
+</section>
+
+<script id="amkina-chart100-script">
+function amkinaTrackPlays(t){
+  return Number(t?.plays ?? t?.play_count ?? t?.views ?? t?.view_count ?? 0) || 0;
+}
+function amkinaTrackLikes(t){
+  return Number(t?.likes ?? t?.like_count ?? 0) || 0;
+}
+function renderChart100(){
+  const el=document.getElementById("chart100-list");
+  if(!el)return;
+  const list=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[])
+    .slice().sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
+  if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return}
+  el.innerHTML=list.map((t,i)=>`
+    <div class="chart100-row" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')">
+      <div class="chart100-rank">${String(i+1).padStart(2,"0")}</div>
+      <img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt="">
+      <div class="chart100-song"><b>${escapeHtmlChart(t.title||"Untitled")}</b><span>${escapeHtmlChart(t.artist||"AMKINA")}</span></div>
+      <div class="chart100-genre">${escapeHtmlChart(t.genre||"ORIGINAL")}</div>
+      <div class="chart100-stat">▷ ${amkinaTrackPlays(t).toLocaleString()}</div>
+      <div class="chart100-stat chart100-like">♡ ${amkinaTrackLikes(t).toLocaleString()}</div>
+    </div>`).join("");
+}
+function escapeHtmlChart(v){
+ const d=document.createElement("div"); d.textContent=String(v??""); return d.innerHTML;
+}
+function amkinaPlayChartTrack(id){
+ const list=(typeof tracks!=="undefined" && Array.isArray(tracks))?tracks:[];
+ const idx=list.findIndex(t=>String(t.id)===String(id));
+ if(idx<0)return;
+ if(typeof playTrack==="function"){playTrack(idx);return}
+ if(typeof selectTrack==="function"){selectTrack(idx);return}
+}
+function openChart100(event){
+ if(event){
+   event.preventDefault();
+   event.stopPropagation();
+ }
+
+ const hero=document.querySelector(".hero");
+ const music=document.getElementById("music");
+ const studio=document.getElementById("studio");
+ const community=document.getElementById("community");
+ const page=document.getElementById("chart100-page");
+
+ if(hero) hero.style.setProperty("display","none","important");
+ if(music) music.style.setProperty("display","none","important");
+ if(studio) studio.style.setProperty("display","none","important");
+ if(community) community.style.setProperty("display","none","important");
+
+ if(page){
+   page.style.setProperty("display","block","important");
+   page.style.setProperty("visibility","visible","important");
+   page.style.setProperty("opacity","1","important");
+   page.classList.add("active");
+ }
+
+ const nav=document.getElementById("chart100-nav");
+ if(typeof setActiveMenu==="function" && nav) setActiveMenu(nav);
+ if(typeof closeMobileMenu==="function") closeMobileMenu();
+
+ renderChart100();
+ window.scrollTo(0,0);
+ return false;
+}
+document.addEventListener("click",function(e){
+ const a=e.target.closest("a");
+ if(!a)return;
+ const txt=(a.textContent||"").trim().toLowerCase();
+ if(txt==="chrat 100" || txt==="chart 100"){
+   e.preventDefault();
+   openChart100();
+   a.querySelector(".nav-text") ? a.querySelector(".nav-text").textContent="CHART 100" : null;
+ }
+});
+document.addEventListener("DOMContentLoaded",()=>{
+ document.querySelectorAll("a").forEach(a=>{
+   if((a.textContent||"").trim().toLowerCase()==="chrat 100"){
+     const n=a.querySelector(".nav-text"); if(n)n.textContent="CHART 100";
+   }
+ });
+});
+</script>
+
+
+<script id="amkina-chart100-nav-fix">
+document.addEventListener("DOMContentLoaded",function(){
+  const nav=document.getElementById("chart100-nav");
+  if(nav){
+    nav.classList.remove("coming-link");
+    nav.onclick=function(e){
+      return typeof openChart100==="function" ? openChart100(e) : false;
+    };
+  }
+});
+</script>
 </body>
 </html>
 ```
