@@ -2435,6 +2435,32 @@ async function showArtistsPage(e){
 @media(max-width:800px){.mp-creator-dashboard{grid-template-columns:1fr}.mp-feature-list{grid-template-columns:1fr}.mp-top-row{grid-template-columns:24px 40px minmax(0,1fr) auto}}
 </style>
 
+
+<style id="amkina-library-pro-style">
+.amkina-library-page{padding-top:34px;background:#fafafa;min-height:calc(100vh - 80px)}
+.lib-head{padding-bottom:4px}.lib-head h1{letter-spacing:-1.8px}.lib-head p{font-size:13px}
+.lib-new-btn{box-shadow:0 5px 15px #00000012;transition:.15s}.lib-new-btn:hover{transform:translateY(-1px)}
+.lib-toolbar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #e4e4e4;margin-bottom:20px}
+.lib-toolbar .lib-tabs{border:0;margin:0}.lib-tools{display:flex;gap:8px;padding-bottom:8px}
+.lib-tools input,.lib-tools select{border:1px solid #ddd;background:#fff;border-radius:9px;padding:9px 11px;font:inherit;font-size:12px;outline:none}
+.lib-tools input{width:210px}.lib-tools input:focus{border-color:#999}
+.lib-smart{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 24px}
+.lib-smart button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid #e7e7e7;background:#fff;border-radius:14px;padding:14px;cursor:pointer;transition:.15s}
+.lib-smart button:hover{box-shadow:0 6px 20px #0000000b;transform:translateY(-1px)}
+.lib-smart-icon{width:42px;height:42px;border-radius:11px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.lib-smart b{display:block;font-size:13px}.lib-smart small{display:block;color:#888;font-size:10px;margin-top:4px}
+.lib-grid{grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px}
+.lib-card{padding:10px;border-radius:14px}.lib-card-cover{border-radius:10px;position:relative}.lib-card h3{font-size:14px;margin:10px 2px 4px}.lib-card p{margin:0 2px 4px}
+.lib-card-menu{position:absolute;right:8px;top:8px;border:0!important;background:#ffffffdd!important;width:30px;height:30px;border-radius:50%!important;padding:0!important;font-weight:900;cursor:pointer}
+.lib-card-meta{display:flex;justify-content:space-between;align-items:center}
+.lib-song{border-bottom:1px solid #f0f0f0;border-radius:0;padding:10px 8px}.lib-song:hover{background:#f5f5f5;border-radius:9px}
+.lib-song-index{font-size:11px;color:#999;width:20px;text-align:center}
+.lib-empty{background:#fff;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.lib-detail-hero{background:#fff;border:1px solid #e8e8e8;border-radius:18px;padding:20px;align-items:center}
+.lib-detail-cover{box-shadow:0 8px 28px #00000012}
+@media(max-width:800px){.lib-toolbar{align-items:stretch;flex-direction:column}.lib-tools{width:100%}.lib-tools input{flex:1;width:auto}.lib-smart{grid-template-columns:1fr}.lib-smart button{padding:11px}.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
 </head>
 
 <body>
@@ -2922,10 +2948,25 @@ async function showArtistsPage(e){
     <button class="lib-new-btn" onclick="openLibraryCreateModal()">＋ 새 플레이리스트</button>
   </div>
 
-  <div class="lib-tabs">
-    <button class="active" data-libtab="playlists" onclick="switchLibraryTab('playlists',this)">플레이리스트</button>
-    <button data-libtab="liked" onclick="switchLibraryTab('liked',this)">좋아요한 곡</button>
-    <button data-libtab="recent" onclick="switchLibraryTab('recent',this)">최근 들은 곡</button>
+  <div class="lib-toolbar">
+    <div class="lib-tabs">
+      <button class="active" data-libtab="playlists" onclick="switchLibraryTab('playlists',this)">플레이리스트</button>
+      <button data-libtab="liked" onclick="switchLibraryTab('liked',this)">좋아요한 곡</button>
+      <button data-libtab="recent" onclick="switchLibraryTab('recent',this)">최근 들은 곡</button>
+    </div>
+    <div class="lib-tools">
+      <input id="library-search" type="search" placeholder="라이브러리 검색" oninput="libraryApplySearch()">
+      <select id="library-sort" onchange="libraryApplySearch()">
+        <option value="recent">최근 추가순</option>
+        <option value="name">이름순</option>
+        <option value="plays">재생수순</option>
+      </select>
+    </div>
+  </div>
+  <div class="lib-smart">
+    <button onclick="libraryOpenSmart('liked')"><span class="lib-smart-icon">♥</span><span><b>좋아요한 곡</b><small id="lib-liked-count">내가 저장한 음악</small></span></button>
+    <button onclick="libraryOpenSmart('recent')"><span class="lib-smart-icon">↺</span><span><b>최근 들은 곡</b><small id="lib-recent-count">최근 재생 기록</small></span></button>
+    <button onclick="libraryOpenSmart('top')"><span class="lib-smart-icon">↗</span><span><b>내 취향 TOP</b><small>많이 들은 음악</small></span></button>
   </div>
 
   <div id="library-login-note" class="lib-empty" style="display:none;">
@@ -10684,7 +10725,7 @@ async function renderLibraryPlaylists(){
   const r=await libFetch("playlists?select=id,name,description,created_at,playlist_items(track_id)&order=created_at.desc");
   const rows=await r.json();
   if(!rows.length){grid.innerHTML='<div class="lib-empty" style="grid-column:1/-1"><b>아직 플레이리스트가 없습니다.</b><br>좋아하는 곡을 모아 나만의 플레이리스트를 만들어보세요.</div>';return}
-  grid.innerHTML=rows.map(p=>{const ids=(p.playlist_items||[]).map(x=>x.track_id),first=ids.map(libTrack).find(Boolean),cover=libCover(first);return `<div class="lib-card" onclick="openLibraryPlaylist('${p.id}')"><div class="lib-card-cover">${cover?`<img src="${libEsc(cover)}">`:"♪"}</div><h3>${libEsc(p.name)}</h3><p>${ids.length}곡 · ${libEsc(p.description||"나의 플레이리스트")}</p></div>`}).join("");
+  grid.innerHTML=rows.map(p=>{const ids=(p.playlist_items||[]).map(x=>x.track_id),first=ids.map(libTrack).find(Boolean),cover=libCover(first);return `<div class="lib-card" onclick="openLibraryPlaylist('${p.id}')"><div class="lib-card-cover">${cover?`<img src="${libEsc(cover)}">`:"♪"}<button class="lib-card-menu" onclick="event.stopPropagation();openLibraryPlaylist('${p.id}')">•••</button></div><h3>${libEsc(p.name)}</h3><div class="lib-card-meta"><p>${ids.length}곡</p><p>${libEsc(p.description||"PLAYLIST")}</p></div></div>`}).join("");
  }catch(e){console.error(e);grid.innerHTML='<div class="lib-empty" style="grid-column:1/-1">라이브러리를 불러오지 못했습니다.<br>LIBRARY SQL 실행 여부를 확인해주세요.</div>'}
 }
 function openLibraryCreateModal(){if(!libraryNeedLogin()){document.getElementById("auth-modal").style.display="flex";return}document.getElementById("library-new-name").value="";document.getElementById("library-new-description").value="";document.getElementById("library-create-modal").style.display="flex"}
@@ -10753,6 +10794,37 @@ async function recordLibraryRecent(trackId){
  if(!s?.user?.id)return;
  try{await libFetch("listening_history",{method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify({user_id:s.user.id,track_id:trackId})})}catch(e){}
 }
+function libraryOpenSmart(tab){
+ const btn=document.querySelector('.lib-tabs button[data-libtab="'+(tab==="top"?"recent":tab)+'"]');
+ if(tab==="liked"){switchLibraryTab("liked",btn);return}
+ if(tab==="recent"){switchLibraryTab("recent",btn);return}
+ document.querySelectorAll(".lib-tabs button").forEach(b=>b.classList.remove("active"));
+ ["library-playlists-view","library-liked-view"].forEach(id=>document.getElementById(id).style.display="none");
+ document.getElementById("library-recent-view").style.display="block";
+ const arr=[...libTracks()].sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0)).slice(0,20);
+ renderLibrarySongs(document.getElementById("library-recent-list"),arr);
+}
+function libraryApplySearch(){
+ const q=(document.getElementById("library-search")?.value||"").trim().toLowerCase();
+ const sort=document.getElementById("library-sort")?.value||"recent";
+ document.querySelectorAll("#library-playlist-grid .lib-card").forEach(card=>{
+   const txt=card.textContent.toLowerCase();card.style.display=!q||txt.includes(q)?"block":"none";
+ });
+ const visible=document.querySelector("#library-liked-view")?.style.display!=="none"?document.getElementById("library-liked-list"):document.querySelector("#library-recent-view")?.style.display!=="none"?document.getElementById("library-recent-list"):null;
+ if(visible&&q)visible.querySelectorAll(".lib-song").forEach(row=>row.style.display=row.textContent.toLowerCase().includes(q)?"grid":"none");
+}
+async function refreshLibrarySmartCounts(){
+ if(!libSession()?.user?.id)return;
+ try{
+   const [lr,rr]=await Promise.all([libFetch("track_likes?select=track_id"),libFetch("listening_history?select=track_id&limit=100")]);
+   const likes=await lr.json(),recent=await rr.json();
+   const a=document.getElementById("lib-liked-count"),b=document.getElementById("lib-recent-count");
+   if(a)a.textContent=likes.length+"곡 저장됨";
+   if(b)b.textContent=new Set(recent.map(x=>String(x.track_id))).size+"곡 재생 기록";
+ }catch(e){}
+}
+const _oldShowLibraryPage=showLibraryPage;
+showLibraryPage=async function(e){const r=await _oldShowLibraryPage(e);refreshLibrarySmartCounts();return r}
 </script>
 
 
