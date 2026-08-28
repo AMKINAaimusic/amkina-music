@@ -10232,6 +10232,171 @@ function openMyProfileEdit(){const s=mpSession(),p=mpData.profile||{};document.g
 function closeMyProfileEdit(){document.getElementById("mp-profile-modal").style.display="none"}
 async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const body={id:s.user.id,nickname:document.getElementById("mp-edit-name").value.trim(),bio:document.getElementById("mp-edit-bio").value.trim(),avatar_url:document.getElementById("mp-edit-avatar").value.trim(),updated_at:new Date().toISOString()};const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});if(!r.ok){alert("프로필 저장에 실패했습니다. 마이페이지 SQL을 먼저 실행해주세요.");return}closeMyProfileEdit();await loadMyPage()}
 </script>
+
+<!-- ===== AMKINA SUPABASE SESSION AUTO REFRESH ===== -->
+<script id="amkina-session-auto-refresh-v1">
+(function(){
+  if(window.__amkinaSessionRefreshInstalled) return;
+  window.__amkinaSessionRefreshInstalled = true;
+
+  const nativeFetch = window.fetch.bind(window);
+  let refreshPromise = null;
+
+  function getSession(){
+    try{
+      return JSON.parse(localStorage.getItem("amkina_session") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function saveSession(next, previous){
+    const merged = Object.assign({}, previous || {}, next || {});
+    if(!merged.refresh_token && previous?.refresh_token){
+      merged.refresh_token = previous.refresh_token;
+    }
+    if(!merged.user && previous?.user){
+      merged.user = previous.user;
+    }
+    localStorage.setItem("amkina_session", JSON.stringify(merged));
+    return merged;
+  }
+
+  function clearExpiredSession(){
+    localStorage.removeItem("amkina_session");
+    const btn = document.getElementById("login-btn");
+    if(btn) btn.textContent = "LOGIN";
+  }
+
+  async function refreshSession(){
+    if(refreshPromise) return refreshPromise;
+
+    refreshPromise = (async function(){
+      const oldSession = getSession();
+      if(!oldSession?.refresh_token) return null;
+
+      try{
+        const response = await nativeFetch(
+          SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token",
+          {
+            method:"POST",
+            headers:{
+              "apikey":SUPABASE_ANON_KEY,
+              "Content-Type":"application/json"
+            },
+            body:JSON.stringify({refresh_token:oldSession.refresh_token})
+          }
+        );
+
+        const data = await response.json().catch(()=>({}));
+
+        if(!response.ok || !data?.access_token){
+          console.warn("AMKINA session refresh failed", data);
+          clearExpiredSession();
+          return null;
+        }
+
+        const saved = saveSession(data, oldSession);
+        const btn = document.getElementById("login-btn");
+        if(btn && saved?.user?.id) btn.textContent = "LOGOUT";
+        return saved;
+      }catch(error){
+        console.warn("AMKINA session refresh error", error);
+        return null;
+      }finally{
+        refreshPromise = null;
+      }
+    })();
+
+    return refreshPromise;
+  }
+
+  function tokenExpiringSoon(session){
+    if(!session?.access_token) return false;
+    try{
+      const payload = JSON.parse(
+        decodeURIComponent(
+          atob(session.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))
+            .split("")
+            .map(c=>"%" + ("00"+c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        )
+      );
+      return !payload.exp || (payload.exp * 1000 - Date.now()) < 5 * 60 * 1000;
+    }catch(e){
+      return false;
+    }
+  }
+
+  window.ensureAmkinaSession = async function(){
+    const session = getSession();
+    if(!session?.access_token || !session?.user?.id) return session;
+    if(tokenExpiringSoon(session) && session.refresh_token){
+      return (await refreshSession()) || getSession();
+    }
+    return session;
+  };
+
+  window.refreshAmkinaSession = refreshSession;
+
+  // Supabase REST/Storage 요청이 JWT 만료로 401이 되면 자동 갱신 후 1회 재시도.
+  window.fetch = async function(input, init){
+    let response = await nativeFetch(input, init);
+
+    try{
+      const url = typeof input === "string" ? input : (input?.url || "");
+      const isSupabase = typeof SUPABASE_URL !== "undefined" && url.startsWith(SUPABASE_URL);
+      const isRefreshCall = url.includes("/auth/v1/token?grant_type=refresh_token");
+
+      if(response.status !== 401 || !isSupabase || isRefreshCall){
+        return response;
+      }
+
+      const oldSession = getSession();
+      if(!oldSession?.refresh_token) return response;
+
+      const fresh = await refreshSession();
+      if(!fresh?.access_token) return response;
+
+      const retryInit = Object.assign({}, init || {});
+      const headers = new Headers(
+        retryInit.headers || (input instanceof Request ? input.headers : undefined) || {}
+      );
+
+      const oldAuth = headers.get("Authorization") || "";
+      if(oldAuth.startsWith("Bearer ")){
+        headers.set("Authorization", "Bearer " + fresh.access_token);
+      }
+      retryInit.headers = headers;
+
+      return await nativeFetch(input, retryInit);
+    }catch(error){
+      console.warn("AMKINA automatic request retry failed", error);
+      return response;
+    }
+  };
+
+  // 페이지를 오래 열어둔 경우에도 만료 직전에 갱신.
+  setInterval(function(){
+    const s = getSession();
+    if(s?.refresh_token && tokenExpiringSoon(s)){
+      refreshSession();
+    }
+  }, 60 * 1000);
+
+  // 페이지 복귀/탭 전환 시 세션 상태 확인.
+  document.addEventListener("visibilitychange", function(){
+    if(!document.hidden) window.ensureAmkinaSession();
+  });
+  window.addEventListener("focus", function(){
+    window.ensureAmkinaSession();
+  });
+
+  // 최초 로드 때도 확인.
+  setTimeout(function(){ window.ensureAmkinaSession(); }, 500);
+})();
+</script>
+
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
