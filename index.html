@@ -1891,6 +1891,66 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-track-edit-ui">
+.track-title-row{display:flex;align-items:center;gap:8px}
+.track-title-row .title{flex:1;min-width:0}
+.track-edit-btn{margin-left:auto;width:28px;height:28px;border:0;background:transparent;border-radius:50%;font-size:20px;line-height:1;align-items:center;justify-content:center;cursor:pointer;color:#777}
+.track-edit-btn:hover{background:#f1f1f1;color:#111}
+.track-edit-modal{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px}
+.track-edit-panel{position:relative;width:min(520px,100%);background:#fff;color:#111;border-radius:22px;padding:30px;box-shadow:0 25px 80px rgba(0,0,0,.25)}
+.track-edit-close{position:absolute;right:18px;top:14px;border:0;background:none;font-size:28px;cursor:pointer;color:#777}
+.track-edit-kicker{font-size:10px;font-weight:800;letter-spacing:3px;color:#888;margin-bottom:8px}
+.track-edit-panel h2{margin:0 0 22px;font-size:26px}
+.track-edit-panel label{display:block;font-size:12px;font-weight:700;margin:14px 0 6px}
+.track-edit-panel input{box-sizing:border-box;width:100%;height:46px;border:1px solid #ddd;border-radius:12px;padding:0 14px;background:#fafafa;font:inherit}
+.track-edit-panel input[type=file]{height:auto;padding:12px}
+.track-edit-panel small{display:block;color:#999;font-weight:400;margin-top:6px}
+.track-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
+.track-edit-actions button{height:44px;padding:0 18px;border-radius:12px;font-weight:800;cursor:pointer}
+.track-edit-cancel{background:#fff;border:1px solid #ddd}
+.track-edit-save{background:#111;color:#fff;border:1px solid #111}
+.track-edit-status{min-height:18px;margin-top:10px;font-size:12px;color:#777}
+@media(max-width:768px){
+ .track-edit-panel{border-radius:20px;padding:24px 20px}
+ .track-edit-panel h2{font-size:23px}
+ .track-edit-btn{width:26px;height:26px}
+}
+</style>
+
+
+<style id="amkina-admin-edit-visibility">
+.track-card{position:relative!important}
+.track-edit-btn{
+  position:absolute!important;
+  top:10px!important;
+  right:10px!important;
+  z-index:12!important;
+  width:34px!important;
+  height:34px!important;
+  border:1px solid rgba(0,0,0,.12)!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#111!important;
+  border-radius:50%!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.10)!important;
+  font-size:22px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  align-items:center!important;
+  justify-content:center!important;
+  cursor:pointer!important;
+}
+.track-edit-btn:hover{background:#111!important;color:#fff!important}
+@media(max-width:768px){
+  .track-edit-btn{
+    top:12px!important;
+    right:12px!important;
+    width:34px!important;
+    height:34px!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -2525,8 +2585,15 @@ async function loadMusic(){
 
         <div class="info">
 
-          <div class="title">
-            ${safe(track.title) || "Untitled"}
+          <div class="track-title-row">
+            <div class="title">
+              ${safe(track.title) || "Untitled"}
+            </div>
+            <button class="track-edit-btn"
+                    type="button"
+                    data-edit-track="${String(track.id ?? "")}"
+                    aria-label="곡 정보 수정"
+                    title="곡 정보 수정">⋮</button>
           </div>
 
           <div class="artist">
@@ -2556,6 +2623,22 @@ async function loadMusic(){
 
       container.appendChild(card);
 
+    });
+
+    container.querySelectorAll(".track-edit-btn").forEach(btn=>{
+      const id=btn.dataset.editTrack;
+      const track=tracks.find(t=>String(t.id)===String(id));
+      const session=JSON.parse(localStorage.getItem("amkina_session")||"null");
+      const adminEmail="psy88all@naver.com".toLowerCase();
+      const currentEmail=String(session?.user?.email||"").toLowerCase();
+      const isAdmin=currentEmail===adminEmail;
+      const mine=!!(session?.user?.id && track?.uploader_id && String(track.uploader_id)===String(session.user.id));
+      btn.style.display=(isAdmin || mine) ? "inline-flex" : "none";
+      btn.addEventListener("click",(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openTrackEdit(id);
+      });
     });
 
     if(typeof window.amkinaRefreshDiscovery === "function"){
@@ -3051,7 +3134,8 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
                     audio_url:audioUrl,
                     cover_url:coverUrl,
                     release_date:
-                        new Date().toISOString().slice(0,10)
+                        new Date().toISOString().slice(0,10),
+                    uploader_id:userId
                 })
             }
         );
@@ -8759,6 +8843,137 @@ window.showCommunityPage = function(event) {
     }, 500);
   });
 })();
+</script>
+
+
+<div id="track-edit-modal" class="track-edit-modal" aria-hidden="true">
+  <div class="track-edit-panel" role="dialog" aria-modal="true" aria-labelledby="track-edit-heading">
+    <button class="track-edit-close" type="button" onclick="closeTrackEdit()" aria-label="닫기">×</button>
+    <div class="track-edit-kicker">EDIT TRACK</div>
+    <h2 id="track-edit-heading">곡 정보 수정</h2>
+    <label>곡 제목
+      <input id="track-edit-title" type="text" maxlength="120">
+    </label>
+    <label>아티스트
+      <input id="track-edit-artist" type="text" maxlength="120">
+    </label>
+    <label>장르
+      <input id="track-edit-genre" type="text" maxlength="80">
+    </label>
+    <label>커버 이미지
+      <input id="track-edit-cover" type="file" accept="image/*">
+      <small>바꾸지 않으면 기존 커버가 유지됩니다.</small>
+    </label>
+    <div id="track-edit-status" class="track-edit-status"></div>
+    <div class="track-edit-actions">
+      <button type="button" class="track-edit-cancel" onclick="closeTrackEdit()">취소</button>
+      <button type="button" class="track-edit-save" onclick="saveTrackEdit()">수정 저장</button>
+    </div>
+  </div>
+</div>
+
+
+<script id="amkina-track-edit-script">
+let amkinaEditingTrackId=null;
+
+function amkinaGetSession(){
+  try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}
+}
+function amkinaTrackHeaders(auth=true){
+  const s=amkinaGetSession();
+  const h={"apikey":SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+  h.Authorization="Bearer "+(auth && s?.access_token ? s.access_token : SUPABASE_ANON_KEY);
+  return h;
+}
+function openTrackEdit(id){
+  const s=amkinaGetSession();
+  const track=tracks.find(t=>String(t.id)===String(id));
+  if(!s?.user?.id){alert("로그인이 필요합니다.");return}
+  if(!track){alert("곡 정보를 찾지 못했습니다.");return}
+  const isAdmin=String(s.user.email||"").toLowerCase()==="psy88all@naver.com".toLowerCase();
+  const mine=!!(track.uploader_id && String(track.uploader_id)===String(s.user.id));
+  if(!isAdmin && !mine){
+    alert("본인이 업로드한 곡만 수정할 수 있습니다.");
+    return;
+  }
+  amkinaEditingTrackId=String(id);
+  document.getElementById("track-edit-title").value=track.title||"";
+  document.getElementById("track-edit-artist").value=track.artist||"";
+  document.getElementById("track-edit-genre").value=track.genre||"";
+  document.getElementById("track-edit-cover").value="";
+  document.getElementById("track-edit-status").textContent="";
+  const modal=document.getElementById("track-edit-modal");
+  modal.style.display="flex";
+  modal.setAttribute("aria-hidden","false");
+}
+function closeTrackEdit(){
+  const modal=document.getElementById("track-edit-modal");
+  modal.style.display="none";
+  modal.setAttribute("aria-hidden","true");
+  amkinaEditingTrackId=null;
+}
+async function saveTrackEdit(){
+  const s=amkinaGetSession();
+  const track=tracks.find(t=>String(t.id)===String(amkinaEditingTrackId));
+  if(!s?.access_token||!s?.user?.id||!track){alert("다시 로그인해주세요.");return}
+  const isAdmin=String(s.user.email||"").toLowerCase()==="psy88all@naver.com".toLowerCase();
+  const mine=!!(track.uploader_id && String(track.uploader_id)===String(s.user.id));
+  if(!isAdmin && !mine){alert("본인이 업로드한 곡만 수정할 수 있습니다.");return}
+
+  const title=document.getElementById("track-edit-title").value.trim();
+  const artist=document.getElementById("track-edit-artist").value.trim();
+  const genre=document.getElementById("track-edit-genre").value.trim();
+  const coverFile=document.getElementById("track-edit-cover").files[0];
+  const status=document.getElementById("track-edit-status");
+  if(!title||!artist){alert("곡 제목과 아티스트를 입력해주세요.");return}
+
+  try{
+    status.textContent="저장 중...";
+    let coverUrl=track.cover_url||"";
+
+    if(coverFile){
+      const ext=(coverFile.name.split(".").pop()||"jpg").toLowerCase();
+      const path=`${s.user.id}/${Date.now()}-edit-cover.${ext}`;
+      const up=await fetch(`${SUPABASE_URL}/storage/v1/object/covers/${path}`,{
+        method:"POST",
+        headers:{
+          "apikey":SUPABASE_ANON_KEY,
+          "Authorization":`Bearer ${s.access_token}`,
+          "Content-Type":coverFile.type||"image/jpeg"
+        },
+        body:coverFile
+      });
+      if(!up.ok)throw new Error("새 커버 업로드 실패");
+      coverUrl=`${SUPABASE_URL}/storage/v1/object/public/covers/${path}`;
+    }
+
+    const editFilter=isAdmin
+      ? `id=eq.${encodeURIComponent(track.id)}`
+      : `id=eq.${encodeURIComponent(track.id)}&uploader_id=eq.${encodeURIComponent(s.user.id)}`;
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/tracks?${editFilter}`,{
+      method:"PATCH",
+      headers:{...amkinaTrackHeaders(true),"Prefer":"return=representation"},
+      body:JSON.stringify({title,artist,genre:genre||"ORIGINAL",cover_url:coverUrl})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const changed=await r.json();
+    if(!changed.length)throw new Error("수정 권한이 없거나 곡을 찾지 못했습니다.");
+
+    closeTrackEdit();
+    await loadMusic();
+    alert("곡 정보가 수정되었습니다.");
+  }catch(e){
+    console.error(e);
+    status.textContent="";
+    alert("수정하지 못했습니다. Supabase의 tracks 수정 권한 설정을 확인해주세요.");
+  }
+}
+
+document.addEventListener("click",(e)=>{
+  const modal=document.getElementById("track-edit-modal");
+  if(e.target===modal)closeTrackEdit();
+});
 </script>
 
 </body>
