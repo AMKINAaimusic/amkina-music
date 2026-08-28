@@ -2098,6 +2098,121 @@ body.compact-lyrics-open{padding-bottom:214px!important}
 }
 </style>
 
+
+<style id="amkina-artists-style">
+#artists-page{display:none;padding:34px 30px 150px;background:#fafafa;min-height:100vh;color:#111}
+#artists-page.active{display:block!important}
+.artist-page-wrap{max-width:1380px;margin:0 auto}
+.artist-page-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:28px}
+.artist-page-kicker{font-size:11px;font-weight:900;letter-spacing:.22em;color:#8a8a8a;margin-bottom:8px}
+.artist-page-title{font-size:38px;line-height:1;font-weight:950;letter-spacing:-1.5px;margin:0}
+.artist-page-desc{font-size:13px;color:#777;margin-top:10px}
+.artist-search{width:280px;max-width:40vw;border:1px solid #ddd;border-radius:999px;background:#fff;padding:11px 16px;font-size:12px;outline:none}
+.artist-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.artist-card{background:#fff;border:1px solid #e3e3e3;border-radius:16px;padding:20px;cursor:pointer;transition:.18s ease;min-width:0}
+.artist-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.07);border-color:#cfcfcf}
+.artist-avatar{width:76px;height:76px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:950;overflow:hidden;margin-bottom:15px}
+.artist-avatar img{width:100%;height:100%;object-fit:cover}
+.artist-name{font-size:17px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist-handle{font-size:11px;color:#999;margin-top:4px}
+.artist-mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:16px;padding-top:14px;border-top:1px solid #eee}
+.artist-mini-stat{text-align:center}.artist-mini-stat b{display:block;font-size:14px;color:#111}.artist-mini-stat span{font-size:9px;color:#999}
+.artist-top-song{margin-top:13px;font-size:10px;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist-top-song b{color:#111}
+.artist-empty{padding:70px 20px;text-align:center;color:#888;background:#fff;border:1px solid #e5e5e5;border-radius:16px}
+.artist-detail{display:none}.artist-detail.active{display:block}
+.artist-list-view.hidden{display:none}
+.artist-back{border:0;background:transparent;font-weight:900;font-size:12px;cursor:pointer;padding:0 0 18px}
+.artist-hero{display:flex;align-items:center;gap:24px;background:#fff;border:1px solid #e2e2e2;border-radius:18px;padding:26px;margin-bottom:18px}
+.artist-hero .artist-avatar{width:112px;height:112px;margin:0;font-size:34px}
+.artist-detail-name{font-size:30px;font-weight:950;letter-spacing:-1px}
+.artist-detail-sub{font-size:12px;color:#888;margin-top:6px}
+.artist-detail-stats{display:flex;gap:28px;margin-top:17px}.artist-detail-stats b{font-size:19px}.artist-detail-stats span{font-size:10px;color:#999;margin-left:4px}
+.artist-track-list{background:#fff;border:1px solid #e3e3e3;border-radius:16px;overflow:hidden}
+.artist-track-row{display:grid;grid-template-columns:44px 54px minmax(0,1fr) 90px 80px;align-items:center;gap:12px;padding:10px 15px;border-bottom:1px solid #eee;cursor:pointer}
+.artist-track-row:last-child{border-bottom:0}.artist-track-row:hover{background:#fafafa}
+.artist-track-cover{width:48px;height:48px;border-radius:8px;object-fit:cover;background:#eee}
+.artist-track-title{font-size:12px;font-weight:900}.artist-track-genre{font-size:9px;color:#999;margin-top:3px}
+.artist-track-stat{font-size:10px;color:#777;text-align:right}
+@media(max-width:1050px){.artist-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){#artists-page{padding:22px 16px 130px}.artist-page-head{display:block}.artist-page-title{font-size:30px}.artist-search{max-width:none;width:100%;margin-top:18px}.artist-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.artist-card{padding:14px}.artist-avatar{width:62px;height:62px}.artist-mini-stats{grid-template-columns:repeat(3,1fr)}.artist-hero{display:block;text-align:center}.artist-hero .artist-avatar{margin:0 auto 15px}.artist-detail-stats{justify-content:center}.artist-track-row{grid-template-columns:32px 48px minmax(0,1fr) 60px}.artist-track-row .likes-stat{display:none}}
+</style>
+
+<section id="artists-page" aria-label="AMKINA 아티스트">
+ <div class="artist-page-wrap">
+  <div class="artist-list-view" id="artist-list-view">
+   <div class="artist-page-head">
+    <div>
+     <div class="artist-page-kicker">AMKINA MUSIC ARTISTS</div>
+     <h1 class="artist-page-title">ARTISTS</h1>
+     <div class="artist-page-desc">AMKINA MUSIC에서 활동하는 아티스트와 음악을 만나보세요.</div>
+    </div>
+    <input id="artist-search" class="artist-search" placeholder="아티스트 검색" oninput="renderArtistsPage(this.value)">
+   </div>
+   <div id="artist-grid" class="artist-grid"></div>
+  </div>
+  <div class="artist-detail" id="artist-detail"></div>
+ </div>
+</section>
+
+<script id="amkina-artists-script">
+function amkinaArtistEscape(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function amkinaArtistTracks(){
+ return (Array.isArray(window.tracks)?window.tracks:[]).filter(t=>t&&t.artist);
+}
+function amkinaArtistGroups(){
+ const map=new Map();
+ amkinaArtistTracks().forEach(t=>{
+   const key=t.uploader_id ? "u:"+String(t.uploader_id) : "a:"+String(t.artist).trim().toLowerCase();
+   if(!map.has(key))map.set(key,{key,name:String(t.artist||"Unknown Artist").trim(),uploader_id:t.uploader_id||null,tracks:[]});
+   map.get(key).tracks.push(t);
+ });
+ return [...map.values()].map(a=>{
+   a.plays=a.tracks.reduce((n,t)=>n+(Number(t.play_count)||0),0);
+   a.likes=a.tracks.reduce((n,t)=>n+(Number(t._live_like_count ?? t.like_count ?? t.likes)||0),0);
+   a.top=a.tracks.slice().sort((x,y)=>(Number(y.play_count)||0)-(Number(x.play_count)||0))[0]||null;
+   a.cover=(a.top&&(a.top.cover_url||a.top.cover))||"";
+   return a;
+ }).sort((a,b)=>b.plays-a.plays||a.name.localeCompare(b.name,"ko"));
+}
+function renderArtistsPage(q=""){
+ const grid=document.getElementById("artist-grid");if(!grid)return;
+ const query=String(q||"").trim().toLowerCase();
+ const groups=amkinaArtistGroups().filter(a=>!query||a.name.toLowerCase().includes(query));
+ if(!groups.length){grid.innerHTML='<div class="artist-empty" style="grid-column:1/-1">표시할 아티스트가 없습니다.</div>';return;}
+ grid.innerHTML=groups.map(a=>{
+   const initial=amkinaArtistEscape(a.name.slice(0,1).toUpperCase());
+   const avatar=a.cover?'<img src="'+amkinaArtistEscape(a.cover)+'" alt="">':initial;
+   return '<article class="artist-card" onclick="openArtistDetail('+JSON.stringify(a.key).replace(/"/g,"&quot;")+')">'+
+    '<div class="artist-avatar">'+avatar+'</div>'+
+    '<div class="artist-name">'+amkinaArtistEscape(a.name)+'</div>'+
+    '<div class="artist-handle">ARTIST</div>'+
+    '<div class="artist-mini-stats"><div class="artist-mini-stat"><b>'+a.tracks.length+'</b><span>곡</span></div><div class="artist-mini-stat"><b>'+a.plays.toLocaleString()+'</b><span>재생</span></div><div class="artist-mini-stat"><b>'+a.likes.toLocaleString()+'</b><span>좋아요</span></div></div>'+
+    '<div class="artist-top-song">대표곡 · <b>'+amkinaArtistEscape(a.top?.title||"-")+'</b></div></article>';
+ }).join("");
+}
+function openArtistDetail(key){
+ const a=amkinaArtistGroups().find(x=>x.key===key);if(!a)return;
+ document.getElementById("artist-list-view")?.classList.add("hidden");
+ const d=document.getElementById("artist-detail");d.classList.add("active");
+ const initial=amkinaArtistEscape(a.name.slice(0,1).toUpperCase());
+ const avatar=a.cover?'<img src="'+amkinaArtistEscape(a.cover)+'" alt="">':initial;
+ const rows=a.tracks.slice().sort((x,y)=>(Number(y.play_count)||0)-(Number(x.play_count)||0)).map((t,i)=>
+  '<div class="artist-track-row" onclick="amkinaPlayChartTrack('+JSON.stringify(String(t.id)).replace(/"/g,"&quot;")+')"><div>'+(i+1)+'</div><img class="artist-track-cover" src="'+amkinaArtistEscape(t.cover_url||t.cover||"")+'"><div><div class="artist-track-title">'+amkinaArtistEscape(t.title||"Untitled")+'</div><div class="artist-track-genre">'+amkinaArtistEscape(t.genre||"ORIGINAL")+'</div></div><div class="artist-track-stat">▷ '+(Number(t.play_count)||0).toLocaleString()+'</div><div class="artist-track-stat likes-stat">♡ '+(Number(t._live_like_count ?? t.like_count ?? t.likes)||0).toLocaleString()+'</div></div>'
+ ).join("");
+ d.innerHTML='<button class="artist-back" onclick="closeArtistDetail()">← 아티스트 목록</button><div class="artist-hero"><div class="artist-avatar">'+avatar+'</div><div><div class="artist-detail-name">'+amkinaArtistEscape(a.name)+'</div><div class="artist-detail-sub">AMKINA MUSIC ARTIST</div><div class="artist-detail-stats"><div><b>'+a.tracks.length+'</b><span>곡</span></div><div><b>'+a.plays.toLocaleString()+'</b><span>총 재생</span></div><div><b>'+a.likes.toLocaleString()+'</b><span>좋아요</span></div></div></div></div><div class="artist-track-list">'+rows+'</div>';
+}
+function closeArtistDetail(){document.getElementById("artist-detail")?.classList.remove("active");document.getElementById("artist-list-view")?.classList.remove("hidden");}
+function showArtistsPage(e){
+ if(e)e.preventDefault();
+ ["music","studio","community","chart100-page","mypage"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+ const p=document.getElementById("artists-page");if(p){p.style.setProperty("display","block","important");p.classList.add("active")}
+ document.querySelectorAll(".amkina-sidebar-nav a").forEach(a=>a.classList.remove("menu-active"));
+ document.getElementById("artists-nav")?.classList.add("menu-active");
+ closeArtistDetail();renderArtistsPage(document.getElementById("artist-search")?.value||"");
+ window.scrollTo({top:0,behavior:"smooth"});return false;
+}
+</script>
 <style id="amkina-chart100-page-switch-fix">
 #chart100-page.active{display:block!important;visibility:visible!important;opacity:1!important}
 </style>
@@ -2297,10 +2412,9 @@ body.compact-lyrics-open{padding-bottom:214px!important}
         <span class="nav-text">CHART 100</span>
     </a>
 
-    <a href="#" class="coming-link">
-        <span class="nav-icon">♡</span>
-        <span class="nav-text">공개가사집</span>
-        <span class="coming-soon">준비중</span>
+    <a href="#artists" id="artists-nav" onclick="return showArtistsPage(event);">
+        <span class="nav-icon">♙</span>
+        <span class="nav-text">아티스트</span>
     </a>
 
     <a href="#community" onclick="showCommunityPage(event); return false;" id="community-nav">
@@ -10029,7 +10143,7 @@ async function showMyPage(event){
  if(event){event.preventDefault();event.stopPropagation()}
  const s=mpSession();
  if(!s?.user?.id){alert("마이페이지는 로그인이 필요합니다.");document.getElementById("auth-modal").style.display="flex";return false}
- ["music","studio","community","chart100-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+ ["music","studio","community","chart100-page","artists-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
  const hero=document.querySelector(".hero");if(hero)hero.style.setProperty("display","none","important");
  const page=document.getElementById("mypage");page.style.setProperty("display","block","important");
  document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("mypage-nav")?.classList.add("menu-active");
@@ -10114,3 +10228,12 @@ async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const 
 </script>
 </body>
 </html>
+<script id="amkina-artists-nav-safety">
+(function(){
+ ["showHomePage","showMusicPage","showCommunityPage","openChart100","showMyPage"].forEach(n=>{
+   const old=window[n]; if(typeof old!=="function"||old.__artistWrapped)return;
+   const fn=function(){const p=document.getElementById("artists-page");if(p){p.style.setProperty("display","none","important");p.classList.remove("active")}return old.apply(this,arguments)};
+   fn.__artistWrapped=true;window[n]=fn;
+ });
+})();
+</script>
