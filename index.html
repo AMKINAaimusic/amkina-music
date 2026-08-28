@@ -2418,6 +2418,23 @@ async function showArtistsPage(e){
 @media(max-width:700px){.amkina-library-page{padding:22px 16px 100px}.lib-head{align-items:flex-start;flex-direction:column}.lib-head h1{font-size:30px}.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lib-detail-hero{align-items:flex-start;flex-direction:column}.lib-detail-cover{width:140px;height:140px}.lib-detail-hero h2{font-size:27px}}
 </style>
 
+
+<style id="amkina-mypage-dashboard-style">
+.mp-creator-dashboard{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin:16px 0 4px}
+.mp-dash-box{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:18px}
+.mp-dash-title{font-size:14px;font-weight:900;margin-bottom:14px}.mp-dash-sub{font-size:11px;color:#888;margin-top:3px}
+.mp-top-row{display:grid;grid-template-columns:30px 44px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.mp-top-row:last-child{border:0}.mp-top-rank{font-weight:900}.mp-top-row img{width:44px;height:44px;border-radius:7px;object-fit:cover}
+.mp-top-name{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mp-top-play{font-size:11px;color:#777}
+.mp-mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mp-mini-stat{border:1px solid #eee;border-radius:11px;padding:14px}.mp-mini-stat span{font-size:10px;color:#888;display:block}.mp-mini-stat b{font-size:20px;display:block;margin-top:5px}
+.mp-feature-card{position:relative}.mp-feature-badge{position:absolute;top:9px;left:9px;background:#111;color:#fff;font-size:10px;font-weight:900;padding:6px 8px;border-radius:999px}
+.mp-feature-actions{display:flex;gap:6px;margin-top:8px}.mp-feature-actions button{flex:1;border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px;font-size:11px;font-weight:800;cursor:pointer}
+.mp-feature-pick{border:1px dashed #ccc;border-radius:14px;padding:20px;margin-bottom:14px}.mp-feature-pick h3{margin:0 0 5px;font-size:14px}.mp-feature-pick p{margin:0 0 14px;font-size:11px;color:#888}
+.mp-feature-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.mp-feature-choice{border:1px solid #eee;border-radius:10px;padding:8px;display:flex;align-items:center;gap:8px}.mp-feature-choice img{width:44px;height:44px;border-radius:7px;object-fit:cover}.mp-feature-choice div{min-width:0;flex:1;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mp-feature-choice button{border:0;background:#111;color:#fff;border-radius:7px;padding:7px;cursor:pointer}
+.mp-profile-extra{font-size:11px;color:#777;margin-top:6px}.mp-profile-extra a{color:#111;font-weight:800;text-decoration:none}
+@media(max-width:800px){.mp-creator-dashboard{grid-template-columns:1fr}.mp-feature-list{grid-template-columns:1fr}.mp-top-row{grid-template-columns:24px 40px minmax(0,1fr) auto}}
+</style>
+
 </head>
 
 <body>
@@ -10321,6 +10338,8 @@ document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(documen
     <div id="mp-name" class="mp-name">AMKINA USER</div>
     <div id="mp-handle" class="mp-handle">@user</div>
     <div id="mp-bio" class="mp-bio">음악으로 소통하는 AMKINA MUSIC</div>
+    <div id="mp-genres" class="mp-profile-extra"></div>
+    <div id="mp-social" class="mp-profile-extra"></div>
     <div id="mp-joined" class="mp-joined"></div>
    </div>
    <button class="mp-edit" onclick="openMyProfileEdit()">✎ 프로필 편집</button>
@@ -10333,6 +10352,7 @@ document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(documen
   </div>
   <div class="mp-tabs">
    <button class="mp-tab active" data-mptab="music">내 음악</button>
+   <button class="mp-tab" data-mptab="featured">대표곡</button>
    <button class="mp-tab" data-mptab="likes">좋아요한 곡</button>
    <button class="mp-tab" data-mptab="comments">내 댓글</button>
    <button class="mp-tab" data-mptab="stats">통계</button>
@@ -10346,13 +10366,15 @@ document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(documen
   <h2>프로필 편집</h2>
   <label>닉네임<input id="mp-edit-name" maxlength="40"></label>
   <label>소개<textarea id="mp-edit-bio" rows="4" maxlength="200"></textarea></label>
+  <label>주 장르<input id="mp-edit-genres" maxlength="120" placeholder="예: Electronic Pop, Ballad, R&B"></label>
+  <label>YouTube / SNS 링크<input id="mp-edit-social" maxlength="300" placeholder="https://..."></label>
   <label>프로필 이미지 URL<input id="mp-edit-avatar" placeholder="https://..."></label>
   <div class="mp-modal-actions"><button onclick="closeMyProfileEdit()">취소</button><button class="mp-save" onclick="saveMyProfile()">저장하기</button></div>
  </div>
 </div>
 
 <script id="amkina-mypage-script">
-let mpData={mine:[],likes:[],comments:[],profile:null,likeRows:[]};
+let mpData={mine:[],likes:[],comments:[],profile:null,likeRows:[],featured:[]};
 let mpTab="music";
 const mpDefaultAvatar="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23111111'/%3E%3Cpath d='M32 72c7-15 18-23 28-23s21 8 28 23' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Ccircle cx='60' cy='38' r='14' fill='none' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E";
 
@@ -10378,18 +10400,21 @@ async function loadMyPage(){
   const uid=encodeURIComponent(s.user.id);
 
   // 마이페이지는 홈 화면의 tracks 배열을 기다리지 않고 DB에서 직접 집계합니다.
-  const [pr,lr,cr,tr,allLikesR]=await Promise.all([
+  const [pr,lr,cr,tr,allLikesR,featuredR]=await Promise.all([
    fetch(SUPABASE_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{headers:mpHeaders(false)}),
    fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id,user_id&user_id=eq."+uid,{headers:mpHeaders(false)}),
    fetch(SUPABASE_URL+"/rest/v1/track_comments?select=*&user_id=eq."+uid+"&order=created_at.desc",{headers:mpHeaders(false)}),
    fetch(SUPABASE_URL+"/rest/v1/tracks?uploader_id=eq."+uid+"&select=*&order=id.desc",{headers:mpHeaders(false)}),
-   fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id",{headers:mpHeaders(false)})
+   fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id",{headers:mpHeaders(false)}),
+   fetch(SUPABASE_URL+"/rest/v1/artist_featured_tracks?user_id=eq."+uid+"&select=track_id,position&order=position.asc",{headers:mpHeaders(false)})
   ]);
 
   mpData.profile=pr.ok?(await pr.json())[0]||null:null;
   mpData.likeRows=lr.ok?await lr.json():[];
   mpData.comments=cr.ok?await cr.json():[];
   mpData.mine=tr.ok?await tr.json():[];
+  const featuredRows=featuredR.ok?await featuredR.json():[];
+  mpData.featured=featuredRows.map(x=>mpData.mine.find(t=>String(t.id)===String(x.track_id))).filter(Boolean);
 
   // 좋아요한 곡도 DB에서 실제 곡을 찾아옵니다.
   const likedIds=mpData.likeRows.map(x=>String(x.track_id));
@@ -10405,6 +10430,9 @@ async function loadMyPage(){
   document.getElementById("mp-name").textContent=p.nickname||fallback;
   document.getElementById("mp-handle").textContent="@"+(p.nickname||fallback).replace(/\s+/g,"_").toLowerCase();
   document.getElementById("mp-bio").textContent=p.bio||"음악으로 소통하는 AMKINA MUSIC";
+  document.getElementById("mp-genres").textContent=p.genres?("주 장르 · "+p.genres):"";
+  const social=document.getElementById("mp-social");
+  if(p.social_url){social.innerHTML='<a href="'+mpEsc(p.social_url)+'" target="_blank" rel="noopener">SNS / YouTube ↗</a>'}else social.innerHTML="";
   document.getElementById("mp-avatar").src=p.avatar_url||mpDefaultAvatar;
   document.getElementById("mp-joined").textContent="가입일 "+new Date(s.user.created_at||Date.now()).toLocaleDateString("ko-KR");
 
@@ -10436,17 +10464,27 @@ function renderMyPageTab(){
   const rows=mpTab==="music"?mpData.mine:mpData.likes;
   el.innerHTML=rows.length?'<div class="mp-grid">'+rows.map(t=>`<article class="mp-card" onclick="mpPlay('${t.id}')"><img src="${mpEsc(mpCover(t))}"><div class="mp-card-body"><div class="mp-card-title">${mpEsc(t.title||"Untitled")}</div><div class="mp-card-sub">${mpEsc(t.artist||"AMKINA")} · ${mpEsc(t.genre||"ORIGINAL")}</div><div class="mp-card-stat">▷ ${Number(t.play_count||0).toLocaleString()}</div></div></article>`).join("")+"</div>":'<div class="mp-empty">'+(mpTab==="music"?"아직 업로드한 음악이 없습니다.":"아직 좋아요한 곡이 없습니다.")+"</div>";return;
  }
+ if(mpTab==="featured"){
+  const chosen=new Set(mpData.featured.map(t=>String(t.id)));
+  const selected=mpData.featured.length?'<div class="mp-grid">'+mpData.featured.map((t,i)=>`<article class="mp-card mp-feature-card"><span class="mp-feature-badge">대표곡 ${i+1}</span><img src="${mpEsc(mpCover(t))}" onclick="mpPlay('${t.id}')"><div class="mp-card-body"><div class="mp-card-title">${mpEsc(t.title)}</div><div class="mp-card-stat">▷ ${Number(t.play_count||0).toLocaleString()}</div><div class="mp-feature-actions"><button onclick="removeFeaturedTrack('${t.id}')">대표곡 해제</button></div></div></article>`).join("")+'</div>':'<div class="mp-empty" style="padding:25px">아직 대표곡을 지정하지 않았습니다.</div>';
+  const choices=mpData.mine.filter(t=>!chosen.has(String(t.id)));
+  el.innerHTML=`<div class="mp-feature-pick"><h3>대표곡 설정</h3><p>내 음악 중 최대 3곡을 아티스트 대표곡으로 지정할 수 있습니다.</p>${selected}</div>${mpData.featured.length<3&&choices.length?'<div class="mp-feature-list">'+choices.map(t=>`<div class="mp-feature-choice"><img src="${mpEsc(mpCover(t))}"><div>${mpEsc(t.title)}</div><button onclick="addFeaturedTrack('${t.id}')">선택</button></div>`).join("")+'</div>':""}`;
+  return;
+ }
  if(mpTab==="comments"){
   el.innerHTML=mpData.comments.length?'<div class="mp-list">'+mpData.comments.map(c=>{const t=(tracks||[]).find(x=>String(x.id)===String(c.track_id));return `<div class="mp-list-row" onclick="openTrackComments('${c.track_id}')"><img src="${mpEsc(mpCover(t))}"><div class="mp-list-main"><b>${mpEsc(t?.title||"음원")}</b><div>${mpEsc(c.content||"")}</div></div></div>`}).join("")+"</div>":'<div class="mp-empty">작성한 댓글이 없습니다.</div>';return;
  }
- const top=[...mpData.mine].sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0))[0];
- el.innerHTML=`<div class="mp-list"><div class="mp-list-row"><div class="mp-list-main"><b>내 음원 총 재생수</b><div>${Number(mpData.totalPlays||0).toLocaleString()}회</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>업로드한 곡</b><div>${mpData.mine.length.toLocaleString()}곡</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>가장 많이 재생된 곡</b><div>${mpEsc(top?.title||"-")} ${top?"· "+Number(top.play_count||0).toLocaleString()+"회":""}</div></div></div></div>`;
+ const ranked=[...mpData.mine].sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0)),top=ranked[0],top5=ranked.slice(0,5);
+ const avg=mpData.mine.length?Math.round(Number(mpData.totalPlays||0)/mpData.mine.length):0;
+ el.innerHTML=`<div class="mp-creator-dashboard"><div class="mp-dash-box"><div class="mp-dash-title">내 인기곡 TOP 5<div class="mp-dash-sub">누적 재생수 기준</div></div>${top5.length?top5.map((t,i)=>`<div class="mp-top-row" onclick="mpPlay('${t.id}')" style="cursor:pointer"><div class="mp-top-rank">${i+1}</div><img src="${mpEsc(mpCover(t))}"><div class="mp-top-name">${mpEsc(t.title)}</div><div class="mp-top-play">${Number(t.play_count||0).toLocaleString()}회</div></div>`).join(""):'<div class="mp-empty">업로드한 곡이 없습니다.</div>'}</div><div class="mp-dash-box"><div class="mp-dash-title">Creator Summary<div class="mp-dash-sub">현재 누적 성과</div></div><div class="mp-mini-stats"><div class="mp-mini-stat"><span>총 재생수</span><b>${Number(mpData.totalPlays||0).toLocaleString()}</b></div><div class="mp-mini-stat"><span>받은 좋아요</span><b>${Number(mpData.receivedLikes||0).toLocaleString()}</b></div><div class="mp-mini-stat"><span>곡당 평균 재생</span><b>${avg.toLocaleString()}</b></div><div class="mp-mini-stat"><span>대표곡</span><b>${mpData.featured.length}/3</b></div></div>${top?`<div class="mp-dash-sub" style="margin-top:14px">최고 인기곡 · <b style="color:#111">${mpEsc(top.title)}</b></div>`:""}</div></div>`;
 }
 function mpPlay(id){const i=(tracks||[]).findIndex(t=>String(t.id)===String(id));if(i>=0)playTrack(i)}
 document.addEventListener("click",e=>{const b=e.target.closest(".mp-tab");if(!b)return;document.querySelectorAll(".mp-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");mpTab=b.dataset.mptab;renderMyPageTab()});
-function openMyProfileEdit(){const s=mpSession(),p=mpData.profile||{};document.getElementById("mp-edit-name").value=p.nickname||(s?.user?.email||"user").split("@")[0];document.getElementById("mp-edit-bio").value=p.bio||"";document.getElementById("mp-edit-avatar").value=p.avatar_url||"";document.getElementById("mp-profile-modal").style.display="flex"}
+function openMyProfileEdit(){const s=mpSession(),p=mpData.profile||{};document.getElementById("mp-edit-name").value=p.nickname||(s?.user?.email||"user").split("@")[0];document.getElementById("mp-edit-bio").value=p.bio||"";document.getElementById("mp-edit-genres").value=p.genres||"";document.getElementById("mp-edit-social").value=p.social_url||"";document.getElementById("mp-edit-avatar").value=p.avatar_url||"";document.getElementById("mp-profile-modal").style.display="flex"}
 function closeMyProfileEdit(){document.getElementById("mp-profile-modal").style.display="none"}
-async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const body={id:s.user.id,nickname:document.getElementById("mp-edit-name").value.trim(),bio:document.getElementById("mp-edit-bio").value.trim(),avatar_url:document.getElementById("mp-edit-avatar").value.trim(),updated_at:new Date().toISOString()};const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});if(!r.ok){alert("프로필 저장에 실패했습니다. 마이페이지 SQL을 먼저 실행해주세요.");return}closeMyProfileEdit();await loadMyPage()}
+async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const body={id:s.user.id,nickname:document.getElementById("mp-edit-name").value.trim(),bio:document.getElementById("mp-edit-bio").value.trim(),genres:document.getElementById("mp-edit-genres").value.trim(),social_url:document.getElementById("mp-edit-social").value.trim(),avatar_url:document.getElementById("mp-edit-avatar").value.trim(),updated_at:new Date().toISOString()};const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});if(!r.ok){console.error(await r.text());alert("프로필 저장에 실패했습니다. 마이페이지 확장 SQL을 먼저 실행해주세요.");return}closeMyProfileEdit();await loadMyPage()}
+async function addFeaturedTrack(trackId){const s=mpSession();if(!s?.user?.id)return;if(mpData.featured.length>=3)return alert("대표곡은 최대 3곡까지 지정할 수 있습니다.");const r=await fetch(SUPABASE_URL+"/rest/v1/artist_featured_tracks",{method:"POST",headers:{...mpHeaders(true),"Prefer":"return=minimal"},body:JSON.stringify({user_id:s.user.id,track_id:Number(trackId),position:mpData.featured.length+1})});if(!r.ok){console.error(await r.text());alert("대표곡 설정에 실패했습니다. 확장 SQL 실행 여부를 확인해주세요.");return}await loadMyPage();mpTab="featured";document.querySelectorAll(".mp-tab").forEach(b=>b.classList.toggle("active",b.dataset.mptab==="featured"));renderMyPageTab()}
+async function removeFeaturedTrack(trackId){const s=mpSession();if(!s?.user?.id)return;const r=await fetch(SUPABASE_URL+"/rest/v1/artist_featured_tracks?user_id=eq."+encodeURIComponent(s.user.id)+"&track_id=eq."+encodeURIComponent(trackId),{method:"DELETE",headers:mpHeaders(true)});if(!r.ok){alert("대표곡 해제에 실패했습니다.");return}await loadMyPage();mpTab="featured";document.querySelectorAll(".mp-tab").forEach(b=>b.classList.toggle("active",b.dataset.mptab==="featured"));renderMyPageTab()}
 </script>
 
 <script id="amkina-password-recovery-v1">
