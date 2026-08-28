@@ -9777,26 +9777,59 @@ async function loadMyPage(){
  const s=mpSession();if(!s?.user?.id)return;
  try{
   const uid=encodeURIComponent(s.user.id);
-  const [pr,lr,cr]=await Promise.all([
+
+  // 마이페이지는 홈 화면의 tracks 배열을 기다리지 않고 DB에서 직접 집계합니다.
+  const [pr,lr,cr,tr,allLikesR]=await Promise.all([
    fetch(SUPABASE_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{headers:mpHeaders(false)}),
    fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id,user_id&user_id=eq."+uid,{headers:mpHeaders(false)}),
-   fetch(SUPABASE_URL+"/rest/v1/track_comments?select=*&user_id=eq."+uid+"&order=created_at.desc",{headers:mpHeaders(false)})
+   fetch(SUPABASE_URL+"/rest/v1/track_comments?select=*&user_id=eq."+uid+"&order=created_at.desc",{headers:mpHeaders(false)}),
+   fetch(SUPABASE_URL+"/rest/v1/tracks?uploader_id=eq."+uid+"&select=*&order=id.desc",{headers:mpHeaders(false)}),
+   fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id",{headers:mpHeaders(false)})
   ]);
-  mpData.profile=pr.ok?(await pr.json())[0]||null:null;mpData.likeRows=lr.ok?await lr.json():[];mpData.comments=cr.ok?await cr.json():[];
-  mpData.mine=(typeof tracks!=="undefined"?tracks:[]).filter(t=>String(t.uploader_id)===String(s.user.id));
-  const ids=new Set(mpData.likeRows.map(x=>String(x.track_id)));mpData.likes=(typeof tracks!=="undefined"?tracks:[]).filter(t=>ids.has(String(t.id)));
+
+  mpData.profile=pr.ok?(await pr.json())[0]||null:null;
+  mpData.likeRows=lr.ok?await lr.json():[];
+  mpData.comments=cr.ok?await cr.json():[];
+  mpData.mine=tr.ok?await tr.json():[];
+
+  // 좋아요한 곡도 DB에서 실제 곡을 찾아옵니다.
+  const likedIds=mpData.likeRows.map(x=>String(x.track_id));
+  if(likedIds.length){
+    const inFilter="("+likedIds.map(x=>encodeURIComponent(x)).join(",")+")";
+    const likedR=await fetch(SUPABASE_URL+"/rest/v1/tracks?id=in."+inFilter+"&select=*",{headers:mpHeaders(false)});
+    mpData.likes=likedR.ok?await likedR.json():[];
+  }else{
+    mpData.likes=[];
+  }
+
   const fallback=(s.user.email||"user").split("@")[0],p=mpData.profile||{};
   document.getElementById("mp-name").textContent=p.nickname||fallback;
   document.getElementById("mp-handle").textContent="@"+(p.nickname||fallback).replace(/\s+/g,"_").toLowerCase();
   document.getElementById("mp-bio").textContent=p.bio||"음악으로 소통하는 AMKINA MUSIC";
   document.getElementById("mp-avatar").src=p.avatar_url||mpDefaultAvatar;
   document.getElementById("mp-joined").textContent="가입일 "+new Date(s.user.created_at||Date.now()).toLocaleDateString("ko-KR");
-  document.getElementById("mp-upload-count").textContent=mpData.mine.length.toLocaleString();
-  document.getElementById("mp-play-count").textContent=mpData.mine.reduce((a,t)=>a+Number(t.play_count||0),0).toLocaleString();
-  const allLikes=await fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id",{headers:mpHeaders(false)}).then(r=>r.ok?r.json():[]);
-  const myIds=new Set(mpData.mine.map(t=>String(t.id)));document.getElementById("mp-like-count").textContent=allLikes.filter(x=>myIds.has(String(x.track_id))).length.toLocaleString();
+
+  const uploadCount=mpData.mine.length;
+  const totalPlays=mpData.mine.reduce((sum,t)=>sum+Number(t.play_count||0),0);
+
+  const allLikes=allLikesR.ok?await allLikesR.json():[];
+  const myTrackIds=new Set(mpData.mine.map(t=>String(t.id)));
+  const receivedLikes=allLikes.filter(x=>myTrackIds.has(String(x.track_id))).length;
+
+  document.getElementById("mp-upload-count").textContent=uploadCount.toLocaleString();
+  document.getElementById("mp-play-count").textContent=totalPlays.toLocaleString();
+  document.getElementById("mp-like-count").textContent=receivedLikes.toLocaleString();
+
+  // 통계 탭에서도 같은 실제 집계값을 사용
+  mpData.uploadCount=uploadCount;
+  mpData.totalPlays=totalPlays;
+  mpData.receivedLikes=receivedLikes;
+
   renderMyPageTab();
- }catch(e){console.error("마이페이지:",e);document.getElementById("mp-content").innerHTML='<div class="mp-empty">마이페이지 데이터를 불러오지 못했습니다.</div>'}
+ }catch(e){
+  console.error("마이페이지:",e);
+  document.getElementById("mp-content").innerHTML='<div class="mp-empty">마이페이지 데이터를 불러오지 못했습니다.</div>';
+ }
 }
 function renderMyPageTab(){
  const el=document.getElementById("mp-content");if(!el)return;
@@ -9808,7 +9841,7 @@ function renderMyPageTab(){
   el.innerHTML=mpData.comments.length?'<div class="mp-list">'+mpData.comments.map(c=>{const t=(tracks||[]).find(x=>String(x.id)===String(c.track_id));return `<div class="mp-list-row" onclick="openTrackComments('${c.track_id}')"><img src="${mpEsc(mpCover(t))}"><div class="mp-list-main"><b>${mpEsc(t?.title||"음원")}</b><div>${mpEsc(c.content||"")}</div></div></div>`}).join("")+"</div>":'<div class="mp-empty">작성한 댓글이 없습니다.</div>';return;
  }
  const top=[...mpData.mine].sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0))[0];
- el.innerHTML=`<div class="mp-list"><div class="mp-list-row"><div class="mp-list-main"><b>내 음원 총 재생수</b><div>${mpData.mine.reduce((a,t)=>a+Number(t.play_count||0),0).toLocaleString()}회</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>업로드한 곡</b><div>${mpData.mine.length.toLocaleString()}곡</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>가장 많이 재생된 곡</b><div>${mpEsc(top?.title||"-")} ${top?"· "+Number(top.play_count||0).toLocaleString()+"회":""}</div></div></div></div>`;
+ el.innerHTML=`<div class="mp-list"><div class="mp-list-row"><div class="mp-list-main"><b>내 음원 총 재생수</b><div>${Number(mpData.totalPlays||0).toLocaleString()}회</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>업로드한 곡</b><div>${mpData.mine.length.toLocaleString()}곡</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>가장 많이 재생된 곡</b><div>${mpEsc(top?.title||"-")} ${top?"· "+Number(top.play_count||0).toLocaleString()+"회":""}</div></div></div></div>`;
 }
 function mpPlay(id){const i=(tracks||[]).findIndex(t=>String(t.id)===String(id));if(i>=0)playTrack(i)}
 document.addEventListener("click",e=>{const b=e.target.closest(".mp-tab");if(!b)return;document.querySelectorAll(".mp-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");mpTab=b.dataset.mptab;renderMyPageTab()});
