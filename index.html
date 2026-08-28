@@ -2796,8 +2796,12 @@ async function loadMusic(){
 
           <div class="track-stats" aria-label="트랙 통계">
             <span class="track-stat"><span class="stat-play">▷</span><span>${Number(track.play_count || 0).toLocaleString()}</span></span>
-            <span class="track-stat"><span class="stat-heart">♡</span><span>${Number(track.like_count || track.likes || 0).toLocaleString()}</span></span>
-            <span class="track-stat"><span class="stat-comment">▢</span><span>${Number(track.comment_count || track.comments || 0).toLocaleString()}</span></span>
+            <button type="button" class="track-stat track-like-btn" data-like-track="${String(track.id ?? "")}" aria-label="좋아요">
+              <span class="stat-heart">♡</span><span class="like-count">${Number(track.like_count || track.likes || 0).toLocaleString()}</span>
+            </button>
+            <button type="button" class="track-stat track-comment-btn" data-comment-track="${String(track.id ?? "")}" aria-label="댓글">
+              <span class="stat-comment">▢</span><span class="comment-count">${Number(track.comment_count || track.comments || 0).toLocaleString()}</span>
+            </button>
           </div>
 
         </div>
@@ -9543,6 +9547,138 @@ document.addEventListener("DOMContentLoaded",function(){
     };
   }
 });
+</script>
+
+<style id="amkina-track-social-style">
+.track-stats button.track-stat{appearance:none;border:0;background:transparent;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.track-like-btn.liked .stat-heart{color:#e52626!important;font-weight:900}
+.track-like-btn.liked{color:#e52626!important}
+.track-like-btn:hover,.track-comment-btn:hover{color:#111!important}
+.track-social-modal{display:none;position:fixed;inset:0;z-index:12050;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.45)}
+.track-social-panel{width:min(560px,100%);max-height:78vh;display:flex;flex-direction:column;background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.22);overflow:hidden}
+.track-social-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid #eee}
+.track-social-head h2{font-size:19px;margin:0;color:#111}
+.track-social-close{border:0;background:none;font-size:28px;cursor:pointer;color:#555}
+.track-comment-list{padding:8px 22px;overflow:auto;min-height:140px}
+.track-comment-item{padding:14px 0;border-bottom:1px solid #eee}
+.track-comment-top{display:flex;gap:9px;align-items:center;font-size:11px;color:#999;margin-bottom:6px}
+.track-comment-author{font-weight:800;color:#333}
+.track-comment-delete{margin-left:auto;border:0;background:none;color:#999;cursor:pointer;font-size:11px}
+.track-comment-body{font-size:13px;line-height:1.55;color:#222;white-space:pre-wrap;word-break:break-word}
+.track-comment-empty{padding:50px 0;text-align:center;color:#999;font-size:13px}
+.track-comment-compose{display:flex;gap:9px;padding:16px 20px;border-top:1px solid #eee;background:#fafafa}
+.track-comment-compose textarea{flex:1;resize:none;height:52px;border:1px solid #ddd;border-radius:10px;padding:10px 12px;font:inherit;outline:none}
+.track-comment-compose textarea:focus{border-color:#111}
+.track-comment-compose button{width:70px;border:0;border-radius:10px;background:#111;color:#fff;font-weight:800;cursor:pointer}
+@media(max-width:768px){.track-social-modal{align-items:flex-end;padding:0}.track-social-panel{width:100%;max-height:82vh;border-radius:18px 18px 0 0}}
+</style>
+
+<div id="track-social-modal" class="track-social-modal">
+ <div class="track-social-panel">
+  <div class="track-social-head">
+   <h2 id="track-social-title">댓글</h2>
+   <button type="button" class="track-social-close" onclick="closeTrackComments()">×</button>
+  </div>
+  <div id="track-comment-list" class="track-comment-list"></div>
+  <div class="track-comment-compose">
+   <textarea id="track-comment-input" maxlength="1000" placeholder="댓글을 입력해주세요."></textarea>
+   <button type="button" onclick="submitTrackComment()">등록</button>
+  </div>
+ </div>
+</div>
+
+<script id="amkina-track-social-script">
+let currentTrackCommentId=null;
+let amkinaTrackLikes=new Set();
+
+function trackSocialSession(){
+ try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}
+}
+function trackSocialHeaders(auth){
+ const s=trackSocialSession();
+ const h={"apikey":SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+ h["Authorization"]="Bearer "+(auth&&s?.access_token?s.access_token:SUPABASE_ANON_KEY);
+ return h;
+}
+function requireTrackLogin(){
+ const s=trackSocialSession();
+ if(s?.access_token&&s?.user?.id)return s;
+ alert("좋아요와 댓글은 로그인이 필요합니다.");
+ const m=document.getElementById("auth-modal"); if(m)m.style.display="flex";
+ return null;
+}
+async function refreshTrackSocial(){
+ const s=trackSocialSession();
+ try{
+   const [lr,cr]=await Promise.all([
+     fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id,user_id",{headers:trackSocialHeaders(false)}),
+     fetch(SUPABASE_URL+"/rest/v1/track_comments?select=track_id",{headers:trackSocialHeaders(false)})
+   ]);
+   if(!lr.ok||!cr.ok)return;
+   const likes=await lr.json(), comments=await cr.json();
+   const lc={},cc={}; amkinaTrackLikes=new Set();
+   likes.forEach(x=>{lc[String(x.track_id)]=(lc[String(x.track_id)]||0)+1;if(s?.user?.id===x.user_id)amkinaTrackLikes.add(String(x.track_id))});
+   comments.forEach(x=>cc[String(x.track_id)]=(cc[String(x.track_id)]||0)+1);
+   document.querySelectorAll(".track[data-track-id]").forEach(card=>{
+     const id=String(card.dataset.trackId);
+     const lb=card.querySelector(".track-like-btn"), cb=card.querySelector(".track-comment-btn");
+     if(lb){lb.classList.toggle("liked",amkinaTrackLikes.has(id));const h=lb.querySelector(".stat-heart");if(h)h.textContent=amkinaTrackLikes.has(id)?"♥":"♡";const c=lb.querySelector(".like-count");if(c)c.textContent=(lc[id]||0).toLocaleString()}
+     if(cb){const c=cb.querySelector(".comment-count");if(c)c.textContent=(cc[id]||0).toLocaleString()}
+   });
+ }catch(e){console.warn("track social refresh",e)}
+}
+async function toggleTrackLike(id){
+ const s=requireTrackLogin(); if(!s)return;
+ id=String(id);
+ const liked=amkinaTrackLikes.has(id);
+ try{
+   const url=SUPABASE_URL+"/rest/v1/track_likes?track_id=eq."+encodeURIComponent(id)+"&user_id=eq."+encodeURIComponent(s.user.id);
+   const r=await fetch(url,{method:liked?"DELETE":"POST",headers:{...trackSocialHeaders(true),...(liked?{}:{"Prefer":"return=minimal"})},body:liked?undefined:JSON.stringify({track_id:id,user_id:s.user.id})});
+   if(!r.ok)throw new Error(await r.text());
+   await refreshTrackSocial();
+ }catch(e){console.error(e);alert("좋아요 처리에 실패했습니다. 먼저 제공된 Supabase SQL을 실행해주세요.")}
+}
+async function openTrackComments(id){
+ currentTrackCommentId=String(id);
+ const t=(typeof tracks!=="undefined"?tracks:[]).find(x=>String(x.id)===currentTrackCommentId);
+ document.getElementById("track-social-title").textContent=(t?.title||"곡")+" · 댓글";
+ document.getElementById("track-social-modal").style.display="flex";
+ await loadTrackComments();
+}
+function closeTrackComments(){document.getElementById("track-social-modal").style.display="none";currentTrackCommentId=null}
+async function loadTrackComments(){
+ const el=document.getElementById("track-comment-list"); if(!el||!currentTrackCommentId)return;
+ el.innerHTML='<div class="track-comment-empty">댓글을 불러오는 중...</div>';
+ try{
+   const r=await fetch(SUPABASE_URL+"/rest/v1/track_comments?track_id=eq."+encodeURIComponent(currentTrackCommentId)+"&select=*&order=created_at.asc",{headers:trackSocialHeaders(false)});
+   if(!r.ok)throw new Error(await r.text());
+   const rows=await r.json(),s=trackSocialSession();
+   el.innerHTML=rows.length?rows.map(c=>`<div class="track-comment-item"><div class="track-comment-top"><span class="track-comment-author">${escapeHtmlChart(c.author_name||"AMKINA USER")}</span><span>${new Date(c.created_at).toLocaleString("ko-KR")}</span>${s?.user?.id===c.user_id?`<button class="track-comment-delete" onclick="deleteTrackComment('${c.id}')">삭제</button>`:""}</div><div class="track-comment-body">${escapeHtmlChart(c.content||"")}</div></div>`).join(""):'<div class="track-comment-empty">아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</div>';
+ }catch(e){el.innerHTML='<div class="track-comment-empty">댓글 기능을 사용하려면 Supabase SQL 설정이 필요합니다.</div>'}
+}
+async function submitTrackComment(){
+ const s=requireTrackLogin(); if(!s||!currentTrackCommentId)return;
+ const input=document.getElementById("track-comment-input"),content=(input?.value||"").trim(); if(!content)return;
+ try{
+   const r=await fetch(SUPABASE_URL+"/rest/v1/track_comments",{method:"POST",headers:{...trackSocialHeaders(true),"Prefer":"return=minimal"},body:JSON.stringify({track_id:currentTrackCommentId,user_id:s.user.id,author_name:(s.user.email||"AMKINA USER").split("@")[0],content})});
+   if(!r.ok)throw new Error(await r.text());
+   input.value="";await loadTrackComments();await refreshTrackSocial();
+ }catch(e){console.error(e);alert("댓글 등록에 실패했습니다. 먼저 제공된 Supabase SQL을 실행해주세요.")}
+}
+async function deleteTrackComment(id){
+ const s=trackSocialSession();if(!s?.access_token)return;
+ if(!confirm("댓글을 삭제할까요?"))return;
+ const r=await fetch(SUPABASE_URL+"/rest/v1/track_comments?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:trackSocialHeaders(true)});
+ if(r.ok){await loadTrackComments();await refreshTrackSocial()}
+}
+document.addEventListener("click",function(e){
+ const like=e.target.closest(".track-like-btn");
+ if(like){e.preventDefault();e.stopPropagation();toggleTrackLike(like.dataset.likeTrack);return}
+ const comment=e.target.closest(".track-comment-btn");
+ if(comment){e.preventDefault();e.stopPropagation();openTrackComments(comment.dataset.commentTrack);return}
+});
+const socialObserver=new MutationObserver(()=>{clearTimeout(window.__socialTimer);window.__socialTimer=setTimeout(refreshTrackSocial,120)});
+document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(document.getElementById("music-list")||document.body,{childList:true,subtree:true});setTimeout(refreshTrackSocial,700)});
 </script>
 </body>
 </html>
