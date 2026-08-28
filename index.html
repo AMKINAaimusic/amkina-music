@@ -2458,7 +2458,7 @@ async function showArtistsPage(e){
         <span class="nav-text">커뮤니티</span>
     </a>
 
-    <a href="#mypage" id="mypage-nav" onclick="return showMyPage(event);">
+    <a href="#mypage" id="mypage-nav" onclick="if(window.hideLibraryPage)window.hideLibraryPage(); return showMyPage(event);">
         <span class="nav-icon">●</span>
         <span class="nav-text">마이페이지</span>
     </a>
@@ -10365,7 +10365,7 @@ async function showMyPage(event){
  if(event){event.preventDefault();event.stopPropagation()}
  const s=mpSession();
  if(!s?.user?.id){alert("마이페이지는 로그인이 필요합니다.");document.getElementById("auth-modal").style.display="flex";return false}
- ["music","studio","community","chart100-page","artists-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+ ["music","studio","community","chart100-page","artists-page","library-page"].forEach(id=>{const x=document.getElementById(id);if(x){x.style.setProperty("display","none","important");x.classList.remove("active")}});
  const hero=document.querySelector(".hero");if(hero)hero.style.setProperty("display","none","important");
  const page=document.getElementById("mypage");page.style.setProperty("display","block","important");
  document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("mypage-nav")?.classList.add("menu-active");
