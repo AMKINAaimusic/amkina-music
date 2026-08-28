@@ -2158,7 +2158,7 @@ body.compact-lyrics-open{padding-bottom:214px!important}
 <script id="amkina-artists-script">
 function amkinaArtistEscape(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 function amkinaArtistTracks(){
- return (Array.isArray(window.tracks)?window.tracks:[]).filter(t=>t&&t.artist);
+ return (typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]).filter(t=>t&&t.artist);
 }
 function amkinaArtistGroups(){
  const map=new Map();
@@ -2203,13 +2203,19 @@ function openArtistDetail(key){
  d.innerHTML='<button class="artist-back" onclick="closeArtistDetail()">← 아티스트 목록</button><div class="artist-hero"><div class="artist-avatar">'+avatar+'</div><div><div class="artist-detail-name">'+amkinaArtistEscape(a.name)+'</div><div class="artist-detail-sub">AMKINA MUSIC ARTIST</div><div class="artist-detail-stats"><div><b>'+a.tracks.length+'</b><span>곡</span></div><div><b>'+a.plays.toLocaleString()+'</b><span>총 재생</span></div><div><b>'+a.likes.toLocaleString()+'</b><span>좋아요</span></div></div></div></div><div class="artist-track-list">'+rows+'</div>';
 }
 function closeArtistDetail(){document.getElementById("artist-detail")?.classList.remove("active");document.getElementById("artist-list-view")?.classList.remove("hidden");}
-function showArtistsPage(e){
+async function showArtistsPage(e){
  if(e)e.preventDefault();
  ["music","studio","community","chart100-page","mypage"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
  const p=document.getElementById("artists-page");if(p){p.style.setProperty("display","block","important");p.classList.add("active")}
  document.querySelectorAll(".amkina-sidebar-nav a").forEach(a=>a.classList.remove("menu-active"));
  document.getElementById("artists-nav")?.classList.add("menu-active");
- closeArtistDetail();renderArtistsPage(document.getElementById("artist-search")?.value||"");
+ closeArtistDetail();
+
+ // 직접 ARTISTS로 들어왔거나 데이터 로딩 전이라면 Supabase 음원을 먼저 불러온다.
+ if((typeof tracks==="undefined" || !Array.isArray(tracks) || tracks.length===0) && typeof loadMusic==="function"){
+   try{ await loadMusic(); }catch(err){ console.warn("아티스트용 음원 로딩 실패",err); }
+ }
+ renderArtistsPage(document.getElementById("artist-search")?.value||"");
  window.scrollTo({top:0,behavior:"smooth"});return false;
 }
 </script>
