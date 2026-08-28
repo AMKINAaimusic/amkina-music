@@ -2102,6 +2102,29 @@ body.compact-lyrics-open{padding-bottom:214px!important}
 <style id="amkina-chart100-page-switch-fix">
 #chart100-page.active{display:block!important;visibility:visible!important;opacity:1!important}
 </style>
+
+<style id="amkina-social-hitbox-fix">
+#music-list .track .track-stats{
+  position:relative !important;
+  z-index:100 !important;
+  pointer-events:auto !important;
+}
+#music-list .track .track-like-btn,
+#music-list .track .track-comment-btn{
+  position:relative !important;
+  z-index:101 !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  min-width:26px !important;
+  min-height:26px !important;
+  padding:4px !important;
+  touch-action:manipulation !important;
+}
+#music-list .track .track-like-btn .stat-heart,
+#music-list .track .track-comment-btn .stat-comment{
+  pointer-events:none !important;
+}
+</style>
 </head>
 
 <body>
@@ -2796,10 +2819,12 @@ async function loadMusic(){
 
           <div class="track-stats" aria-label="트랙 통계">
             <span class="track-stat"><span class="stat-play">▷</span><span>${Number(track.play_count || 0).toLocaleString()}</span></span>
-            <button type="button" class="track-stat track-like-btn" data-like-track="${String(track.id ?? "")}" aria-label="좋아요">
+            <button type="button" class="track-stat track-like-btn" data-like-track="${String(track.id ?? "")}" aria-label="좋아요"
+              onclick="event.preventDefault();event.stopPropagation();toggleTrackLike(this.dataset.likeTrack);return false;">
               <span class="stat-heart">♡</span><span class="like-count">${Number(track.like_count || track.likes || 0).toLocaleString()}</span>
             </button>
-            <button type="button" class="track-stat track-comment-btn" data-comment-track="${String(track.id ?? "")}" aria-label="댓글">
+            <button type="button" class="track-stat track-comment-btn" data-comment-track="${String(track.id ?? "")}" aria-label="댓글"
+              onclick="event.preventDefault();event.stopPropagation();openTrackComments(this.dataset.commentTrack);return false;">
               <span class="stat-comment">▢</span><span class="comment-count">${Number(track.comment_count || track.comments || 0).toLocaleString()}</span>
             </button>
           </div>
@@ -2807,10 +2832,12 @@ async function loadMusic(){
         </div>
       `;
 
-      card.addEventListener(
-        "click",
-        ()=>playTrack(index)
-      );
+      card.addEventListener("click",(e)=>{
+        if(e.target.closest("button, a, input, textarea, select, .track-stats")){
+          return;
+        }
+        playTrack(index);
+      });
 
       container.appendChild(card);
 
@@ -9670,48 +9697,11 @@ async function deleteTrackComment(id){
  if(!confirm("댓글을 삭제할까요?"))return;
  const r=await fetch(SUPABASE_URL+"/rest/v1/track_comments?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:trackSocialHeaders(true)});
  if(r.ok){await loadTrackComments();await refreshTrackSocial()}
-}
-document.addEventListener("click",function(e){
- const like=e.target.closest(".track-like-btn");
- if(like){e.preventDefault();e.stopPropagation();toggleTrackLike(like.dataset.likeTrack);return}
- const comment=e.target.closest(".track-comment-btn");
- if(comment){e.preventDefault();e.stopPropagation();openTrackComments(comment.dataset.commentTrack);return}
-});
-const socialObserver=new MutationObserver(()=>{clearTimeout(window.__socialTimer);window.__socialTimer=setTimeout(refreshTrackSocial,120)});
+}const socialObserver=new MutationObserver(()=>{clearTimeout(window.__socialTimer);window.__socialTimer=setTimeout(refreshTrackSocial,120)});
 document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(document.getElementById("music-list")||document.body,{childList:true,subtree:true});setTimeout(refreshTrackSocial,700)});
 </script>
 
-<script id="amkina-social-click-priority-fix">
-/* 좋아요/댓글 클릭을 카드 재생 클릭보다 먼저 처리 */
-document.addEventListener("click", function(e){
-  const like=e.target.closest(".track-like-btn");
-  if(like){
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    if(typeof toggleTrackLike==="function"){
-      toggleTrackLike(like.dataset.likeTrack);
-    }
-    return false;
-  }
 
-  const comment=e.target.closest(".track-comment-btn");
-  if(comment){
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    if(typeof openTrackComments==="function"){
-      openTrackComments(comment.dataset.commentTrack);
-    }
-    return false;
-  }
-
-  const edit=e.target.closest(".track-edit-btn");
-  if(edit){
-    e.stopPropagation();
-  }
-}, true);
-</script>
 </body>
 </html>
 ```
