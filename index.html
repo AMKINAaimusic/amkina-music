@@ -9483,7 +9483,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 function amkinaTrackPlays(t){
   return Number(t?.plays ?? t?.play_count ?? t?.views ?? t?.view_count ?? 0) || 0;
 }
-function amkinaTrackLikes(t){
+function amkinaChartLikeCount(t){
   return Number(t?.likes ?? t?.like_count ?? 0) || 0;
 }
 function renderChart100(){
@@ -9499,7 +9499,7 @@ function renderChart100(){
       <div class="chart100-song"><b>${escapeHtmlChart(t.title||"Untitled")}</b><span>${escapeHtmlChart(t.artist||"AMKINA")}</span></div>
       <div class="chart100-genre">${escapeHtmlChart(t.genre||"ORIGINAL")}</div>
       <div class="chart100-stat">▷ ${amkinaTrackPlays(t).toLocaleString()}</div>
-      <div class="chart100-stat chart100-like">♡ ${amkinaTrackLikes(t).toLocaleString()}</div>
+      <div class="chart100-stat chart100-like">♡ ${amkinaChartLikeCount(t).toLocaleString()}</div>
     </div>`).join("");
 }
 function escapeHtmlChart(v){
