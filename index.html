@@ -1980,6 +1980,73 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-compact-lyrics-style">
+/* PC compact lyrics: normal player stays compact, lyrics expands only on request */
+.compact-lyrics-panel{
+  display:none;
+  position:fixed;
+  left:var(--sidebar-w, 220px);
+  right:0;
+  bottom:86px;
+  height:128px;
+  z-index:9997;
+  box-sizing:border-box;
+  background:linear-gradient(180deg,#17191c 0%,#101114 100%);
+  color:#fff;
+  border-top:1px solid rgba(255,255,255,.08);
+  box-shadow:0 -16px 34px rgba(0,0,0,.12);
+}
+.compact-lyrics-panel.open{display:block}
+.compact-lyrics-inner{
+  height:100%;
+  display:grid;
+  grid-template-columns:90px minmax(0,1fr) 110px;
+  align-items:stretch;
+  padding:0 26px;
+}
+.compact-lyrics-label{
+  display:flex;align-items:flex-start;gap:7px;
+  padding-top:20px;font-size:12px;font-weight:800;color:#eee;
+  border-right:1px solid rgba(255,255,255,.08)
+}
+.compact-live-dot{width:5px;height:5px;margin-top:5px;border-radius:50%;background:#54ef73}
+.compact-collapse{border:0;background:none;color:#aaa;cursor:pointer;font-size:15px;padding:0 3px}
+.compact-lyrics-preview{
+  min-width:0;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:34px;
+  align-items:center;
+  padding:14px 26px;
+}
+.compact-lyrics-col{
+  min-width:0;
+  white-space:pre-line;
+  color:#7f8288;
+  font-size:13px;
+  line-height:1.75;
+  max-height:88px;
+  overflow:hidden;
+}
+.compact-lyrics-col.compact-current{color:#aeb1b6}
+.compact-lyrics-col .active-line{color:#fff;font-weight:800}
+.compact-full-lyrics{
+  align-self:center;justify-self:end;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;background:transparent;color:#ddd;
+  padding:8px 13px;font-size:11px;font-weight:700;cursor:pointer;
+}
+.compact-full-lyrics:hover{background:#fff;color:#111}
+body.compact-lyrics-open{padding-bottom:214px!important}
+
+/* Mobile keeps the existing full-screen lyrics experience */
+@media(max-width:768px){
+  .compact-lyrics-panel{display:none!important}
+  body.compact-lyrics-open{padding-bottom:0!important}
+}
+</style>
+
 </head>
 
 <body>
@@ -2420,6 +2487,23 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
   </div>
 </div>
 
+
+<div id="compact-lyrics-panel" class="compact-lyrics-panel" aria-hidden="true">
+  <div class="compact-lyrics-inner">
+    <div class="compact-lyrics-label">
+      <span>가사</span>
+      <span class="compact-live-dot"></span>
+      <button type="button" class="compact-collapse" onclick="toggleCompactLyrics()" aria-label="가사 접기">⌃</button>
+    </div>
+    <div id="compact-lyrics-preview" class="compact-lyrics-preview">
+      <div class="compact-lyrics-col"></div>
+      <div class="compact-lyrics-col compact-current"></div>
+      <div class="compact-lyrics-col"></div>
+    </div>
+    <button type="button" class="compact-full-lyrics" onclick="openLyricsPanel()">전체 가사 ↗</button>
+  </div>
+</div>
+
 <div class="player">
 
   <div class="now">
@@ -2474,7 +2558,7 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
         type="button"
         title="가사"
         aria-label="가사 보기"
-        onclick="openLyricsPanel()">
+        onclick="toggleCompactLyrics()">
         가사
       </button>
 
@@ -2738,6 +2822,7 @@ function playTrack(index){
     track.artist || "AMKINA";
 
   if(typeof refreshLyricsButton==="function") refreshLyricsButton();
+  if(typeof renderCompactLyrics==="function") renderCompactLyrics();
 
   audio.play();
 fetch(SUPABASE_URL + "/rest/v1/rpc/increment_play_count", {
@@ -9093,6 +9178,64 @@ function closeLyricsPanel(){
   document.documentElement.style.overflow="";
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLyricsPanel()});
+</script>
+
+
+<script id="amkina-compact-lyrics-script">
+function getCompactLyricsLines(track){
+  return String(track?.lyrics || "")
+    .replace(/\r/g,"")
+    .split("\n")
+    .map(v=>v.trim())
+    .filter(Boolean);
+}
+function renderCompactLyrics(){
+  const wrap=document.getElementById("compact-lyrics-preview");
+  if(!wrap)return;
+  const t=(typeof currentIndex==="number" && currentIndex>=0 && tracks[currentIndex]) ? tracks[currentIndex] : null;
+  const cols=wrap.querySelectorAll(".compact-lyrics-col");
+  if(!t){
+    cols[0].textContent="곡을 선택해주세요.";
+    cols[1].textContent="";
+    cols[2].textContent="";
+    return;
+  }
+  const lines=getCompactLyricsLines(t);
+  if(!lines.length){
+    cols[0].textContent="";
+    cols[1].innerHTML='<span class="active-line">등록된 가사가 없습니다.</span>';
+    cols[2].textContent="";
+    return;
+  }
+
+  // Compact preview: distribute the lyrics into three short columns.
+  // This is intentionally not time-synced yet.
+  const chunk=Math.max(1,Math.ceil(lines.length/3));
+  const parts=[lines.slice(0,chunk),lines.slice(chunk,chunk*2),lines.slice(chunk*2)];
+  cols.forEach((el,i)=>{
+    el.textContent="";
+    (parts[i]||[]).slice(0,4).forEach((line,j)=>{
+      const span=document.createElement("span");
+      span.textContent=line;
+      span.style.display="block";
+      if(i===0 && j===Math.min(3,(parts[i]||[]).length-1)) span.className="active-line";
+      el.appendChild(span);
+    });
+  });
+}
+function toggleCompactLyrics(){
+  if(window.matchMedia("(max-width: 768px)").matches){
+    openLyricsPanel();
+    return;
+  }
+  const panel=document.getElementById("compact-lyrics-panel");
+  if(!panel)return;
+  const opening=!panel.classList.contains("open");
+  panel.classList.toggle("open",opening);
+  panel.setAttribute("aria-hidden",opening?"false":"true");
+  document.body.classList.toggle("compact-lyrics-open",opening);
+  if(opening)renderCompactLyrics();
+}
 </script>
 
 </body>
