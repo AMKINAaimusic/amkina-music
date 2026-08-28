@@ -2461,6 +2461,21 @@ async function showArtistsPage(e){
 @media(max-width:800px){.lib-toolbar{align-items:stretch;flex-direction:column}.lib-tools{width:100%}.lib-tools input{flex:1;width:auto}.lib-smart{grid-template-columns:1fr}.lib-smart button{padding:11px}.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
+
+<style id="amkina-real-notice-style">
+.amkina-notice-head-actions{display:flex;align-items:center;gap:8px}
+.amkina-notice-write{border:1px solid #111;background:#111;color:#fff;border-radius:8px;padding:7px 11px;font-size:11px;font-weight:900;cursor:pointer}
+.notice-loading,.notice-empty{padding:20px;text-align:center;color:#999;font-size:12px}
+.notice-modal{position:fixed;inset:0;z-index:2500000;background:rgba(0,0,0,.48);align-items:center;justify-content:center;padding:18px}
+.notice-modal-card{position:relative;width:min(680px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:18px;padding:28px;box-shadow:0 25px 80px #0003}
+.notice-modal-x{position:absolute;right:17px;top:15px;border:0;background:none;font-size:25px;cursor:pointer}.notice-modal-card h2{margin:8px 35px 7px 0;font-size:22px}
+.notice-detail-date{font-size:11px;color:#999;padding-bottom:18px;border-bottom:1px solid #eee}.notice-detail-content{white-space:pre-wrap;line-height:1.8;font-size:14px;padding:22px 0;min-height:100px}
+.notice-detail-admin{border-top:1px solid #eee;padding-top:14px;display:flex;justify-content:flex-end;gap:7px}.notice-detail-admin button{border:1px solid #ddd;background:#fff;border-radius:8px;padding:8px 13px;font-weight:800;cursor:pointer}.notice-detail-admin .danger{color:#d22}
+.notice-field{display:block;font-size:12px;font-weight:800;margin:14px 0}.notice-field input,.notice-field textarea,.notice-field select{display:block;width:100%;box-sizing:border-box;margin-top:7px;border:1px solid #ddd;border-radius:9px;padding:11px;font:inherit}.notice-field textarea{resize:vertical}
+.notice-check{font-size:12px;font-weight:700}.notice-write-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.notice-write-actions button{border:1px solid #ddd;background:#fff;border-radius:9px;padding:10px 17px;font-weight:900;cursor:pointer}.notice-write-actions .primary{background:#111;color:#fff;border-color:#111}
+.notice-all-card{width:min(820px,100%)}#notice-all-list .amkina-notice-row{border:1px solid #eee;border-bottom:0}#notice-all-list .amkina-notice-row:last-child{border-bottom:1px solid #eee}
+</style>
+
 </head>
 
 <body>
@@ -2636,13 +2651,12 @@ async function showArtistsPage(e){
   <section class="amkina-home-notice" id="home-notice">
   <div class="amkina-notice-head">
     <div class="amkina-notice-title">⌁ 공지사항</div>
-    <button class="amkina-notice-all" type="button" onclick="alert('공지사항 전체보기 페이지는 다음 단계에서 연결합니다.')">전체보기 →</button>
+    <div class="amkina-notice-head-actions">
+      <button id="notice-admin-write" class="amkina-notice-write" type="button" onclick="openNoticeWriteModal()" style="display:none">＋ 공지 작성</button>
+      <button class="amkina-notice-all" type="button" onclick="openNoticeAll()">전체보기 →</button>
+    </div>
   </div>
-  <div class="amkina-notice-box">
-    <div class="amkina-notice-row"><span class="amkina-notice-badge important">공지</span><span class="amkina-notice-text">AMKINA MUSIC 이용 안내</span><span class="amkina-notice-date">2026.08.28</span></div>
-    <div class="amkina-notice-row"><span class="amkina-notice-badge update">업데이트</span><span class="amkina-notice-text">CHART 100 서비스 업데이트 안내</span><span class="amkina-notice-date">2026.08.28</span></div>
-    <div class="amkina-notice-row"><span class="amkina-notice-badge info">안내</span><span class="amkina-notice-text">AMKINA MUSIC 새로운 기능을 준비하고 있습니다</span><span class="amkina-notice-date">2026.08.28</span></div>
-  </div>
+  <div class="amkina-notice-box" id="notice-list"><div class="notice-loading">공지사항을 불러오는 중...</div></div>
 </section>
 <div class="section-top">
     <h2>Latest Releases</h2>
@@ -3018,6 +3032,41 @@ async function showArtistsPage(e){
  </div>
 </div>
 
+
+<div id="notice-detail-modal" class="notice-modal" style="display:none">
+ <div class="notice-modal-card">
+  <button class="notice-modal-x" onclick="closeNoticeDetail()">×</button>
+  <div id="notice-detail-badge"></div>
+  <h2 id="notice-detail-title"></h2>
+  <div id="notice-detail-date" class="notice-detail-date"></div>
+  <div id="notice-detail-content" class="notice-detail-content"></div>
+  <div id="notice-detail-admin" class="notice-detail-admin" style="display:none">
+   <button onclick="editCurrentNotice()">수정</button><button class="danger" onclick="deleteCurrentNotice()">삭제</button>
+  </div>
+ </div>
+</div>
+
+<div id="notice-write-modal" class="notice-modal" style="display:none">
+ <div class="notice-modal-card">
+  <button class="notice-modal-x" onclick="closeNoticeWriteModal()">×</button>
+  <h2 id="notice-write-heading">공지 작성</h2>
+  <label class="notice-field">분류
+   <select id="notice-write-category"><option value="공지">공지</option><option value="업데이트">업데이트</option><option value="안내">안내</option></select>
+  </label>
+  <label class="notice-field">제목<input id="notice-write-title" maxlength="120" placeholder="공지사항 제목"></label>
+  <label class="notice-field">내용<textarea id="notice-write-content" rows="10" maxlength="5000" placeholder="공지 내용을 입력하세요."></textarea></label>
+  <label class="notice-check"><input id="notice-write-pinned" type="checkbox"> 상단 고정</label>
+  <div class="notice-write-actions"><button onclick="closeNoticeWriteModal()">취소</button><button class="primary" onclick="saveNotice()">게시하기</button></div>
+ </div>
+</div>
+
+<div id="notice-all-modal" class="notice-modal" style="display:none">
+ <div class="notice-modal-card notice-all-card">
+  <button class="notice-modal-x" onclick="closeNoticeAll()">×</button>
+  <h2>공지사항</h2>
+  <div id="notice-all-list"></div>
+ </div>
+</div>
 <div id="compact-lyrics-panel" class="compact-lyrics-panel" aria-hidden="true">
   <div class="compact-lyrics-inner">
     <div class="compact-lyrics-label">
@@ -10875,6 +10924,48 @@ showLibraryPage=async function(e){const r=await _oldShowLibraryPage(e);refreshLi
     hideLibrary();
   },true);
 })();
+</script>
+
+
+<script id="amkina-real-notices-v1">
+const AMKINA_ADMIN_EMAIL="psy88all@naver.com";
+let amkinaNotices=[], currentNotice=null, editingNoticeId=null;
+function noticeSession(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
+function noticeIsAdmin(){return String(noticeSession()?.user?.email||"").toLowerCase()===AMKINA_ADMIN_EMAIL}
+function noticeHeaders(auth=false){const ss=noticeSession(),h={"apikey":SUPABASE_ANON_KEY,"Content-Type":"application/json"};h.Authorization="Bearer "+(auth&&ss?.access_token?ss.access_token:SUPABASE_ANON_KEY);return h}
+function noticeEsc(v=""){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function noticeClass(c){return c==="공지"?"important":c==="업데이트"?"update":"info"}
+function noticeDate(v){try{return new Date(v).toLocaleDateString("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit"}).replace(/\. /g,".").replace(/\.$/,"")}catch(e){return ""}}
+function noticeRow(n){return `<div class="amkina-notice-row" onclick="openNoticeDetail('${n.id}')"><span class="amkina-notice-badge ${noticeClass(n.category)}">${noticeEsc(n.category||"안내")}</span><span class="amkina-notice-text">${n.pinned?"📌 ":""}${noticeEsc(n.title)}</span><span class="amkina-notice-date">${noticeDate(n.created_at)}</span></div>`}
+async function loadNotices(){
+ const box=document.getElementById("notice-list");if(!box)return;
+ document.getElementById("notice-admin-write").style.display=noticeIsAdmin()?"inline-block":"none";
+ try{
+  const r=await fetch(SUPABASE_URL+"/rest/v1/notices?select=*&order=pinned.desc,created_at.desc&limit=100",{headers:noticeHeaders(false)});
+  if(!r.ok)throw new Error(await r.text());amkinaNotices=await r.json();
+  box.innerHTML=amkinaNotices.length?amkinaNotices.slice(0,3).map(noticeRow).join(""):'<div class="notice-empty">등록된 공지사항이 없습니다.</div>';
+ }catch(e){console.error("공지사항:",e);box.innerHTML='<div class="notice-empty">공지사항을 불러오지 못했습니다.</div>'}
+}
+function openNoticeDetail(id){currentNotice=amkinaNotices.find(n=>String(n.id)===String(id));if(!currentNotice)return;document.getElementById("notice-detail-badge").innerHTML=`<span class="amkina-notice-badge ${noticeClass(currentNotice.category)}">${noticeEsc(currentNotice.category)}</span>`;document.getElementById("notice-detail-title").textContent=currentNotice.title;document.getElementById("notice-detail-date").textContent=noticeDate(currentNotice.created_at);document.getElementById("notice-detail-content").textContent=currentNotice.content||"";document.getElementById("notice-detail-admin").style.display=noticeIsAdmin()?"flex":"none";document.getElementById("notice-detail-modal").style.display="flex"}
+function closeNoticeDetail(){document.getElementById("notice-detail-modal").style.display="none";currentNotice=null}
+function openNoticeWriteModal(){if(!noticeIsAdmin())return alert("관리자만 공지사항을 작성할 수 있습니다.");editingNoticeId=null;document.getElementById("notice-write-heading").textContent="공지 작성";document.getElementById("notice-write-category").value="공지";document.getElementById("notice-write-title").value="";document.getElementById("notice-write-content").value="";document.getElementById("notice-write-pinned").checked=false;document.getElementById("notice-write-modal").style.display="flex"}
+function closeNoticeWriteModal(){document.getElementById("notice-write-modal").style.display="none";editingNoticeId=null}
+function editCurrentNotice(){if(!noticeIsAdmin()||!currentNotice)return;const n=currentNotice;closeNoticeDetail();editingNoticeId=n.id;document.getElementById("notice-write-heading").textContent="공지 수정";document.getElementById("notice-write-category").value=n.category||"공지";document.getElementById("notice-write-title").value=n.title||"";document.getElementById("notice-write-content").value=n.content||"";document.getElementById("notice-write-pinned").checked=!!n.pinned;document.getElementById("notice-write-modal").style.display="flex"}
+async function saveNotice(){
+ if(!noticeIsAdmin())return alert("관리자만 작성할 수 있습니다.");
+ const title=document.getElementById("notice-write-title").value.trim(),content=document.getElementById("notice-write-content").value.trim(),category=document.getElementById("notice-write-category").value,pinned=document.getElementById("notice-write-pinned").checked;
+ if(!title||!content)return alert("제목과 내용을 입력해주세요.");
+ const body={title,content,category,pinned,updated_at:new Date().toISOString()};
+ const url=SUPABASE_URL+"/rest/v1/notices"+(editingNoticeId?"?id=eq."+encodeURIComponent(editingNoticeId):"");
+ const r=await fetch(url,{method:editingNoticeId?"PATCH":"POST",headers:{...noticeHeaders(true),"Prefer":"return=minimal"},body:JSON.stringify(body)});
+ if(!r.ok){console.error(await r.text());return alert("공지 저장에 실패했습니다. 공지사항 SQL 실행 여부를 확인해주세요.")}
+ closeNoticeWriteModal();await loadNotices();alert(editingNoticeId?"공지사항을 수정했습니다.":"공지사항을 게시했습니다.");
+}
+async function deleteCurrentNotice(){if(!noticeIsAdmin()||!currentNotice||!confirm("이 공지사항을 삭제할까요?"))return;const r=await fetch(SUPABASE_URL+"/rest/v1/notices?id=eq."+encodeURIComponent(currentNotice.id),{method:"DELETE",headers:noticeHeaders(true)});if(!r.ok)return alert("삭제에 실패했습니다.");closeNoticeDetail();await loadNotices()}
+function openNoticeAll(){document.getElementById("notice-all-list").innerHTML=amkinaNotices.length?amkinaNotices.map(noticeRow).join(""):'<div class="notice-empty">등록된 공지사항이 없습니다.</div>';document.getElementById("notice-all-modal").style.display="flex"}
+function closeNoticeAll(){document.getElementById("notice-all-modal").style.display="none"}
+document.addEventListener("DOMContentLoaded",()=>setTimeout(loadNotices,400));
+window.addEventListener("focus",()=>{const b=document.getElementById("notice-admin-write");if(b)b.style.display=noticeIsAdmin()?"inline-block":"none"});
 </script>
 
 </body>
