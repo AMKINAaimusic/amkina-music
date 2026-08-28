@@ -1,4 +1,3 @@
-```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9483,14 +9482,44 @@ function amkinaTrackPlays(t){
   return Number(t?.plays ?? t?.play_count ?? t?.views ?? t?.view_count ?? 0) || 0;
 }
 function amkinaChartLikeCount(t){
-  return Number(t?.likes ?? t?.like_count ?? 0) || 0;
+  return Number(t?._live_like_count ?? t?.like_count ?? t?.likes ?? 0) || 0;
 }
-function renderChart100(){
+
+async function renderChart100(){
   const el=document.getElementById("chart100-list");
   if(!el)return;
-  const list=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[])
-    .slice().sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
-  if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return}
+
+  // CHART 100의 좋아요는 tracks.likes 값이 아니라
+  // 실제 track_likes 테이블을 직접 집계해서 표시합니다.
+  const likeCounts={};
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/track_likes?select=track_id",
+      {headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}}
+    );
+    if(r.ok){
+      const rows=await r.json();
+      rows.forEach(x=>{
+        const id=String(x.track_id);
+        likeCounts[id]=(likeCounts[id]||0)+1;
+      });
+    }
+  }catch(e){
+    console.warn("CHART 100 좋아요 집계 실패",e);
+  }
+
+  const source=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]);
+  source.forEach(t=>{t._live_like_count=likeCounts[String(t.id)]||0});
+
+  const list=source.slice()
+    .sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a))
+    .slice(0,100);
+
+  if(!list.length){
+    el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';
+    return;
+  }
+
   el.innerHTML=list.map((t,i)=>`
     <div class="chart100-row" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')">
       <div class="chart100-rank">${String(i+1).padStart(2,"0")}</div>
@@ -9851,4 +9880,3 @@ async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const 
 </script>
 </body>
 </html>
-```
