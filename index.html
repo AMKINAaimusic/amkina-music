@@ -10616,7 +10616,7 @@ function libTrack(id){return libTracks().find(t=>String(t.id)===String(id))}
 function libEsc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 function libCover(t){return t?.cover_url||t?.cover||""}
 function hideForLibrary(){
- ["music","studio","community","chart100-page","mypage","artists-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+ ["music","studio","community","chart100-page","mypage","artists-page","library-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
 }
 async function showLibraryPage(e){
  if(e)e.preventDefault(); hideForLibrary();
@@ -10715,6 +10715,56 @@ async function recordLibraryRecent(trackId){
  if(!s?.user?.id)return;
  try{await libFetch("listening_history",{method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify({user_id:s.user.id,track_id:trackId})})}catch(e){}
 }
+</script>
+
+
+<script id="amkina-library-page-switch-fix">
+(function(){
+  function hideLibrary(){
+    const p=document.getElementById("library-page");
+    if(p){
+      p.style.setProperty("display","none","important");
+      p.classList.remove("active");
+    }
+    const d=document.getElementById("library-detail");
+    if(d) d.style.display="none";
+  }
+  window.hideLibraryPage = hideLibrary;
+
+  // 기존 페이지 전환 함수들을 감싸서 LIBRARY가 반드시 닫히게 한다.
+  [
+    "showHome",
+    "showHomePage",
+    "showMusic",
+    "showMusicPage",
+    "showStudio",
+    "showStudioPage",
+    "showCommunity",
+    "showCommunityPage",
+    "showChart100",
+    "showChart100Page",
+    "showMyPage",
+    "showMypage",
+    "showArtistsPage"
+  ].forEach(function(name){
+    const original=window[name];
+    if(typeof original==="function" && !original.__librarySwitchWrapped){
+      const wrapped=function(){
+        hideLibrary();
+        return original.apply(this,arguments);
+      };
+      wrapped.__librarySwitchWrapped=true;
+      window[name]=wrapped;
+    }
+  });
+
+  // 사이드바에서 LIBRARY 이외의 메뉴를 누르면 먼저 LIBRARY를 닫는다.
+  document.addEventListener("click",function(e){
+    const a=e.target.closest(".amkina-sidebar-nav a");
+    if(!a || a.id==="library-nav") return;
+    hideLibrary();
+  },true);
+})();
 </script>
 
 </body>
