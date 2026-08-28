@@ -1829,6 +1829,68 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-player-default-cover-shuffle-final">
+/* 기본 플레이어 커버 + 랜덤재생 */
+.player #now-cover{
+  display:block!important;
+  object-fit:cover!important;
+  background:#0b0b0c!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+}
+
+.player .shuffle-btn{
+  position:relative!important;
+  font-size:19px!important;
+  opacity:.58!important;
+  transition:opacity .18s ease, transform .18s ease, background .18s ease!important;
+}
+
+.player .shuffle-btn:hover{
+  opacity:1!important;
+}
+
+.player .shuffle-btn.active{
+  opacity:1!important;
+  background:rgba(255,255,255,.12)!important;
+  color:#fff!important;
+}
+
+.player .shuffle-btn.active::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  bottom:1px!important;
+  width:4px!important;
+  height:4px!important;
+  transform:translateX(-50%)!important;
+  border-radius:50%!important;
+  background:#fff!important;
+}
+
+/* PC에서는 컨트롤 버튼 사이 간격을 정돈 */
+@media (min-width:769px){
+  .player .buttons{
+    gap:18px!important;
+  }
+  .player .shuffle-btn{
+    width:34px!important;
+    height:34px!important;
+    border-radius:50%!important;
+  }
+}
+
+/* 모바일 플레이어는 공간을 침범하지 않도록 랜덤 버튼을 작게 유지 */
+@media (max-width:768px){
+  .player .shuffle-btn{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+    font-size:16px!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -2263,7 +2325,7 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 
   <div class="now">
 
-    <img id="now-cover" alt="cover">
+    <img id="now-cover" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='18' fill='%230b0b0c'/%3E%3Cpath d='M24 71V49M34 80V40M44 67V53M54 87V33M64 72V48M74 82V38M84 67V53M94 76V44' stroke='%23fff' stroke-width='3' stroke-linecap='round' opacity='.9'/%3E%3Ctext x='60' y='104' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='10' font-weight='700' letter-spacing='2'%3EAMKINA%3C/text%3E%3C/svg%3E" alt="AMKINA MUSIC default cover">
 
     <div class="now-text">
       <div id="now-title">Select a track</div>
@@ -2276,6 +2338,17 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
   <div class="controls">
 
     <div class="buttons">
+
+      <button
+        id="shuffle-btn"
+        class="control-btn shuffle-btn"
+        type="button"
+        title="랜덤 재생"
+        aria-label="랜덤 재생"
+        aria-pressed="false"
+        onclick="toggleShuffle()">
+        ⇄
+      </button>
 
       <button
         class="control-btn"
@@ -2355,6 +2428,7 @@ SUPABASE_URL +
 
 let tracks=[];
 let currentIndex=-1;
+let shuffleMode=false;
 
 const audio =
 document.getElementById("audio");
@@ -2514,7 +2588,12 @@ function playTrack(index){
 
   document.getElementById(
     "now-cover"
-  ).src=track.cover_url || "";
+  ).src=track.cover_url || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='18' fill='%230b0b0c'/%3E%3Cpath d='M24 71V49M34 80V40M44 67V53M54 87V33M64 72V48M74 82V38M84 67V53M94 76V44' stroke='%23fff' stroke-width='3' stroke-linecap='round' opacity='.9'/%3E%3Ctext x='60' y='104' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='10' font-weight='700' letter-spacing='2'%3EAMKINA%3C/text%3E%3C/svg%3E";
+
+  document.getElementById("now-cover").onerror=function(){
+    this.onerror=null;
+    this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='18' fill='%230b0b0c'/%3E%3Cpath d='M24 71V49M34 80V40M44 67V53M54 87V33M64 72V48M74 82V38M84 67V53M94 76V44' stroke='%23fff' stroke-width='3' stroke-linecap='round' opacity='.9'/%3E%3Ctext x='60' y='104' text-anchor='middle' fill='%23fff' font-family='Arial' font-size='10' font-weight='700' letter-spacing='2'%3EAMKINA%3C/text%3E%3C/svg%3E";
+  };
 
   document.getElementById(
     "now-title"
@@ -2581,12 +2660,35 @@ function nextTrack(){
 
   if(!tracks.length) return;
 
-  let next =
-    currentIndex >= tracks.length-1
-      ? 0
-      : currentIndex+1;
+  let next;
+
+  if(shuffleMode && tracks.length > 1){
+    do{
+      next=Math.floor(Math.random()*tracks.length);
+    }while(next===currentIndex);
+  }else{
+    next =
+      currentIndex >= tracks.length-1
+        ? 0
+        : currentIndex+1;
+  }
 
   playTrack(next);
+
+}
+
+
+function toggleShuffle(){
+
+  shuffleMode=!shuffleMode;
+
+  const btn=document.getElementById("shuffle-btn");
+
+  if(btn){
+    btn.classList.toggle("active",shuffleMode);
+    btn.setAttribute("aria-pressed",shuffleMode ? "true" : "false");
+    btn.title=shuffleMode ? "랜덤 재생 켜짐" : "랜덤 재생";
+  }
 
 }
 
