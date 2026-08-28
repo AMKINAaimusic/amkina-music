@@ -2507,6 +2507,21 @@ body.track-full-open{overflow:hidden}
 @media(max-width:850px){.track-full-page{padding:45px 18px 120px}.tf-shell{grid-template-columns:1fr;gap:25px}.tf-left{position:static}.tf-cover-wrap{max-width:480px;margin:auto}.tf-right{min-height:420px;padding:22px}.tf-lyrics{font-size:18px}.tf-title-row h1{font-size:30px}}
 </style>
 
+
+<style id="amkina-pwa-install-style">
+#amkina-install-app-btn{
+  position:fixed; right:22px; bottom:112px; z-index:99990;
+  border:0; border-radius:999px; padding:12px 18px;
+  background:#111; color:#fff; font-weight:800; font-size:13px;
+  box-shadow:0 8px 28px rgba(0,0,0,.20); cursor:pointer;
+  display:none;
+}
+#amkina-install-app-btn:hover{transform:translateY(-1px)}
+@media(max-width:768px){
+  #amkina-install-app-btn{right:14px;bottom:88px;padding:11px 15px;font-size:12px}
+}
+</style>
+
 </head>
 
 <body>
@@ -11161,5 +11176,48 @@ if ("serviceWorker" in navigator) {
       .catch(function (error) { console.error("PWA error:", error); });
   });
 }
+</script>
+
+<button id="amkina-install-app-btn" type="button">⬇ AMKINA MUSIC 앱 설치</button>
+<script id="amkina-pwa-install-script">
+(function(){
+  let deferredPrompt=null;
+  const btn=document.getElementById("amkina-install-app-btn");
+  if(!btn)return;
+
+  function isStandalone(){
+    return window.matchMedia("(display-mode: standalone)").matches ||
+           window.navigator.standalone===true;
+  }
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    if(!isStandalone()) btn.style.display="block";
+  });
+
+  btn.addEventListener("click", async function(){
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      try{ await deferredPrompt.userChoice; }catch(e){}
+      deferredPrompt=null;
+      btn.style.display="none";
+      return;
+    }
+    const ua=navigator.userAgent||"";
+    if(/iphone|ipad|ipod/i.test(ua)){
+      alert("iPhone/iPad: Safari의 공유 버튼을 누른 뒤 ‘홈 화면에 추가’를 선택해주세요.");
+    }else{
+      alert("브라우저 메뉴에서 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택해주세요.");
+    }
+  });
+
+  window.addEventListener("appinstalled", function(){
+    deferredPrompt=null;
+    btn.style.display="none";
+  });
+
+  if(isStandalone()) btn.style.display="none";
+})();
 </script>
 
