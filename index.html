@@ -2166,10 +2166,9 @@ body.compact-lyrics-open{padding-bottom:214px!important}
         <span class="nav-text">커뮤니티</span>
     </a>
 
-    <a href="#" class="coming-link">
-        <span class="nav-icon">○</span>
+    <a href="#mypage" id="mypage-nav" onclick="return showMyPage(event);">
+        <span class="nav-icon">●</span>
         <span class="nav-text">마이페이지</span>
-        <span class="coming-soon">준비중</span>
     </a>
 
     <a href="#" class="coming-link">
@@ -9702,6 +9701,121 @@ document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(documen
 </script>
 
 
+
+<style id="amkina-mypage-style">
+#mypage{display:none;padding:30px 28px 150px;min-height:100vh;background:#fafafa;color:#111}
+.mp-wrap{max-width:1380px;margin:auto}.mp-profile{background:#fff;border:1px solid #e8e8e8;border-radius:18px;padding:26px;display:flex;align-items:center;gap:22px}
+.mp-avatar{width:112px;height:112px;border-radius:50%;object-fit:cover;background:#101010}.mp-profile-main{flex:1}.mp-name{font-size:28px;font-weight:900}.mp-handle,.mp-bio,.mp-joined{font-size:12px;color:#777;margin-top:6px}
+.mp-edit{border:1px solid #ddd;background:#fff;border-radius:10px;padding:10px 15px;font-weight:800;cursor:pointer}
+.mp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.mp-stat{background:#fff;border:1px solid #e8e8e8;border-radius:14px;text-align:center;padding:18px 8px}.mp-stat b{display:block;font-size:24px;margin-top:5px}.mp-stat span{font-size:11px;color:#777}
+.mp-tabs{display:flex;gap:28px;border-bottom:1px solid #ddd;margin-top:22px;overflow:auto}.mp-tab{border:0;background:none;padding:15px 3px;font-weight:800;white-space:nowrap;cursor:pointer}.mp-tab.active{border-bottom:2px solid #111}
+.mp-content{padding-top:20px}.mp-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.mp-card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;overflow:hidden;cursor:pointer}.mp-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#eee}.mp-card-body{padding:11px}.mp-card-title{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mp-card-sub,.mp-card-stat{font-size:11px;color:#777;margin-top:5px}
+.mp-list{background:#fff;border:1px solid #e8e8e8;border-radius:14px;overflow:hidden}.mp-list-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid #eee;cursor:pointer}.mp-list-row:last-child{border:0}.mp-list-row img{width:48px;height:48px;border-radius:7px;object-fit:cover}.mp-list-main{flex:1}.mp-list-main b{font-size:13px}.mp-list-main div{font-size:11px;color:#777;margin-top:4px}.mp-empty{text-align:center;padding:65px 20px;color:#999}
+.mp-modal{display:none;position:fixed;inset:0;z-index:13000;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}.mp-modal-box{background:#fff;width:min(500px,100%);border-radius:18px;padding:25px}.mp-modal-box h2{margin:0 0 20px}.mp-modal-box label{display:block;font-size:12px;font-weight:800;margin:13px 0}.mp-modal-box input,.mp-modal-box textarea{width:100%;box-sizing:border-box;margin-top:7px;border:1px solid #ddd;border-radius:9px;padding:11px;font:inherit}.mp-modal-actions{display:flex;gap:8px;margin-top:20px}.mp-modal-actions button{flex:1;border:0;border-radius:9px;padding:12px;font-weight:800;cursor:pointer}.mp-save{background:#111;color:#fff}
+@media(max-width:900px){#mypage{padding:20px 16px 130px}.mp-profile{display:block;text-align:center}.mp-avatar{width:90px;height:90px}.mp-edit{margin-top:15px}.mp-stats{grid-template-columns:repeat(3,1fr)}.mp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mp-tabs{gap:18px}.mp-name{font-size:23px}}
+</style>
+
+<section id="mypage">
+ <div class="mp-wrap">
+  <div class="mp-profile">
+   <img id="mp-avatar" class="mp-avatar" alt="프로필">
+   <div class="mp-profile-main">
+    <div id="mp-name" class="mp-name">AMKINA USER</div>
+    <div id="mp-handle" class="mp-handle">@user</div>
+    <div id="mp-bio" class="mp-bio">음악으로 소통하는 AMKINA MUSIC</div>
+    <div id="mp-joined" class="mp-joined"></div>
+   </div>
+   <button class="mp-edit" onclick="openMyProfileEdit()">✎ 프로필 편집</button>
+  </div>
+  <div class="mp-stats">
+   <div class="mp-stat"><span>업로드 곡</span><b id="mp-upload-count">0</b></div>
+   <div class="mp-stat"><span>총 재생수</span><b id="mp-play-count">0</b></div>
+   <div class="mp-stat"><span>받은 좋아요</span><b id="mp-like-count">0</b></div>
+  </div>
+  <div class="mp-tabs">
+   <button class="mp-tab active" data-mptab="music">내 음악</button>
+   <button class="mp-tab" data-mptab="likes">좋아요한 곡</button>
+   <button class="mp-tab" data-mptab="comments">내 댓글</button>
+   <button class="mp-tab" data-mptab="stats">통계</button>
+  </div>
+  <div id="mp-content" class="mp-content"></div>
+ </div>
+</section>
+
+<div id="mp-profile-modal" class="mp-modal">
+ <div class="mp-modal-box">
+  <h2>프로필 편집</h2>
+  <label>닉네임<input id="mp-edit-name" maxlength="40"></label>
+  <label>소개<textarea id="mp-edit-bio" rows="4" maxlength="200"></textarea></label>
+  <label>프로필 이미지 URL<input id="mp-edit-avatar" placeholder="https://..."></label>
+  <div class="mp-modal-actions"><button onclick="closeMyProfileEdit()">취소</button><button class="mp-save" onclick="saveMyProfile()">저장하기</button></div>
+ </div>
+</div>
+
+<script id="amkina-mypage-script">
+let mpData={mine:[],likes:[],comments:[],profile:null,likeRows:[]};
+let mpTab="music";
+const mpDefaultAvatar="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23111111'/%3E%3Cpath d='M32 72c7-15 18-23 28-23s21 8 28 23' fill='none' stroke='%23fff' stroke-width='5'/%3E%3Ccircle cx='60' cy='38' r='14' fill='none' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E";
+
+function mpSession(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
+function mpHeaders(auth=false){const s=mpSession();return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+(auth&&s?.access_token?s.access_token:SUPABASE_ANON_KEY),"Content-Type":"application/json"}}
+function mpEsc(v=""){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function mpCover(t){return t?.cover_url||mpDefaultAvatar}
+
+async function showMyPage(event){
+ if(event){event.preventDefault();event.stopPropagation()}
+ const s=mpSession();
+ if(!s?.user?.id){alert("마이페이지는 로그인이 필요합니다.");document.getElementById("auth-modal").style.display="flex";return false}
+ ["music","studio","community","chart100-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+ const hero=document.querySelector(".hero");if(hero)hero.style.setProperty("display","none","important");
+ const page=document.getElementById("mypage");page.style.setProperty("display","block","important");
+ document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("mypage-nav")?.classList.add("menu-active");
+ document.querySelector("body > header nav")?.classList.remove("mobile-open");window.scrollTo(0,0);
+ await loadMyPage();return false;
+}
+async function loadMyPage(){
+ const s=mpSession();if(!s?.user?.id)return;
+ try{
+  const uid=encodeURIComponent(s.user.id);
+  const [pr,lr,cr]=await Promise.all([
+   fetch(SUPABASE_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{headers:mpHeaders(false)}),
+   fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id,user_id&user_id=eq."+uid,{headers:mpHeaders(false)}),
+   fetch(SUPABASE_URL+"/rest/v1/track_comments?select=*&user_id=eq."+uid+"&order=created_at.desc",{headers:mpHeaders(false)})
+  ]);
+  mpData.profile=pr.ok?(await pr.json())[0]||null:null;mpData.likeRows=lr.ok?await lr.json():[];mpData.comments=cr.ok?await cr.json():[];
+  mpData.mine=(typeof tracks!=="undefined"?tracks:[]).filter(t=>String(t.uploader_id)===String(s.user.id));
+  const ids=new Set(mpData.likeRows.map(x=>String(x.track_id)));mpData.likes=(typeof tracks!=="undefined"?tracks:[]).filter(t=>ids.has(String(t.id)));
+  const fallback=(s.user.email||"user").split("@")[0],p=mpData.profile||{};
+  document.getElementById("mp-name").textContent=p.nickname||fallback;
+  document.getElementById("mp-handle").textContent="@"+(p.nickname||fallback).replace(/\s+/g,"_").toLowerCase();
+  document.getElementById("mp-bio").textContent=p.bio||"음악으로 소통하는 AMKINA MUSIC";
+  document.getElementById("mp-avatar").src=p.avatar_url||mpDefaultAvatar;
+  document.getElementById("mp-joined").textContent="가입일 "+new Date(s.user.created_at||Date.now()).toLocaleDateString("ko-KR");
+  document.getElementById("mp-upload-count").textContent=mpData.mine.length.toLocaleString();
+  document.getElementById("mp-play-count").textContent=mpData.mine.reduce((a,t)=>a+Number(t.play_count||0),0).toLocaleString();
+  const allLikes=await fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id",{headers:mpHeaders(false)}).then(r=>r.ok?r.json():[]);
+  const myIds=new Set(mpData.mine.map(t=>String(t.id)));document.getElementById("mp-like-count").textContent=allLikes.filter(x=>myIds.has(String(x.track_id))).length.toLocaleString();
+  renderMyPageTab();
+ }catch(e){console.error("마이페이지:",e);document.getElementById("mp-content").innerHTML='<div class="mp-empty">마이페이지 데이터를 불러오지 못했습니다.</div>'}
+}
+function renderMyPageTab(){
+ const el=document.getElementById("mp-content");if(!el)return;
+ if(mpTab==="music"||mpTab==="likes"){
+  const rows=mpTab==="music"?mpData.mine:mpData.likes;
+  el.innerHTML=rows.length?'<div class="mp-grid">'+rows.map(t=>`<article class="mp-card" onclick="mpPlay('${t.id}')"><img src="${mpEsc(mpCover(t))}"><div class="mp-card-body"><div class="mp-card-title">${mpEsc(t.title||"Untitled")}</div><div class="mp-card-sub">${mpEsc(t.artist||"AMKINA")} · ${mpEsc(t.genre||"ORIGINAL")}</div><div class="mp-card-stat">▷ ${Number(t.play_count||0).toLocaleString()}</div></div></article>`).join("")+"</div>":'<div class="mp-empty">'+(mpTab==="music"?"아직 업로드한 음악이 없습니다.":"아직 좋아요한 곡이 없습니다.")+"</div>";return;
+ }
+ if(mpTab==="comments"){
+  el.innerHTML=mpData.comments.length?'<div class="mp-list">'+mpData.comments.map(c=>{const t=(tracks||[]).find(x=>String(x.id)===String(c.track_id));return `<div class="mp-list-row" onclick="openTrackComments('${c.track_id}')"><img src="${mpEsc(mpCover(t))}"><div class="mp-list-main"><b>${mpEsc(t?.title||"음원")}</b><div>${mpEsc(c.content||"")}</div></div></div>`}).join("")+"</div>":'<div class="mp-empty">작성한 댓글이 없습니다.</div>';return;
+ }
+ const top=[...mpData.mine].sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0))[0];
+ el.innerHTML=`<div class="mp-list"><div class="mp-list-row"><div class="mp-list-main"><b>내 음원 총 재생수</b><div>${mpData.mine.reduce((a,t)=>a+Number(t.play_count||0),0).toLocaleString()}회</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>업로드한 곡</b><div>${mpData.mine.length.toLocaleString()}곡</div></div></div><div class="mp-list-row"><div class="mp-list-main"><b>가장 많이 재생된 곡</b><div>${mpEsc(top?.title||"-")} ${top?"· "+Number(top.play_count||0).toLocaleString()+"회":""}</div></div></div></div>`;
+}
+function mpPlay(id){const i=(tracks||[]).findIndex(t=>String(t.id)===String(id));if(i>=0)playTrack(i)}
+document.addEventListener("click",e=>{const b=e.target.closest(".mp-tab");if(!b)return;document.querySelectorAll(".mp-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");mpTab=b.dataset.mptab;renderMyPageTab()});
+function openMyProfileEdit(){const s=mpSession(),p=mpData.profile||{};document.getElementById("mp-edit-name").value=p.nickname||(s?.user?.email||"user").split("@")[0];document.getElementById("mp-edit-bio").value=p.bio||"";document.getElementById("mp-edit-avatar").value=p.avatar_url||"";document.getElementById("mp-profile-modal").style.display="flex"}
+function closeMyProfileEdit(){document.getElementById("mp-profile-modal").style.display="none"}
+async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const body={id:s.user.id,nickname:document.getElementById("mp-edit-name").value.trim(),bio:document.getElementById("mp-edit-bio").value.trim(),avatar_url:document.getElementById("mp-edit-avatar").value.trim(),updated_at:new Date().toISOString()};const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});if(!r.ok){alert("프로필 저장에 실패했습니다. 마이페이지 SQL을 먼저 실행해주세요.");return}closeMyProfileEdit();await loadMyPage()}
+</script>
 </body>
 </html>
 ```
