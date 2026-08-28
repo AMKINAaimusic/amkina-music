@@ -2831,11 +2831,37 @@ async function showArtistsPage(e){
     <input type="password" id="auth-password" placeholder="Password">
 
     <button id="auth-submit">LOGIN</button>
+    <button id="auth-forgot" type="button" style="margin-top:10px;background:none;border:0;color:#a3ff68;font-size:13px;font-weight:700;cursor:pointer;">비밀번호를 잊으셨나요?</button>
 
     <p class="auth-switch">
       <span id="auth-message">계정이 없으신가요?</span>
       <button id="auth-mode">SIGN UP</button>
     </p>
+  </div>
+</div>
+
+<div id="password-reset-request-modal" class="mp-modal" style="display:none;z-index:10050;">
+  <div class="mp-modal-box">
+    <h2>비밀번호 찾기</h2>
+    <p style="font-size:13px;line-height:1.6;color:#777;margin:8px 0 18px;">가입한 이메일을 입력하면 비밀번호 재설정 링크를 보내드립니다.</p>
+    <label>이메일<input id="password-reset-email" type="email" autocomplete="email" placeholder="가입한 이메일"></label>
+    <div class="mp-modal-actions">
+      <button type="button" onclick="closePasswordResetRequest()">취소</button>
+      <button type="button" class="mp-save" id="password-reset-send" onclick="sendPasswordResetEmail()">재설정 메일 보내기</button>
+    </div>
+  </div>
+</div>
+
+<div id="password-change-modal" class="mp-modal" style="display:none;z-index:10060;">
+  <div class="mp-modal-box">
+    <h2 id="password-change-title">새 비밀번호 설정</h2>
+    <p id="password-change-guide" style="font-size:13px;line-height:1.6;color:#777;margin:8px 0 18px;">새 비밀번호를 입력해주세요.</p>
+    <label>새 비밀번호<input id="password-new" type="password" autocomplete="new-password" minlength="8" placeholder="8자 이상"></label>
+    <label>새 비밀번호 확인<input id="password-new-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="한 번 더 입력"></label>
+    <div class="mp-modal-actions">
+      <button type="button" onclick="closePasswordChangeModal()">취소</button>
+      <button type="button" class="mp-save" id="password-change-save" onclick="saveNewPassword()">비밀번호 변경</button>
+    </div>
   </div>
 </div>
 
@@ -3445,6 +3471,7 @@ const authEmail = document.getElementById("auth-email");
 const authPassword = document.getElementById("auth-password");
 const authTitle = document.getElementById("auth-title");
 const authMessage = document.getElementById("auth-message");
+const authForgot = document.getElementById("auth-forgot");
 
 let signupMode = false;
 
@@ -3470,7 +3497,18 @@ authMode.addEventListener("click", () => {
   authMessage.textContent =
     signupMode ? "이미 계정이 있으신가요?" : "계정이 없으신가요?";
   authMode.textContent = signupMode ? "LOGIN" : "SIGN UP";
+  if(authForgot) authForgot.style.display = signupMode ? "none" : "inline-block";
 });
+
+if(authForgot){
+  authForgot.addEventListener("click", () => {
+    const currentEmail=(authEmail.value||"").trim();
+    authModal.style.display="none";
+    const emailInput=document.getElementById("password-reset-email");
+    if(emailInput) emailInput.value=currentEmail;
+    document.getElementById("password-reset-request-modal").style.display="flex";
+  });
+}
 
 authSubmit.addEventListener("click", async () => {
   const email = authEmail.value.trim();
@@ -3501,7 +3539,7 @@ authSubmit.addEventListener("click", async () => {
     if (!response.ok) {
       const raw = String(data.msg || data.error_description || data.message || "").toLowerCase();
       let message = data.msg || data.error_description || data.message || "로그인에 실패했습니다.";
-      if(raw.includes("invalid login credentials")) message="이메일 또는 비밀번호가 맞지 않습니다.";
+      if(raw.includes("invalid login credentials")) message="이메일 또는 비밀번호가 맞지 않습니다. 비밀번호가 기억나지 않으면 비밀번호 찾기를 이용해주세요.";
       else if(raw.includes("email not confirmed")) message="이메일 인증이 아직 완료되지 않았습니다. 인증 메일을 확인해주세요.";
       else if(response.status===429) message="로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.";
       alert(message);
@@ -10192,6 +10230,7 @@ document.addEventListener("DOMContentLoaded",()=>{socialObserver.observe(documen
     <div id="mp-joined" class="mp-joined"></div>
    </div>
    <button class="mp-edit" onclick="openMyProfileEdit()">✎ 프로필 편집</button>
+   <button class="mp-edit" onclick="openLoggedInPasswordChange()">🔒 비밀번호 변경</button>
   </div>
   <div class="mp-stats">
    <div class="mp-stat"><span>업로드 곡</span><b id="mp-upload-count">0</b></div>
@@ -10315,6 +10354,163 @@ function openMyProfileEdit(){const s=mpSession(),p=mpData.profile||{};document.g
 function closeMyProfileEdit(){document.getElementById("mp-profile-modal").style.display="none"}
 async function saveMyProfile(){const s=mpSession();if(!s?.user?.id)return;const body={id:s.user.id,nickname:document.getElementById("mp-edit-name").value.trim(),bio:document.getElementById("mp-edit-bio").value.trim(),avatar_url:document.getElementById("mp-edit-avatar").value.trim(),updated_at:new Date().toISOString()};const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});if(!r.ok){alert("프로필 저장에 실패했습니다. 마이페이지 SQL을 먼저 실행해주세요.");return}closeMyProfileEdit();await loadMyPage()}
 </script>
+
+<script id="amkina-password-recovery-v1">
+(function(){
+  const REDIRECT_URL = "https://amkinaaimusic.github.io/amkina-music/";
+
+  function authJsonHeaders(token){
+    const h={"apikey":SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+    if(token) h.Authorization="Bearer "+token;
+    return h;
+  }
+  function getStoredSession(){
+    try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}
+  }
+  function saveStoredSession(data){
+    if(typeof amkinaAuthSaveSession==="function") return amkinaAuthSaveSession(data);
+    localStorage.setItem("amkina_session",JSON.stringify(data));
+    return data;
+  }
+  function friendlyRecoveryError(data,status){
+    const raw=String(data?.msg||data?.message||data?.error_description||"").toLowerCase();
+    if(status===429 || raw.includes("rate limit")) return "재설정 메일 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.";
+    if(raw.includes("expired")) return "재설정 링크가 만료되었습니다. 비밀번호 찾기에서 새 메일을 요청해주세요.";
+    if(raw.includes("same password")) return "기존 비밀번호와 다른 새 비밀번호를 입력해주세요.";
+    return data?.msg||data?.message||data?.error_description||"요청 처리에 실패했습니다.";
+  }
+
+  window.closePasswordResetRequest=function(){
+    document.getElementById("password-reset-request-modal").style.display="none";
+  };
+
+  window.sendPasswordResetEmail=async function(){
+    const input=document.getElementById("password-reset-email");
+    const button=document.getElementById("password-reset-send");
+    const email=(input?.value||"").trim();
+    if(!email || !email.includes("@")){
+      alert("가입할 때 사용한 이메일을 정확히 입력해주세요.");
+      return;
+    }
+    const old=button.textContent; button.disabled=true; button.textContent="전송 중...";
+    try{
+      const r=await fetch(
+        SUPABASE_URL+"/auth/v1/recover?redirect_to="+encodeURIComponent(REDIRECT_URL),
+        {method:"POST",headers:authJsonHeaders(),body:JSON.stringify({email})}
+      );
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(friendlyRecoveryError(d,r.status));
+      closePasswordResetRequest();
+      alert("비밀번호 재설정 메일을 요청했습니다.\n메일함과 스팸함을 확인해주세요.\n\n보안을 위해 가입 여부와 관계없이 같은 안내가 표시될 수 있습니다.");
+    }catch(e){
+      alert(e.message||"재설정 메일 전송에 실패했습니다.");
+    }finally{
+      button.disabled=false; button.textContent=old;
+    }
+  };
+
+  window.openLoggedInPasswordChange=async function(){
+    let s=getStoredSession();
+    if(typeof amkinaAuthRefresh==="function" && s?.refresh_token){
+      try{s=(await amkinaAuthRefresh(false))||getStoredSession()}catch(e){}
+    }
+    if(!s?.access_token||!s?.user?.id){
+      alert("비밀번호 변경은 로그인이 필요합니다.");
+      document.getElementById("auth-modal").style.display="flex";
+      return;
+    }
+    document.getElementById("password-change-title").textContent="비밀번호 변경";
+    document.getElementById("password-change-guide").textContent="새 비밀번호를 입력해주세요.";
+    document.getElementById("password-new").value="";
+    document.getElementById("password-new-confirm").value="";
+    document.getElementById("password-change-modal").dataset.mode="loggedin";
+    document.getElementById("password-change-modal").style.display="flex";
+  };
+
+  window.closePasswordChangeModal=function(){
+    document.getElementById("password-change-modal").style.display="none";
+  };
+
+  async function sessionFromRecoveryHash(){
+    const hash=new URLSearchParams(location.hash.replace(/^#/,""));
+    const access=hash.get("access_token");
+    const refresh=hash.get("refresh_token");
+    const type=hash.get("type");
+    const error=hash.get("error_description")||hash.get("error");
+    if(error){
+      alert("비밀번호 재설정 링크를 사용할 수 없습니다.\n"+decodeURIComponent(error));
+      history.replaceState(null,"",location.pathname+location.search);
+      return false;
+    }
+    if(type==="recovery" && access){
+      let user=null;
+      try{
+        const ur=await fetch(SUPABASE_URL+"/auth/v1/user",{headers:authJsonHeaders(access)});
+        if(ur.ok) user=await ur.json();
+      }catch(e){}
+      const session={
+        access_token:access,
+        refresh_token:refresh||"",
+        token_type:hash.get("token_type")||"bearer",
+        expires_in:Number(hash.get("expires_in")||3600),
+        expires_at:Math.floor(Date.now()/1000)+Number(hash.get("expires_in")||3600),
+        user:user
+      };
+      saveStoredSession(session);
+      if(typeof amkinaAuthUpdateUI==="function")amkinaAuthUpdateUI();
+      history.replaceState(null,"",location.pathname+location.search);
+      document.getElementById("password-change-title").textContent="새 비밀번호 설정";
+      document.getElementById("password-change-guide").textContent="메일 인증이 완료되었습니다. 사용할 새 비밀번호를 입력해주세요.";
+      document.getElementById("password-change-modal").dataset.mode="recovery";
+      document.getElementById("password-change-modal").style.display="flex";
+      return true;
+    }
+    return false;
+  }
+
+  window.saveNewPassword=async function(){
+    const p1=document.getElementById("password-new").value;
+    const p2=document.getElementById("password-new-confirm").value;
+    const button=document.getElementById("password-change-save");
+    if(p1.length<8){alert("새 비밀번호는 8자 이상으로 입력해주세요.");return}
+    if(p1!==p2){alert("새 비밀번호가 서로 일치하지 않습니다.");return}
+
+    let s=getStoredSession();
+    if(typeof amkinaAuthRefresh==="function" && s?.refresh_token){
+      try{s=(await amkinaAuthRefresh(false))||getStoredSession()}catch(e){}
+    }
+    if(!s?.access_token){
+      alert("인증 시간이 만료되었습니다. 비밀번호 찾기에서 재설정 메일을 다시 요청해주세요.");
+      closePasswordChangeModal();
+      return;
+    }
+
+    const old=button.textContent; button.disabled=true; button.textContent="변경 중...";
+    try{
+      const r=await fetch(SUPABASE_URL+"/auth/v1/user",{
+        method:"PUT",
+        headers:authJsonHeaders(s.access_token),
+        body:JSON.stringify({password:p1})
+      });
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(friendlyRecoveryError(d,r.status));
+
+      closePasswordChangeModal();
+      document.getElementById("password-new").value="";
+      document.getElementById("password-new-confirm").value="";
+      alert("비밀번호가 변경되었습니다.\n다음 로그인부터 새 비밀번호를 사용해주세요.");
+    }catch(e){
+      alert(e.message||"비밀번호 변경에 실패했습니다.");
+    }finally{
+      button.disabled=false; button.textContent=old;
+    }
+  };
+
+  // Supabase recovery 메일 링크로 돌아왔을 때 자동으로 새 비밀번호 창을 연다.
+  window.addEventListener("DOMContentLoaded",()=>setTimeout(sessionFromRecoveryHash,300));
+})();
+</script>
+
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
