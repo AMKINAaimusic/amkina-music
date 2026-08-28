@@ -2476,6 +2476,12 @@ async function showArtistsPage(e){
 .notice-all-card{width:min(820px,100%)}#notice-all-list .amkina-notice-row{border:1px solid #eee;border-bottom:0}#notice-all-list .amkina-notice-row:last-child{border-bottom:1px solid #eee}
 </style>
 
+<style id="amkina-track-action-menu-style">
+.track-action-menu{position:fixed;z-index:3000000;width:218px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:6px;box-shadow:0 16px 45px rgba(0,0,0,.18);display:none}
+.track-action-menu button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;border-radius:8px;padding:10px 11px;text-align:left;font-size:12px;font-weight:750;color:#222;cursor:pointer}
+.track-action-menu button:hover{background:#f4f4f4}.track-action-menu .menu-sep{height:1px;background:#eee;margin:5px 4px}.track-action-menu .menu-icon{width:18px;text-align:center;font-size:14px}
+.track-link-toast{position:fixed;left:50%;bottom:95px;transform:translateX(-50%) translateY(12px);z-index:3100000;background:#111;color:#fff;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s}.track-link-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
 </head>
 
 <body>
@@ -3067,6 +3073,8 @@ async function showArtistsPage(e){
   <div id="notice-all-list"></div>
  </div>
 </div>
+<div id="track-action-menu" class="track-action-menu" role="menu"></div>
+<div id="track-link-toast" class="track-link-toast">링크가 복사되었습니다.</div>
 <div id="compact-lyrics-panel" class="compact-lyrics-panel" aria-hidden="true">
   <div class="compact-lyrics-inner">
     <div class="compact-lyrics-label">
@@ -3347,17 +3355,13 @@ async function loadMusic(){
 
     container.querySelectorAll(".track-edit-btn").forEach(btn=>{
       const id=btn.dataset.editTrack;
-      const track=tracks.find(t=>String(t.id)===String(id));
-      const session=JSON.parse(localStorage.getItem("amkina_session")||"null");
-      const adminEmail="psy88all@naver.com".toLowerCase();
-      const currentEmail=String(session?.user?.email||"").toLowerCase();
-      const isAdmin=currentEmail===adminEmail;
-      const mine=!!(session?.user?.id && track?.uploader_id && String(track.uploader_id)===String(session.user.id));
-      btn.style.display=(isAdmin || mine) ? "inline-flex" : "none";
+      btn.style.display="inline-flex";
+      btn.title="곡 메뉴";
+      btn.setAttribute("aria-label","곡 메뉴");
       btn.addEventListener("click",(e)=>{
         e.preventDefault();
         e.stopPropagation();
-        openTrackEdit(id);
+        openTrackActionMenu(id,btn);
       });
     });
 
@@ -9967,6 +9971,7 @@ function amkinaCanEditTrack(track){
 }
 
 function amkinaAttachOwnerEditButtons(){
+  return; // 통합 곡 메뉴 사용
   if(!Array.isArray(window.tracks) && typeof tracks==="undefined") return;
   const list=(typeof tracks!=="undefined" && Array.isArray(tracks)) ? tracks : window.tracks;
 
@@ -10968,6 +10973,35 @@ document.addEventListener("DOMContentLoaded",()=>setTimeout(loadNotices,400));
 window.addEventListener("focus",()=>{const b=document.getElementById("notice-admin-write");if(b)b.style.display=noticeIsAdmin()?"inline-block":"none"});
 </script>
 
+<script id="amkina-track-action-menu-v1">
+let amkinaActionTrackId=null;
+function actionMenuSession(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
+function actionMenuTrack(id){return (typeof tracks!=="undefined"&&Array.isArray(tracks)?tracks:[]).find(t=>String(t.id)===String(id))}
+function actionMenuCanEdit(t){const s=actionMenuSession();if(!s?.user?.id||!t)return false;return String(s.user.email||"").toLowerCase()==="psy88all@naver.com"||!!(t.uploader_id&&String(t.uploader_id)===String(s.user.id))}
+function actionMenuLiked(id){return typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(id))}
+function openTrackActionMenu(id,button){
+ const menu=document.getElementById("track-action-menu"),t=actionMenuTrack(id);if(!menu||!t)return;amkinaActionTrackId=String(id);
+ const canEdit=actionMenuCanEdit(t),liked=actionMenuLiked(id);
+ menu.innerHTML=`<button onclick="actionMenuPlay()"><span class="menu-icon">▶</span>재생하기</button>
+ <button onclick="actionMenuLike()"><span class="menu-icon">${liked?"♥":"♡"}</span>${liked?"좋아요 취소":"좋아요 누르기"}</button>
+ <button onclick="actionMenuComment()"><span class="menu-icon">▢</span>댓글 달기</button>
+ <button onclick="actionMenuPlaylist()"><span class="menu-icon">＋</span>플레이리스트에 추가</button>
+ <button onclick="copyTrackShareLink()"><span class="menu-icon">↗</span>링크 복사</button>
+ ${canEdit?`<div class="menu-sep"></div><button onclick="actionMenuEdit()"><span class="menu-icon">✎</span>노래 정보 수정</button>`:""}`;
+ menu.style.display="block";const r=button.getBoundingClientRect(),mw=218,mh=menu.offsetHeight||260;
+ let left=Math.max(10,Math.min(r.right-mw,window.innerWidth-mw-10));let top=r.bottom+7;if(top+mh>window.innerHeight-10)top=Math.max(10,r.top-mh-7);
+ menu.style.left=left+"px";menu.style.top=top+"px";
+}
+function closeTrackActionMenu(){const m=document.getElementById("track-action-menu");if(m)m.style.display="none";amkinaActionTrackId=null}
+function actionMenuPlay(){const id=amkinaActionTrackId;closeTrackActionMenu();const idx=(typeof tracks!=="undefined"?tracks:[]).findIndex(x=>String(x.id)===String(id));if(idx>=0&&typeof playTrack==="function")playTrack(idx)}
+async function actionMenuLike(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof toggleTrackLike==="function")await toggleTrackLike(id)}
+function actionMenuComment(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackComments==="function")openTrackComments(id)}
+function actionMenuPlaylist(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openLibraryAddModal==="function")openLibraryAddModal(id)}
+function actionMenuEdit(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackEdit==="function")openTrackEdit(id)}
+async function copyTrackShareLink(){const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;const u=new URL(location.href);u.hash="";u.searchParams.set("track",id);const link=u.toString();try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}}
+document.addEventListener("click",e=>{const m=document.getElementById("track-action-menu");if(m&&m.style.display==="block"&&!e.target.closest("#track-action-menu")&&!e.target.closest(".track-edit-btn"))closeTrackActionMenu()});
+window.addEventListener("scroll",closeTrackActionMenu,true);window.addEventListener("resize",closeTrackActionMenu);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackActionMenu()});
+</script>
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
