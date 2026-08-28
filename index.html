@@ -1,4 +1,3 @@
-```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1421,6 +1420,180 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-discovery-filter-v1">
+/* =========================================================
+   AMKINA MUSIC — DISCOVERY / CLASSIFICATION UI
+   ========================================================= */
+.amkina-discovery-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin:0 0 14px;
+}
+.amkina-filter-pills{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.amkina-filter-btn{
+  appearance:none;
+  height:38px;
+  padding:0 17px;
+  border:1px solid #dedfdd;
+  border-radius:999px;
+  background:#fff;
+  color:#555;
+  font:inherit;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.amkina-filter-btn:hover{
+  border-color:#bfc1be;
+  color:#111;
+}
+.amkina-filter-btn.active{
+  background:#111;
+  border-color:#111;
+  color:#fff;
+}
+.amkina-filter-btn[data-filter="new"]{
+  color:#e32727;
+}
+.amkina-filter-btn[data-filter="new"].active{
+  background:#e32727;
+  border-color:#e32727;
+  color:#fff;
+}
+.amkina-filter-selects{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.amkina-select-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  height:38px;
+  padding:0 10px 0 12px;
+  border:1px solid #dedfdd;
+  border-radius:10px;
+  background:#fff;
+}
+.amkina-select-wrap>span{
+  color:#999;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.5px;
+  white-space:nowrap;
+}
+.amkina-select-wrap select{
+  appearance:auto;
+  max-width:150px;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#222;
+  font-size:11px;
+  font-weight:750;
+  cursor:pointer;
+}
+.amkina-filter-result{
+  min-height:18px;
+  margin:0 0 10px;
+  color:#999;
+  font-size:10px;
+  letter-spacing:.2px;
+}
+#music-list .cover-wrap{position:relative!important}
+#music-list .amkina-new-badge{
+  position:absolute;
+  z-index:8;
+  top:10px;
+  left:10px;
+  padding:5px 8px 4px;
+  border-radius:7px;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(220,30,30,.22);
+  color:#e12626;
+  font-size:9px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.8px;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+#music-list .track.amkina-hidden{
+  display:none!important;
+}
+#music-list .track.amkina-filter-pop{
+  animation:amkinaCardIn .22s ease both;
+}
+@keyframes amkinaCardIn{
+  from{opacity:.25;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media (min-width:769px){
+  .amkina-discovery-bar{
+    padding:0 1px;
+  }
+}
+
+@media (max-width:768px){
+  .amkina-discovery-bar{
+    display:block;
+    margin:0 0 14px;
+    overflow:visible;
+  }
+  .amkina-filter-pills{
+    overflow-x:auto;
+    padding:1px 0 9px;
+    scrollbar-width:none;
+  }
+  .amkina-filter-pills::-webkit-scrollbar{display:none}
+  .amkina-filter-btn{
+    flex:0 0 auto;
+    height:36px;
+    padding:0 15px;
+    font-size:11px;
+  }
+  .amkina-filter-selects{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+  }
+  .amkina-select-wrap{
+    min-width:0;
+    height:39px;
+    padding:0 8px 0 10px;
+  }
+  .amkina-select-wrap select{
+    min-width:0;
+    width:100%;
+    max-width:none;
+    font-size:10.5px;
+  }
+  .amkina-sort-wrap{
+    grid-column:1 / -1;
+  }
+  .amkina-filter-result{
+    margin-bottom:8px;
+    font-size:9px;
+  }
+  #music-list .amkina-new-badge{
+    top:7px;
+    left:7px;
+    padding:4px 6px;
+    border-radius:6px;
+    font-size:8px;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -1599,6 +1772,43 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
     <h2>Latest Releases</h2>
     <div id="track-count">LOADING</div>
   </div>
+
+  <!-- AMKINA MUSIC DISCOVERY / FILTER BAR -->
+  <div class="amkina-discovery-bar" id="amkina-discovery-bar">
+    <div class="amkina-filter-pills">
+      <button type="button" class="amkina-filter-btn active" data-filter="all">전체</button>
+      <button type="button" class="amkina-filter-btn" data-filter="popular">🔥 인기</button>
+      <button type="button" class="amkina-filter-btn" data-filter="new">NEW</button>
+    </div>
+
+    <div class="amkina-filter-selects">
+      <label class="amkina-select-wrap">
+        <span>장르</span>
+        <select id="amkina-genre-filter">
+          <option value="all">모든 장르</option>
+        </select>
+      </label>
+
+      <label class="amkina-select-wrap">
+        <span>아티스트</span>
+        <select id="amkina-artist-filter">
+          <option value="all">모든 아티스트</option>
+        </select>
+      </label>
+
+      <label class="amkina-select-wrap amkina-sort-wrap">
+        <span>정렬</span>
+        <select id="amkina-sort-filter">
+          <option value="latest">최신순</option>
+          <option value="popular">재생 많은순</option>
+          <option value="likes">좋아요순</option>
+          <option value="title">곡명순</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div id="amkina-filter-result" class="amkina-filter-result" aria-live="polite"></div>
 
   <div id="music-list" class="music-grid">
     <div class="loading">음악을 불러오는 중...</div>
@@ -1976,10 +2186,20 @@ async function loadMusic(){
         document.createElement("article");
 
       card.className="track";
+      card.dataset.originalIndex = String(index);
+      card.dataset.artist = String(safe(track.artist) || "AMKINA").trim();
+      card.dataset.genre = String(safe(track.genre) || "ORIGINAL").trim();
+      card.dataset.plays = String(Number(track.play_count || 0));
+      card.dataset.likes = String(Number(track.like_count || track.likes || 0));
+      card.dataset.trackId = String(track.id ?? "");
+      card.dataset.title = String(safe(track.title) || "Untitled").trim();
+      card.dataset.isNew = index < 3 ? "1" : "0";
 
       card.innerHTML=`
 
         <div class="cover-wrap">
+
+          ${index < 3 ? '<span class="amkina-new-badge">NEW</span>' : ''}
 
           <img
             class="cover"
@@ -2028,6 +2248,10 @@ async function loadMusic(){
       container.appendChild(card);
 
     });
+
+    if(typeof window.amkinaRefreshDiscovery === "function"){
+      window.amkinaRefreshDiscovery();
+    }
 
   }
 
@@ -8051,6 +8275,154 @@ window.showCommunityPage = function(event) {
 };
 </script>
 
+
+<script id="amkina-discovery-filter-js">
+(function(){
+  let activeFilter = "all";
+
+  function norm(v){
+    return String(v || "").trim().toLowerCase();
+  }
+
+  function cards(){
+    return Array.from(document.querySelectorAll("#music-list .track"));
+  }
+
+  function uniqueSorted(values){
+    return [...new Set(values.filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b, "ko"));
+  }
+
+  function rebuildSelect(select, values, allLabel){
+    if(!select) return;
+    const previous = select.value;
+    select.innerHTML = '<option value="all">' + allLabel + '</option>';
+    values.forEach(value=>{
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    });
+    if(Array.from(select.options).some(o=>o.value === previous)){
+      select.value = previous;
+    }
+  }
+
+  function applyDiscovery(){
+    const list = document.getElementById("music-list");
+    if(!list) return;
+
+    const genre = document.getElementById("amkina-genre-filter")?.value || "all";
+    const artist = document.getElementById("amkina-artist-filter")?.value || "all";
+    const sort = document.getElementById("amkina-sort-filter")?.value || "latest";
+    const keyword = norm(document.getElementById("music-search")?.value);
+
+    let allCards = cards();
+
+    allCards.forEach(card=>{
+      const title = norm(card.dataset.title || card.querySelector(".title")?.textContent);
+      const cardArtist = card.dataset.artist || "";
+      const cardGenre = card.dataset.genre || "";
+      const plays = Number(card.dataset.plays || 0);
+      const isNew = card.dataset.isNew === "1";
+
+      let show = true;
+
+      if(activeFilter === "popular"){
+        // 인기 탭은 전체 곡 중 상위 재생 곡을 보여주되,
+        // 장르/아티스트/검색 조건은 그대로 함께 적용합니다.
+        show = plays > 0;
+      }else if(activeFilter === "new"){
+        show = isNew;
+      }
+
+      if(genre !== "all" && cardGenre !== genre) show = false;
+      if(artist !== "all" && cardArtist !== artist) show = false;
+      if(keyword && !(title.includes(keyword) || norm(cardArtist).includes(keyword))) show = false;
+
+      card.classList.toggle("amkina-hidden", !show);
+      if(show){
+        card.classList.remove("amkina-filter-pop");
+        void card.offsetWidth;
+        card.classList.add("amkina-filter-pop");
+      }
+    });
+
+    let ordered = cards();
+    ordered.sort((a,b)=>{
+      if(activeFilter === "popular" || sort === "popular"){
+        return Number(b.dataset.plays || 0) - Number(a.dataset.plays || 0);
+      }
+      if(sort === "likes"){
+        return Number(b.dataset.likes || 0) - Number(a.dataset.likes || 0);
+      }
+      if(sort === "title"){
+        return String(a.dataset.title || "").localeCompare(String(b.dataset.title || ""), "ko");
+      }
+      return Number(a.dataset.originalIndex || 0) - Number(b.dataset.originalIndex || 0);
+    });
+    ordered.forEach(card=>list.appendChild(card));
+
+    const visible = ordered.filter(card=>!card.classList.contains("amkina-hidden")).length;
+    const result = document.getElementById("amkina-filter-result");
+    if(result){
+      const labels = [];
+      if(activeFilter === "popular") labels.push("인기");
+      if(activeFilter === "new") labels.push("NEW");
+      if(genre !== "all") labels.push(genre);
+      if(artist !== "all") labels.push(artist);
+      result.textContent = labels.length
+        ? labels.join(" · ") + "  /  " + visible + "곡"
+        : "";
+    }
+  }
+
+  window.amkinaRefreshDiscovery = function(){
+    const allCards = cards();
+    rebuildSelect(
+      document.getElementById("amkina-genre-filter"),
+      uniqueSorted(allCards.map(c=>c.dataset.genre)),
+      "모든 장르"
+    );
+    rebuildSelect(
+      document.getElementById("amkina-artist-filter"),
+      uniqueSorted(allCards.map(c=>c.dataset.artist)),
+      "모든 아티스트"
+    );
+    applyDiscovery();
+  };
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest(".amkina-filter-btn");
+    if(!btn) return;
+
+    document.querySelectorAll(".amkina-filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter || "all";
+    applyDiscovery();
+  });
+
+  ["amkina-genre-filter","amkina-artist-filter","amkina-sort-filter"].forEach(id=>{
+    document.addEventListener("change", function(e){
+      if(e.target && e.target.id === id) applyDiscovery();
+    });
+  });
+
+  // 기존 검색 기능과 충돌하지 않도록 캡처 단계에서 같은 필터 엔진을 다시 적용.
+  document.addEventListener("input", function(e){
+    if(e.target && e.target.id === "music-search"){
+      setTimeout(applyDiscovery, 0);
+    }
+  });
+
+  // loadMusic 완료 전/후 어느 경우에도 작동.
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(function(){
+      if(cards().length) window.amkinaRefreshDiscovery();
+    }, 500);
+  });
+})();
+</script>
+
 </body>
 </html>
-```
