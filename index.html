@@ -2522,6 +2522,22 @@ body.track-full-open{overflow:hidden}
 }
 </style>
 
+
+<style id="amkina-install-menu-style">
+#amkina-install-menu{
+  position:fixed; left:16px; bottom:150px; z-index:99991;
+  width:142px; height:42px; border:1px solid #e5e5e5; border-radius:10px;
+  background:#fff; color:#111; font:700 12px Arial,sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.06);
+}
+#amkina-install-menu:hover{background:#f5ffe9;border-color:#a3ff68}
+#amkina-install-menu.is-installed{opacity:.65;cursor:default}
+@media(max-width:768px){
+  #amkina-install-menu{left:10px;bottom:100px;width:128px}
+}
+</style>
+
 </head>
 
 <body>
@@ -11218,6 +11234,62 @@ if ("serviceWorker" in navigator) {
   });
 
   if(isStandalone()) btn.style.display="none";
+})();
+</script>
+
+<button id="amkina-install-menu" type="button" aria-label="AMKINA MUSIC 앱 설치">
+  <span>⬇</span><span id="amkina-install-menu-label">앱 설치</span>
+</button>
+<script id="amkina-install-menu-script">
+(function(){
+  let installPrompt=null;
+  const btn=document.getElementById("amkina-install-menu");
+  const label=document.getElementById("amkina-install-menu-label");
+  if(!btn||!label)return;
+
+  function standalone(){
+    return window.matchMedia("(display-mode: standalone)").matches ||
+           window.navigator.standalone===true;
+  }
+  function installedUI(){
+    label.textContent="앱 설치됨";
+    btn.classList.add("is-installed");
+  }
+  if(standalone()) installedUI();
+
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    installPrompt=e;
+    if(!standalone()){
+      label.textContent="앱 설치";
+      btn.classList.remove("is-installed");
+    }
+  });
+
+  btn.addEventListener("click",async function(){
+    if(standalone()){ installedUI(); return; }
+
+    if(installPrompt){
+      installPrompt.prompt();
+      try{ await installPrompt.userChoice; }catch(e){}
+      installPrompt=null;
+      return;
+    }
+
+    const ua=navigator.userAgent||"";
+    if(/iphone|ipad|ipod/i.test(ua)){
+      alert("iPhone/iPad에서는 Safari의 공유 버튼 → ‘홈 화면에 추가’를 눌러주세요.");
+    }else if(/android/i.test(ua)){
+      alert("브라우저 메뉴에서 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 눌러주세요.");
+    }else{
+      alert("Edge/Chrome 메뉴에서 ‘앱’ → ‘이 사이트를 앱으로 설치’를 눌러주세요.");
+    }
+  });
+
+  window.addEventListener("appinstalled",function(){
+    installPrompt=null;
+    installedUI();
+  });
 })();
 </script>
 
