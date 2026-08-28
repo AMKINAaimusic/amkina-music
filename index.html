@@ -7757,6 +7757,80 @@ html body{
         padding-bottom:72px !important;
     }
 }
+  /* =====================================================
+   AMKINA PC SIDEBAR — ONE SCREEN
+   PC에서 메뉴 전체가 스크롤 없이 한 화면에 표시
+   ===================================================== */
+
+@media (min-width:769px){
+
+  /* 사이드바 자체 스크롤 제거 */
+  body > header{
+    padding:
+      18px 18px 112px !important;
+
+    overflow-y:hidden !important;
+  }
+
+  /* 로고 영역 축소 */
+  body > header .logo{
+    padding:
+      4px 12px 17px !important;
+
+    font-size:20px !important;
+    line-height:.88 !important;
+  }
+
+  /* 메뉴 전체 간격 */
+  body > header nav{
+    gap:1px !important;
+  }
+
+  /* BROWSE / CREATE / DISCOVER */
+  body > header nav .nav-section-label{
+    margin:
+      11px 12px 5px !important;
+
+    font-size:8px !important;
+    line-height:1 !important;
+  }
+
+  /* 각각의 메뉴 */
+  body > header nav a{
+    min-height:38px !important;
+    height:38px !important;
+
+    padding:
+      0 11px !important;
+
+    font-size:12px !important;
+
+    border-radius:8px !important;
+  }
+
+  /* 아이콘 */
+  body > header nav .nav-icon{
+    width:17px !important;
+    min-width:17px !important;
+
+    font-size:14px !important;
+  }
+
+  /* 준비중 표시 */
+  body > header nav .coming-soon{
+    padding:
+      3px 6px !important;
+
+    font-size:7px !important;
+  }
+
+  /* 구분선 */
+  body > header nav .nav-divider{
+    margin:
+      8px 10px !important;
+  }
+
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
