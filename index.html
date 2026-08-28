@@ -2482,6 +2482,23 @@ async function showArtistsPage(e){
 .track-action-menu button:hover{background:#f4f4f4}.track-action-menu .menu-sep{height:1px;background:#eee;margin:5px 4px}.track-action-menu .menu-icon{width:18px;text-align:center;font-size:14px}
 .track-link-toast{position:fixed;left:50%;bottom:95px;transform:translateX(-50%) translateY(12px);z-index:3100000;background:#111;color:#fff;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s}.track-link-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
+
+<style id="amkina-full-track-page-style">
+.track-full-page{position:fixed;inset:0 0 0 0;z-index:85000;background:#f7f7f5;color:#111;overflow:auto;padding:48px 50px 125px;box-sizing:border-box;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.track-full-page.open{display:block!important;transform:translateY(0)}
+.tf-close{position:fixed;top:18px;right:25px;z-index:2;width:42px;height:42px;border:1px solid #ddd;background:#fff;border-radius:50%;font-size:24px;cursor:pointer}
+.tf-shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(340px,520px) minmax(320px,1fr);gap:70px;align-items:start}
+.tf-left{position:sticky;top:45px}.tf-cover-wrap{position:relative;aspect-ratio:1;background:#e8e8e8;border-radius:20px;overflow:hidden;box-shadow:0 25px 60px #00000018}.tf-cover-wrap img{width:100%;height:100%;object-fit:cover}
+.tf-big-play{position:absolute;right:22px;bottom:22px;width:66px;height:66px;border:0;border-radius:50%;background:#fff;color:#111;font-size:25px;box-shadow:0 8px 30px #0003;cursor:pointer}
+.tf-kicker{font-size:10px;letter-spacing:2.5px;font-weight:900;color:#999;margin-top:24px}.tf-title-row h1{font-size:36px;line-height:1.08;letter-spacing:-1.5px;margin:7px 0}.tf-artist{font-size:14px;color:#777;font-weight:700}
+.tf-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}.tf-actions button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer}.tf-actions button:hover{border-color:#999}
+.tf-right{background:#fff;border:1px solid #e7e7e7;border-radius:20px;min-height:680px;padding:28px 34px}.tf-lyrics-head{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:18px}.tf-lyrics-head span{font-size:11px;letter-spacing:2px;font-weight:900}.tf-lyrics-head b{font-size:11px;color:#999}
+.tf-lyrics{white-space:pre-wrap;font-size:20px;line-height:2;font-weight:650;padding:28px 0 60px;word-break:keep-all}
+.player{cursor:default}.player .now{cursor:pointer}.player:before{content:"";position:absolute;left:50%;top:5px;width:38px;height:4px;border-radius:4px;background:#ffffff40;transform:translateX(-50%);cursor:ns-resize}
+body.track-full-open{overflow:hidden}
+@media(max-width:850px){.track-full-page{padding:45px 18px 120px}.tf-shell{grid-template-columns:1fr;gap:25px}.tf-left{position:static}.tf-cover-wrap{max-width:480px;margin:auto}.tf-right{min-height:420px;padding:22px}.tf-lyrics{font-size:18px}.tf-title-row h1{font-size:30px}}
+</style>
+
 </head>
 
 <body>
@@ -3091,6 +3108,26 @@ async function showArtistsPage(e){
   </div>
 </div>
 
+
+<section id="track-full-page" class="track-full-page" style="display:none">
+ <button class="tf-close" onclick="closeTrackFullPage()" aria-label="닫기">⌄</button>
+ <div class="tf-shell">
+  <div class="tf-left">
+   <div class="tf-cover-wrap"><img id="tf-cover" alt=""><button id="tf-main-play" class="tf-big-play" onclick="togglePlay()">▶</button></div>
+   <div class="tf-title-row"><div><div class="tf-kicker">NOW PLAYING</div><h1 id="tf-title">Track</h1><div id="tf-artist" class="tf-artist"></div></div></div>
+   <div class="tf-actions">
+    <button id="tf-like" onclick="tfLike()">♡ 좋아요</button>
+    <button onclick="tfComment()">💬 댓글</button>
+    <button onclick="tfPlaylist()">＋ 플레이리스트</button>
+    <button onclick="tfCopy()">↗ 링크 복사</button>
+   </div>
+  </div>
+  <div class="tf-right">
+   <div class="tf-lyrics-head"><span>LYRICS</span><b id="tf-lyrics-title"></b></div>
+   <div id="tf-lyrics" class="tf-lyrics">등록된 가사가 없습니다.</div>
+  </div>
+ </div>
+</section>
 <div class="player">
 
   <div class="now">
@@ -3390,6 +3427,8 @@ function playTrack(index){
   currentIndex=index;
 
   const track=tracks[index];
+
+  if(document.getElementById("track-full-page")?.classList.contains("open") && typeof renderTrackFullPage==="function") renderTrackFullPage(track);
 
   audio.src=track.audio_url;
 
@@ -10986,6 +11025,7 @@ function openTrackActionMenu(id,button){
  <button onclick="actionMenuLike()"><span class="menu-icon">${liked?"♥":"♡"}</span>${liked?"좋아요 취소":"좋아요 누르기"}</button>
  <button onclick="actionMenuComment()"><span class="menu-icon">▢</span>댓글 달기</button>
  <button onclick="actionMenuPlaylist()"><span class="menu-icon">＋</span>플레이리스트에 추가</button>
+ <button onclick="actionMenuOpenPage()"><span class="menu-icon">▣</span>곡 페이지 열기</button>
  <button onclick="copyTrackShareLink()"><span class="menu-icon">↗</span>링크 복사</button>
  ${canEdit?`<div class="menu-sep"></div><button onclick="actionMenuEdit()"><span class="menu-icon">✎</span>노래 정보 수정</button>`:""}`;
  menu.style.display="block";const r=button.getBoundingClientRect(),mw=218,mh=menu.offsetHeight||260;
@@ -10997,11 +11037,59 @@ function actionMenuPlay(){const id=amkinaActionTrackId;closeTrackActionMenu();co
 async function actionMenuLike(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof toggleTrackLike==="function")await toggleTrackLike(id)}
 function actionMenuComment(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackComments==="function")openTrackComments(id)}
 function actionMenuPlaylist(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openLibraryAddModal==="function")openLibraryAddModal(id)}
+function actionMenuOpenPage(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackFullPage==="function")openTrackFullPage(id)}
 function actionMenuEdit(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackEdit==="function")openTrackEdit(id)}
 async function copyTrackShareLink(){const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;const u=new URL(location.href);u.hash="";u.searchParams.set("track",id);const link=u.toString();try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}}
 document.addEventListener("click",e=>{const m=document.getElementById("track-action-menu");if(m&&m.style.display==="block"&&!e.target.closest("#track-action-menu")&&!e.target.closest(".track-edit-btn"))closeTrackActionMenu()});
 window.addEventListener("scroll",closeTrackActionMenu,true);window.addEventListener("resize",closeTrackActionMenu);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackActionMenu()});
 </script>
+
+<script id="amkina-full-track-page-v1">
+let tfTrackId=null, tfStartY=null, tfDragging=false;
+function tfTrack(id){return (typeof tracks!=="undefined"&&Array.isArray(tracks)?tracks:[]).find(t=>String(t.id)===String(id))}
+function tfCurrent(){return currentIndex>=0&&tracks[currentIndex]?tracks[currentIndex]:tfTrack(tfTrackId)}
+function tfCover(t){return t?.cover_url||t?.cover||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Crect width='500' height='500' fill='%23111'/%3E%3Ctext x='250' y='260' text-anchor='middle' fill='white' font-family='Arial' font-size='38' font-weight='700'%3EAMKINA MUSIC%3C/text%3E%3C/svg%3E"}
+function tfLyrics(t){return String(t?.lyrics||t?.lyric||t?.lyrics_text||"").trim()}
+function renderTrackFullPage(t){
+ if(!t)return;tfTrackId=String(t.id);
+ document.getElementById("tf-cover").src=tfCover(t);document.getElementById("tf-title").textContent=t.title||"Untitled";document.getElementById("tf-artist").textContent=t.artist||"AMKINA";document.getElementById("tf-lyrics-title").textContent=t.title||"";
+ const lyr=tfLyrics(t);document.getElementById("tf-lyrics").textContent=lyr||"등록된 가사가 없습니다.";
+ const liked=typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(t.id));document.getElementById("tf-like").textContent=liked?"♥ 좋아요 취소":"♡ 좋아요";
+}
+function openTrackFullPage(id,opts={}){
+ const t=tfTrack(id);if(!t)return false;renderTrackFullPage(t);
+ const p=document.getElementById("track-full-page");p.style.display="block";requestAnimationFrame(()=>p.classList.add("open"));document.body.classList.add("track-full-open");
+ if(opts.updateUrl!==false){const u=new URL(location.href);u.searchParams.set("track",t.id);history.pushState({track:t.id},"",u)}
+ return true;
+}
+function closeTrackFullPage(updateUrl=true){
+ const p=document.getElementById("track-full-page");p.classList.remove("open");document.body.classList.remove("track-full-open");setTimeout(()=>{if(!p.classList.contains("open"))p.style.display="none"},330);
+ if(updateUrl){const u=new URL(location.href);u.searchParams.delete("track");history.pushState({},"",u)}
+}
+function tfLike(){const t=tfCurrent();if(t&&typeof toggleTrackLike==="function"){toggleTrackLike(t.id).then(()=>renderTrackFullPage(t))}}
+function tfComment(){const t=tfCurrent();if(t&&typeof openTrackComments==="function")openTrackComments(t.id)}
+function tfPlaylist(){const t=tfCurrent();if(t&&typeof openLibraryAddModal==="function")openLibraryAddModal(t.id)}
+async function tfCopy(){const t=tfCurrent();if(!t)return;const u=new URL(location.href);u.searchParams.set("track",t.id);try{await navigator.clipboard.writeText(u.toString())}catch(e){}const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}}
+function syncTfPlayButton(){const b=document.getElementById("tf-main-play");if(b)b.textContent=audio&&!audio.paused?"❚❚":"▶"}
+if(typeof audio!=="undefined"){audio.addEventListener("play",syncTfPlayButton);audio.addEventListener("pause",syncTfPlayButton)}
+function openCurrentTrackFull(){const t=tfCurrent();if(t)openTrackFullPage(t.id)}
+document.addEventListener("DOMContentLoaded",()=>{
+ const now=document.querySelector(".player .now");if(now)now.addEventListener("click",openCurrentTrackFull);
+ const player=document.querySelector(".player");
+ if(player){
+  player.addEventListener("pointerdown",e=>{if(e.target.closest("button,input"))return;tfStartY=e.clientY;tfDragging=true});
+  player.addEventListener("pointerup",e=>{if(!tfDragging)return;const dy=e.clientY-tfStartY;tfDragging=false;if(dy<-45)openCurrentTrackFull()});
+ }
+});
+window.addEventListener("popstate",()=>{const id=new URL(location.href).searchParams.get("track");if(id)openTrackFullPage(id,{updateUrl:false});else closeTrackFullPage(false)});
+async function openDeepLinkedTrack(){
+ const id=new URL(location.href).searchParams.get("track");if(!id)return;
+ if((typeof tracks==="undefined"||!Array.isArray(tracks)||!tracks.length)&&typeof loadMusic==="function"){try{await loadMusic()}catch(e){}}
+ let tries=0;const go=()=>{const t=tfTrack(id);if(t){openTrackFullPage(id,{updateUrl:false});return}if(++tries<20)setTimeout(go,150)};go();
+}
+setTimeout(openDeepLinkedTrack,250);
+</script>
+
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
