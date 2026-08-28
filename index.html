@@ -9593,8 +9593,21 @@ document.addEventListener("DOMContentLoaded",()=>{
 .chart100-tabs{display:flex;gap:8px}
 .chart100-tab{border:1px solid #ddd;background:#fff;border-radius:999px;padding:9px 15px;font-size:12px;font-weight:700}
 .chart100-tab.active{background:#111;color:#fff;border-color:#111}
-.chart100-row{display:grid;grid-template-columns:68px 56px minmax(180px,1fr) 150px 110px 90px;gap:16px;align-items:center;padding:12px 8px;border-bottom:1px solid #e8e8e8;cursor:pointer}
+.chart100-row{display:grid;grid-template-columns:68px 58px 56px minmax(180px,1fr) 150px 110px 90px;gap:16px;align-items:center;padding:12px 8px;border-bottom:1px solid #e8e8e8;cursor:pointer}
 .chart100-row:hover{background:#f3f3f3}
+.chart100-row.top1{background:linear-gradient(90deg,#fff8df 0%,#fffdf5 42%,#fafafa 100%);border:1px solid #f0df9c;border-radius:12px;margin:6px 0}
+.chart100-row.top2{background:linear-gradient(90deg,#f5f6f7 0%,#fff 42%,#fafafa 100%);border:1px solid #dfe2e5;border-radius:12px;margin:6px 0}
+.chart100-row.top3{background:linear-gradient(90deg,#fff3e9 0%,#fff 42%,#fafafa 100%);border:1px solid #ead1bd;border-radius:12px;margin:6px 0}
+.chart100-row.top1 .chart100-rank,.chart100-row.top2 .chart100-rank,.chart100-row.top3 .chart100-rank{font-size:25px}
+.chart100-move{display:flex;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:900;white-space:nowrap}
+.chart100-move .arrow.up{color:#ff2b2b}.chart100-move .arrow.down{color:#2478ff}
+.chart100-move .move-num{color:#111}.chart100-move .same{color:#111}
+.chart100-move .new{color:#ff2b2b;font-weight:950;letter-spacing:.02em}
+.chart100-medal{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:11px;margin-right:5px;border:1px solid currentColor;vertical-align:2px}
+.top1 .chart100-medal{color:#c99300;background:#fff6c9}.top2 .chart100-medal{color:#7f8790;background:#f0f1f2}.top3 .chart100-medal{color:#b66a2d;background:#ffe7d3}
+.chart100-refresh{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:10px 2px 14px;font-size:11px;color:#777}
+.chart100-refresh b{color:#111;font-variant-numeric:tabular-nums}
+
 .chart100-rank{font-size:23px;font-weight:900;text-align:center}
 .chart100-cover{width:54px;height:54px;object-fit:cover;border-radius:7px;background:#eee}
 .chart100-song{min-width:0}
@@ -9607,7 +9620,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  .chart100-head{display:block}
  .chart100-title{font-size:30px}
  .chart100-tabs{margin-top:18px}
- .chart100-row{grid-template-columns:38px 54px minmax(0,1fr) 58px;gap:10px;padding:12px 0}
+ .chart100-row{grid-template-columns:38px 42px 54px minmax(0,1fr) 58px;gap:10px;padding:12px 0}
  .chart100-rank{font-size:18px}
  .chart100-cover{width:52px;height:52px}
  .chart100-genre,.chart100-like{display:none}
@@ -9629,6 +9642,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">주간</button>
    </div>
   </div>
+  <div class="chart100-refresh">◷ 6시간마다 갱신 · 다음 갱신 <b id="chart100-countdown">--:--:--</b></div>
   <div id="chart100-list"></div>
  </div>
 </section>
@@ -9641,12 +9655,72 @@ function amkinaChartLikeCount(t){
   return Number(t?._live_like_count ?? t?.like_count ?? t?.likes ?? 0) || 0;
 }
 
+let amkinaChartSnapshotMeta={latest:null,previous:null,moves:{}};
+
+async function amkinaLoadChartSnapshots(){
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/chart_snapshots?select=track_id,rank_position,snapshot_at&order=snapshot_at.desc,rank_position.asc&limit=250",
+      {headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}}
+    );
+    if(!r.ok) throw new Error(await r.text());
+    const rows=await r.json();
+    const times=[...new Set(rows.map(x=>x.snapshot_at))].slice(0,2);
+    const latest=times[0]||null, previous=times[1]||null;
+    const latestMap={}, prevMap={}, moves={};
+    rows.forEach(x=>{
+      if(x.snapshot_at===latest) latestMap[String(x.track_id)]=Number(x.rank_position);
+      else if(x.snapshot_at===previous) prevMap[String(x.track_id)]=Number(x.rank_position);
+    });
+    Object.keys(latestMap).forEach(id=>{
+      if(!previous){ moves[id]={type:"same",delta:0}; return; }
+      if(prevMap[id]==null) moves[id]={type:"new",delta:0};
+      else{
+        const delta=prevMap[id]-latestMap[id];
+        moves[id]=delta>0?{type:"up",delta}:delta<0?{type:"down",delta:Math.abs(delta)}:{type:"same",delta:0};
+      }
+    });
+    amkinaChartSnapshotMeta={latest,previous,moves,latestMap};
+    return amkinaChartSnapshotMeta;
+  }catch(e){
+    console.warn("CHART 100 스냅샷 조회 실패",e);
+    return amkinaChartSnapshotMeta;
+  }
+}
+function amkinaChartMoveHtml(id){
+  const m=amkinaChartSnapshotMeta.moves[String(id)]||{type:"same",delta:0};
+  if(m.type==="new") return '<span class="new">NEW</span>';
+  if(m.type==="up") return '<span class="arrow up">▲</span><span class="move-num">'+m.delta+'</span>';
+  if(m.type==="down") return '<span class="arrow down">▼</span><span class="move-num">'+m.delta+'</span>';
+  return '<span class="same">―</span>';
+}
+function amkinaRankHtml(rank){
+  if(rank===1)return '<span class="chart100-medal">1</span>01';
+  if(rank===2)return '<span class="chart100-medal">2</span>02';
+  if(rank===3)return '<span class="chart100-medal">3</span>03';
+  return String(rank).padStart(2,"0");
+}
+function amkinaStartChartCountdown(){
+  clearInterval(window.__amkinaChartCountdownTimer);
+  const draw=()=>{
+    const el=document.getElementById("chart100-countdown"); if(!el)return;
+    const base=amkinaChartSnapshotMeta.latest?new Date(amkinaChartSnapshotMeta.latest):new Date();
+    let next=new Date(base.getTime()+6*60*60*1000);
+    const now=new Date();
+    while(next<=now) next=new Date(next.getTime()+6*60*60*1000);
+    const sec=Math.max(0,Math.floor((next-now)/1000));
+    const h=String(Math.floor(sec/3600)).padStart(2,"0");
+    const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");
+    const ss=String(sec%60).padStart(2,"0");
+    el.textContent=h+":"+m+":"+ss;
+  };
+  draw(); window.__amkinaChartCountdownTimer=setInterval(draw,1000);
+}
+
 async function renderChart100(){
   const el=document.getElementById("chart100-list");
   if(!el)return;
 
-  // CHART 100의 좋아요는 tracks.likes 값이 아니라
-  // 실제 track_likes 테이블을 직접 집계해서 표시합니다.
   const likeCounts={};
   try{
     const r=await fetch(
@@ -9655,36 +9729,40 @@ async function renderChart100(){
     );
     if(r.ok){
       const rows=await r.json();
-      rows.forEach(x=>{
-        const id=String(x.track_id);
-        likeCounts[id]=(likeCounts[id]||0)+1;
-      });
+      rows.forEach(x=>{const id=String(x.track_id);likeCounts[id]=(likeCounts[id]||0)+1;});
     }
-  }catch(e){
-    console.warn("CHART 100 좋아요 집계 실패",e);
-  }
+  }catch(e){console.warn("CHART 100 좋아요 집계 실패",e);}
+
+  await amkinaLoadChartSnapshots();
+  amkinaStartChartCountdown();
 
   const source=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]);
   source.forEach(t=>{t._live_like_count=likeCounts[String(t.id)]||0});
 
-  const list=source.slice()
-    .sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a))
-    .slice(0,100);
-
-  if(!list.length){
-    el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';
-    return;
+  let list=source.slice();
+  const lm=amkinaChartSnapshotMeta.latestMap||{};
+  if(amkinaChartSnapshotMeta.latest && Object.keys(lm).length){
+    list=list.filter(t=>lm[String(t.id)]!=null).sort((a,b)=>lm[String(a.id)]-lm[String(b.id)]).slice(0,100);
+  }else{
+    list=list.sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
   }
 
-  el.innerHTML=list.map((t,i)=>`
-    <div class="chart100-row" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')">
-      <div class="chart100-rank">${String(i+1).padStart(2,"0")}</div>
+  if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return;}
+
+  el.innerHTML=list.map((t,i)=>{
+    const rank=lm[String(t.id)]||i+1;
+    const topClass=rank<=3?" top"+rank:"";
+    return `
+    <div class="chart100-row${topClass}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')">
+      <div class="chart100-rank">${amkinaRankHtml(rank)}</div>
+      <div class="chart100-move">${amkinaChartMoveHtml(t.id)}</div>
       <img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt="">
       <div class="chart100-song"><b>${escapeHtmlChart(t.title||"Untitled")}</b><span>${escapeHtmlChart(t.artist||"AMKINA")}</span></div>
       <div class="chart100-genre">${escapeHtmlChart(t.genre||"ORIGINAL")}</div>
       <div class="chart100-stat">▷ ${amkinaTrackPlays(t).toLocaleString()}</div>
       <div class="chart100-stat chart100-like">♡ ${amkinaChartLikeCount(t).toLocaleString()}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 function escapeHtmlChart(v){
  const d=document.createElement("div"); d.textContent=String(v??""); return d.innerHTML;
