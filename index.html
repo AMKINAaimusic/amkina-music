@@ -3113,7 +3113,7 @@ body.track-full-open{overflow:hidden}
  <button class="tf-close" onclick="closeTrackFullPage()" aria-label="닫기">⌄</button>
  <div class="tf-shell">
   <div class="tf-left">
-   <div class="tf-cover-wrap"><img id="tf-cover" alt=""><button id="tf-main-play" class="tf-big-play" onclick="togglePlay()">▶</button></div>
+   <div class="tf-cover-wrap"><img id="tf-cover" alt=""><button id="tf-main-play" class="tf-big-play" onclick="tfTogglePlay()">▶</button></div>
    <div class="tf-title-row"><div><div class="tf-kicker">NOW PLAYING</div><h1 id="tf-title">Track</h1><div id="tf-artist" class="tf-artist"></div></div></div>
    <div class="tf-actions">
     <button id="tf-like" onclick="tfLike()">♡ 좋아요</button>
@@ -11056,8 +11056,30 @@ function renderTrackFullPage(t){
  const lyr=tfLyrics(t);document.getElementById("tf-lyrics").textContent=lyr||"등록된 가사가 없습니다.";
  const liked=typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(t.id));document.getElementById("tf-like").textContent=liked?"♥ 좋아요 취소":"♡ 좋아요";
 }
+function selectTrackForFullPage(id){
+ const idx=(typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(x=>String(x.id)===String(id)):-1;
+ if(idx<0)return null;
+ const t=tracks[idx];
+ currentIndex=idx;
+ // 상세페이지를 열 때는 자동재생하지 않고 실제 오디오 소스만 해당 곡으로 정확히 맞춘다.
+ if(audio){
+   const wanted=String(t.audio_url||"");
+   if(wanted && audio.src!==wanted){
+     audio.pause();
+     audio.src=wanted;
+     audio.load();
+   }
+ }
+ const cover=document.getElementById("now-cover");
+ if(cover)cover.src=t.cover_url||tfCover(t);
+ const nt=document.getElementById("now-title");if(nt)nt.textContent=t.title||"Untitled";
+ const na=document.getElementById("now-artist");if(na)na.textContent=t.artist||"AMKINA";
+ if(typeof refreshLyricsButton==="function")refreshLyricsButton();
+ if(typeof renderCompactLyrics==="function")renderCompactLyrics();
+ return t;
+}
 function openTrackFullPage(id,opts={}){
- const t=tfTrack(id);if(!t)return false;renderTrackFullPage(t);
+ const t=selectTrackForFullPage(id)||tfTrack(id);if(!t)return false;renderTrackFullPage(t);
  const p=document.getElementById("track-full-page");p.style.display="block";requestAnimationFrame(()=>p.classList.add("open"));document.body.classList.add("track-full-open");
  if(opts.updateUrl!==false){const u=new URL(location.href);u.searchParams.set("track",t.id);history.pushState({track:t.id},"",u)}
  return true;
@@ -11065,6 +11087,17 @@ function openTrackFullPage(id,opts={}){
 function closeTrackFullPage(updateUrl=true){
  const p=document.getElementById("track-full-page");p.classList.remove("open");document.body.classList.remove("track-full-open");setTimeout(()=>{if(!p.classList.contains("open"))p.style.display="none"},330);
  if(updateUrl){const u=new URL(location.href);u.searchParams.delete("track");history.pushState({},"",u)}
+}
+function tfTogglePlay(){
+ const t=tfTrack(tfTrackId);if(!t)return;
+ if(currentIndex<0 || !tracks[currentIndex] || String(tracks[currentIndex].id)!==String(t.id)){
+   selectTrackForFullPage(t.id);
+ }
+ if(audio.paused){
+   audio.play().catch(e=>console.warn("재생 실패",e));
+ }else{
+   audio.pause();
+ }
 }
 function tfLike(){const t=tfCurrent();if(t&&typeof toggleTrackLike==="function"){toggleTrackLike(t.id).then(()=>renderTrackFullPage(t))}}
 function tfComment(){const t=tfCurrent();if(t&&typeof openTrackComments==="function")openTrackComments(t.id)}
@@ -11085,7 +11118,17 @@ window.addEventListener("popstate",()=>{const id=new URL(location.href).searchPa
 async function openDeepLinkedTrack(){
  const id=new URL(location.href).searchParams.get("track");if(!id)return;
  if((typeof tracks==="undefined"||!Array.isArray(tracks)||!tracks.length)&&typeof loadMusic==="function"){try{await loadMusic()}catch(e){}}
- let tries=0;const go=()=>{const t=tfTrack(id);if(t){openTrackFullPage(id,{updateUrl:false});return}if(++tries<20)setTimeout(go,150)};go();
+ let tries=0;
+ const go=()=>{
+   const idx=(typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(x=>String(x.id)===String(id)):-1;
+   if(idx>=0){
+     selectTrackForFullPage(id);
+     openTrackFullPage(id,{updateUrl:false});
+     return;
+   }
+   if(++tries<30)setTimeout(go,150);
+ };
+ go();
 }
 setTimeout(openDeepLinkedTrack,250);
 </script>
