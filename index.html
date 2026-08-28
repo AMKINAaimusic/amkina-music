@@ -6,6 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMKINA MUSIC</title>
 
+  <link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AMKINA MUSIC">
 <style>
 :root{
   --bg:#070707;
@@ -11132,7 +11138,19 @@ async function openDeepLinkedTrack(){
 }
 setTimeout(openDeepLinkedTrack,250);
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js")
+      .then(function () {
+        console.log("AMKINA MUSIC PWA ready");
+      })
+      .catch(function (error) {
+        console.error("PWA error:", error);
+      });
+  });
+}
+</script>
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
