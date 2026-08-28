@@ -1951,6 +1951,35 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="amkina-lyrics-feature">
+.lyrics-rights-note{display:block;margin-top:8px;color:#888;font-size:11px;line-height:1.5}
+#track-edit-lyrics{box-sizing:border-box;width:100%;min-height:180px;resize:vertical;border:1px solid #ddd;border-radius:12px;padding:13px 14px;background:#fafafa;font:inherit;line-height:1.65}
+.player .lyrics-player-btn{width:auto!important;min-width:44px!important;padding:0 10px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:999px!important;font-size:11px!important;font-weight:800!important;letter-spacing:.02em!important;color:#eee!important}
+.player .lyrics-player-btn.has-lyrics{background:#fff!important;color:#111!important;opacity:1!important}
+
+.lyrics-modal{position:fixed;inset:0;z-index:99999;display:none}
+.lyrics-modal.open{display:block}
+.lyrics-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.48);backdrop-filter:blur(3px)}
+.lyrics-sheet{position:absolute;top:0;right:0;width:min(520px,42vw);height:calc(100vh - 86px);box-sizing:border-box;background:#fff;color:#111;padding:34px 38px 70px;box-shadow:-20px 0 60px rgba(0,0,0,.16);overflow-y:auto}
+.lyrics-sheet-head{display:flex;justify-content:space-between;gap:20px;position:sticky;top:-34px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);padding:34px 0 20px;z-index:2;border-bottom:1px solid #eee}
+.lyrics-kicker{font-size:9px;font-weight:900;letter-spacing:2.5px;color:#999}
+.lyrics-sheet h2{margin:7px 0 4px;font-size:29px;letter-spacing:-1px}
+.lyrics-track-meta{font-size:13px;color:#888}
+.lyrics-close{width:38px;height:38px;flex:0 0 38px;border:1px solid #ddd;border-radius:50%;background:#fff;font-size:25px;line-height:1;cursor:pointer}
+.lyrics-content{padding:30px 0 60px;white-space:pre-wrap;font-size:19px;font-weight:650;line-height:2;color:#171717;word-break:keep-all}
+.lyrics-content.empty{color:#999;font-size:15px;font-weight:500}
+
+@media(max-width:768px){
+  .player .lyrics-player-btn{min-width:38px!important;height:32px!important;padding:0 8px!important;font-size:10px!important}
+  .lyrics-backdrop{display:none}
+  .lyrics-sheet{position:fixed;inset:0;width:100%;height:100%;padding:20px 24px 120px;box-shadow:none}
+  .lyrics-sheet-head{top:-20px;padding:20px 0 17px}
+  .lyrics-sheet h2{font-size:27px}
+  .lyrics-content{font-size:20px;line-height:2.05;padding-top:26px}
+}
+</style>
+
 </head>
 
 <body>
@@ -2313,6 +2342,16 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
         ></textarea>
       </div>
 
+      <div class="studio-field">
+        <label>LYRICS</label>
+        <textarea
+          id="studio-lyrics"
+          rows="10"
+          placeholder="가사를 입력하세요. 줄바꿈 그대로 표시됩니다."
+        ></textarea>
+        <small class="lyrics-rights-note">본인이 작성했거나 사용 권한이 있는 가사만 등록해주세요.</small>
+      </div>
+
       <button
         type="button"
         class="studio-upload-btn"
@@ -2427,6 +2466,16 @@ body{padding-left:var(--ak-side)!important;padding-bottom:92px!important}
         class="control-btn"
         onclick="nextTrack()">
         ▶▶
+      </button>
+
+      <button
+        id="lyrics-player-btn"
+        class="control-btn lyrics-player-btn"
+        type="button"
+        title="가사"
+        aria-label="가사 보기"
+        onclick="openLyricsPanel()">
+        가사
       </button>
 
     </div>
@@ -2687,6 +2736,8 @@ function playTrack(index){
     "now-artist"
   ).textContent=
     track.artist || "AMKINA";
+
+  if(typeof refreshLyricsButton==="function") refreshLyricsButton();
 
   audio.play();
 fetch(SUPABASE_URL + "/rest/v1/rpc/increment_play_count", {
@@ -3004,6 +3055,7 @@ async function uploadStudioMusic(){
     const title = document.getElementById('studio-title').value.trim();
     const artist = document.getElementById('studio-artist').value.trim() || 'AMKINA';
     const genre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
+    const lyrics = document.getElementById('studio-lyrics').value.trim();
 
     const audioInput = document.getElementById('studio-audio');
     const coverInput = document.getElementById('studio-cover');
@@ -3131,6 +3183,7 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
                     title:title,
                     artist:artist,
                     genre:genre,
+                    lyrics:lyrics,
                     audio_url:audioUrl,
                     cover_url:coverUrl,
                     release_date:
@@ -3153,6 +3206,7 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
         document.getElementById('studio-title').value = '';
         document.getElementById('studio-genre').value = '';
         document.getElementById('studio-description').value = '';
+        document.getElementById('studio-lyrics').value = '';
 
         audioInput.value = '';
         coverInput.value = '';
@@ -8846,6 +8900,22 @@ window.showCommunityPage = function(event) {
 </script>
 
 
+
+<div id="lyrics-modal" class="lyrics-modal" aria-hidden="true">
+  <div class="lyrics-backdrop" onclick="closeLyricsPanel()"></div>
+  <section class="lyrics-sheet" role="dialog" aria-modal="true" aria-labelledby="lyrics-heading">
+    <div class="lyrics-sheet-head">
+      <div>
+        <div class="lyrics-kicker">NOW PLAYING · LYRICS</div>
+        <h2 id="lyrics-heading">가사</h2>
+        <div id="lyrics-track-meta" class="lyrics-track-meta">곡을 선택해주세요.</div>
+      </div>
+      <button type="button" class="lyrics-close" onclick="closeLyricsPanel()" aria-label="가사 닫기">×</button>
+    </div>
+    <div id="lyrics-content" class="lyrics-content">곡을 선택하면 가사를 볼 수 있습니다.</div>
+  </section>
+</div>
+
 <div id="track-edit-modal" class="track-edit-modal" aria-hidden="true">
   <div class="track-edit-panel" role="dialog" aria-modal="true" aria-labelledby="track-edit-heading">
     <button class="track-edit-close" type="button" onclick="closeTrackEdit()" aria-label="닫기">×</button>
@@ -8859,6 +8929,10 @@ window.showCommunityPage = function(event) {
     </label>
     <label>장르
       <input id="track-edit-genre" type="text" maxlength="80">
+    </label>
+    <label>가사
+      <textarea id="track-edit-lyrics" rows="10" maxlength="20000" placeholder="가사를 입력하세요."></textarea>
+      <small>본인이 작성했거나 사용 권한이 있는 가사만 등록해주세요.</small>
     </label>
     <label>커버 이미지
       <input id="track-edit-cover" type="file" accept="image/*">
@@ -8900,6 +8974,7 @@ function openTrackEdit(id){
   document.getElementById("track-edit-title").value=track.title||"";
   document.getElementById("track-edit-artist").value=track.artist||"";
   document.getElementById("track-edit-genre").value=track.genre||"";
+  document.getElementById("track-edit-lyrics").value=track.lyrics||"";
   document.getElementById("track-edit-cover").value="";
   document.getElementById("track-edit-status").textContent="";
   const modal=document.getElementById("track-edit-modal");
@@ -8923,6 +8998,7 @@ async function saveTrackEdit(){
   const title=document.getElementById("track-edit-title").value.trim();
   const artist=document.getElementById("track-edit-artist").value.trim();
   const genre=document.getElementById("track-edit-genre").value.trim();
+  const lyrics=document.getElementById("track-edit-lyrics").value.trim();
   const coverFile=document.getElementById("track-edit-cover").files[0];
   const status=document.getElementById("track-edit-status");
   if(!title||!artist){alert("곡 제목과 아티스트를 입력해주세요.");return}
@@ -8954,7 +9030,7 @@ async function saveTrackEdit(){
     const r=await fetch(`${SUPABASE_URL}/rest/v1/tracks?${editFilter}`,{
       method:"PATCH",
       headers:{...amkinaTrackHeaders(true),"Prefer":"return=representation"},
-      body:JSON.stringify({title,artist,genre:genre||"ORIGINAL",cover_url:coverUrl})
+      body:JSON.stringify({title,artist,genre:genre||"ORIGINAL",lyrics,cover_url:coverUrl})
     });
     if(!r.ok)throw new Error(await r.text());
     const changed=await r.json();
@@ -8974,6 +9050,49 @@ document.addEventListener("click",(e)=>{
   const modal=document.getElementById("track-edit-modal");
   if(e.target===modal)closeTrackEdit();
 });
+</script>
+
+
+<script id="amkina-lyrics-script">
+function currentLyricsTrack(){
+  return (typeof currentIndex==="number" && currentIndex>=0 && tracks[currentIndex]) ? tracks[currentIndex] : null;
+}
+function refreshLyricsButton(){
+  const btn=document.getElementById("lyrics-player-btn");
+  if(!btn)return;
+  const t=currentLyricsTrack();
+  const has=!!String(t?.lyrics||"").trim();
+  btn.classList.toggle("has-lyrics",has);
+  btn.title=has ? "가사 보기" : "등록된 가사 없음";
+}
+function openLyricsPanel(){
+  const modal=document.getElementById("lyrics-modal");
+  const meta=document.getElementById("lyrics-track-meta");
+  const content=document.getElementById("lyrics-content");
+  const t=currentLyricsTrack();
+
+  if(!t){
+    meta.textContent="AMKINA MUSIC";
+    content.textContent="곡을 선택하면 가사를 볼 수 있습니다.";
+    content.classList.add("empty");
+  }else{
+    meta.textContent=`${t.title||"Untitled"} · ${t.artist||"AMKINA"}`;
+    const lyrics=String(t.lyrics||"").trim();
+    content.textContent=lyrics || "등록된 가사가 없습니다.";
+    content.classList.toggle("empty",!lyrics);
+  }
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+  document.documentElement.style.overflow="hidden";
+}
+function closeLyricsPanel(){
+  const modal=document.getElementById("lyrics-modal");
+  if(!modal)return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+  document.documentElement.style.overflow="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLyricsPanel()});
 </script>
 
 </body>
