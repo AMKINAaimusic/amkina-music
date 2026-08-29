@@ -12416,3 +12416,115 @@ body > header nav a.menu-active svg polyline {
 }
 </style>
 
+<script id="amkina-active-menu-route-sync-v1">
+(function(){
+  const clean = v => (v || "").replace(/\s+/g," ").trim().toLowerCase();
+
+  const rules = [
+    {keys:["home","홈"], texts:["홈"]},
+    {keys:["music","음악"], texts:["음악"]},
+    {keys:["chart","chart100","chart 100"], texts:["chart 100"]},
+    {keys:["artist","artists","아티스트"], texts:["아티스트"]},
+    {keys:["community","커뮤니티"], texts:["커뮤니티"]},
+    {keys:["mypage","my-page","마이페이지"], texts:["마이페이지"]},
+    {keys:["notification","notifications","알림센터"], texts:["알림센터"]},
+    {keys:["studio","스튜디오"], texts:["스튜디오"]},
+    {keys:["library","라이브러리"], texts:["라이브러리"]},
+    {keys:["album","amkina-album","amkina 앨범"], texts:["amkina 앨범"]},
+    {keys:["radio"], texts:["radio"]},
+    {keys:["event","events","이벤트"], texts:["이벤트"]},
+    {keys:["about"], texts:["about"]}
+  ];
+
+  function navLinks(){
+    return [...document.querySelectorAll("body > header nav a")];
+  }
+
+  function visiblePageKey(){
+    // 1. Current visible page/section IDs and data-page attributes
+    const candidates = [...document.querySelectorAll(
+      'main [id], main [data-page], .page[id], .page[data-page], section[id], section[data-page], [class*="page"][id]'
+    )].filter(el => {
+      const st = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return st.display !== "none" && st.visibility !== "hidden" && r.width > 0 && r.height > 0;
+    });
+
+    const hay = candidates.map(el => clean(
+      (el.id||"")+" "+(el.dataset?.page||"")+" "+(el.className||"")
+    )).join(" ");
+
+    for(const rule of rules){
+      if(rule.keys.some(k => hay.includes(clean(k)))) return rule;
+    }
+
+    // 2. Strong page headings shown in the content area
+    const headings = [...document.querySelectorAll("main h1, main h2, .content h1, .content h2, h1")]
+      .filter(el => {
+        const st=getComputedStyle(el), r=el.getBoundingClientRect();
+        return st.display!=="none" && st.visibility!=="hidden" && r.width>0 && r.height>0;
+      })
+      .map(el=>clean(el.textContent));
+
+    for(const rule of rules){
+      if(rule.texts.some(t => headings.some(h => h===clean(t) || h.includes(clean(t))))) return rule;
+    }
+
+    // 3. URL/hash fallback
+    const route = clean(location.hash+" "+location.pathname+" "+location.search);
+    for(const rule of rules){
+      if(rule.keys.some(k => route.includes(clean(k)))) return rule;
+    }
+    return null;
+  }
+
+  function syncActiveMenu(){
+    const links = navLinks();
+    if(!links.length) return;
+
+    const rule = visiblePageKey();
+    if(!rule) return;
+
+    let target = links.find(a => {
+      const txt=clean(a.textContent);
+      return rule.texts.some(t => txt===clean(t));
+    });
+    if(!target) return;
+
+    links.forEach(a=>{
+      a.classList.remove("menu-active");
+      a.removeAttribute("aria-current");
+    });
+    target.classList.add("menu-active");
+    target.setAttribute("aria-current","page");
+  }
+
+  // Run after the site's own click handlers so our state wins.
+  document.addEventListener("click", function(e){
+    if(e.target.closest("body > header nav a")){
+      setTimeout(syncActiveMenu, 0);
+      setTimeout(syncActiveMenu, 80);
+      setTimeout(syncActiveMenu, 250);
+    }
+  }, true);
+
+  window.addEventListener("hashchange", ()=>setTimeout(syncActiveMenu,0));
+  window.addEventListener("popstate", ()=>setTimeout(syncActiveMenu,0));
+  document.addEventListener("DOMContentLoaded", ()=>setTimeout(syncActiveMenu,150));
+
+  // SPA pages change without URL changes, so observe page visibility/content changes.
+  let queued=false;
+  const mo=new MutationObserver(()=>{
+    if(queued) return;
+    queued=true;
+    requestAnimationFrame(()=>{
+      queued=false;
+      syncActiveMenu();
+    });
+  });
+  mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style","hidden"]});
+
+  setTimeout(syncActiveMenu,400);
+})();
+</script>
+
