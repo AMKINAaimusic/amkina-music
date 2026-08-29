@@ -11697,3 +11697,65 @@ body.compact-lyrics-open{padding-bottom:236px!important}
 })();
 </script>
 
+<style id="amkina-mobile-track-edit-compact-fix">
+@media(max-width:768px){
+  /* 곡 정보 수정창: 화면 안에서 스크롤되게 */
+  .track-edit-modal,
+  #track-edit-modal{
+    align-items:flex-start!important;
+    overflow-y:auto!important;
+    padding:12px!important;
+  }
+  .track-edit-box,
+  .track-edit-content,
+  #track-edit-modal > div{
+    max-height:calc(100dvh - 24px)!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:18px!important;
+    padding-bottom:100px!important;
+  }
+
+  /* 입력칸 세로 공간 축소 */
+  #track-edit-modal label,
+  .track-edit-modal label{
+    margin-top:10px!important;
+    margin-bottom:5px!important;
+  }
+  #track-edit-lyrics{
+    height:190px!important;
+    min-height:190px!important;
+    max-height:190px!important;
+    overflow-y:auto!important;
+  }
+
+  /* 하단 버튼은 항상 보이도록 고정 */
+  #track-edit-modal .track-edit-actions,
+  .track-edit-modal .track-edit-actions{
+    position:sticky!important;
+    bottom:-1px!important;
+    z-index:20!important;
+    background:#fff!important;
+    padding:10px 0 4px!important;
+    margin-top:10px!important;
+  }
+}
+</style>
+<script id="amkina-mobile-track-edit-runtime-fix">
+(function(){
+  function fix(){
+    if(!matchMedia("(max-width:768px)").matches)return;
+    const modal=document.getElementById("track-edit-modal")||document.querySelector(".track-edit-modal");
+    if(!modal)return;
+    modal.style.overflowY="auto";
+    const ta=document.getElementById("track-edit-lyrics");
+    if(ta){ta.style.height="190px";ta.style.minHeight="190px";ta.style.maxHeight="190px";ta.style.overflowY="auto"}
+  }
+  window.addEventListener("resize",fix);
+  document.addEventListener("click",e=>{
+    if(e.target.closest(".track-menu-item,.track-edit-btn,[onclick*='openTrackEdit']"))setTimeout(fix,100);
+  });
+  window.addEventListener("load",fix);
+})();
+</script>
+
