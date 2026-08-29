@@ -11520,3 +11520,25 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+<style id="amkina-promo-card">
+@media(min-width:769px){
+#ak-promo{margin:18px 16px;padding:11px;border:1px solid #e9e9e9;border-radius:15px;background:#fafafa;font-family:Arial,sans-serif}
+.akp-label{font-size:8px;font-weight:900;letter-spacing:1px;color:#999;margin-bottom:9px}.akp-label b{color:#83d94c}
+.akp-img{position:relative;width:100%;aspect-ratio:1;border-radius:11px;overflow:hidden;background:#111}
+#akp-cover{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
+.akp-tag{position:absolute;top:7px;left:7px;background:#111d;color:#fff;border-radius:6px;padding:3px 5px;font-size:7px;font-weight:800}
+#akp-title{font-size:10px;font-weight:900;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#akp-artist{font-size:8px;color:#999;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#akp-play{width:100%;height:31px;margin-top:9px;border:0;border-radius:9px;background:#111;color:#fff;font-size:8px;font-weight:900;cursor:pointer}
+}
+@media(max-width:768px){#ak-promo{display:none!important}}
+</style>
+<script id="amkina-promo-card-js">
+(function(){
+function list(){try{if(typeof tracks!=="undefined"&&Array.isArray(tracks)&&tracks.length)return tracks}catch(e){};return Array.isArray(window.tracks)?window.tracks:(Array.isArray(window.musicData)?window.musicData:[])}
+function play(t){const a=list(),i=a.findIndex(x=>String(x.id)===String(t.id));if(i>=0&&typeof window.playTrack==="function")return window.playTrack(i);if(i>=0&&typeof window.selectTrack==="function")return window.selectTrack(i);if(typeof window.selectTrackForFullPage==="function")window.selectTrackForFullPage(t.id)}
+function mount(){if(document.getElementById("ak-promo"))return true;const logout=[...document.querySelectorAll("button,a,[role=button]")].find(x=>!x.closest("#amkina-mobile-drawer")&&(x.textContent||"").trim().toUpperCase()==="LOGOUT"&&x.offsetParent!==null);if(!logout)return false;const box=document.createElement("section");box.id="ak-promo";box.innerHTML='<div class="akp-label"><b>●</b> PROMOTED TRACK</div><div class="akp-img"><img id="akp-cover"><span class="akp-tag">PROMOTED</span></div><div id="akp-title">Featured Track</div><div id="akp-artist">AMKINA MUSIC</div><button id="akp-play">▶ 들어보기</button>';let anchor=logout;while(anchor.parentElement&&anchor.parentElement.children.length===1&&!anchor.parentElement.matches("aside,.sidebar,nav"))anchor=anchor.parentElement;anchor.insertAdjacentElement("afterend",box);return true}
+function fill(){const a=list();if(!a.length)return false;const d=new Date(),t=a[(d.getFullYear()*372+(d.getMonth()+1)*31+d.getDate())%a.length];document.getElementById("akp-cover").src=t.cover_url||t.cover||t.image_url||"./icon-512.png";document.getElementById("akp-title").textContent=t.title||"Featured Track";document.getElementById("akp-artist").textContent=t.artist||"AMKINA MUSIC";document.getElementById("akp-cover").onclick=()=>play(t);document.getElementById("akp-play").onclick=()=>play(t);return true}
+let n=0,t=setInterval(()=>{n++;if(mount()&&fill())clearInterval(t);if(n>35)clearInterval(t)},400)
+})();
+</script>
