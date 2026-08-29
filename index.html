@@ -12380,3 +12380,39 @@ body > header nav a:not(.menu-active):hover {
 }
 </style>
 
+<style id="amkina-active-text-visibility-fix">
+/* 활성 메뉴: 배경만 검정이 아니라 실제 텍스트/아이콘 노드까지 강제 흰색 */
+body > header nav a.menu-active {
+  background:#111 !important;
+  color:#fff !important;
+}
+body > header nav a.menu-active,
+body > header nav a.menu-active span,
+body > header nav a.menu-active div,
+body > header nav a.menu-active i,
+body > header nav a.menu-active b,
+body > header nav a.menu-active strong,
+body > header nav a.menu-active small,
+body > header nav a.menu-active .label,
+body > header nav a.menu-active .menu-label,
+body > header nav a.menu-active .nav-label {
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+body > header nav a.menu-active svg {
+  color:#fff !important;
+  fill:none !important;
+  stroke:#fff !important;
+  opacity:1 !important;
+}
+body > header nav a.menu-active svg path,
+body > header nav a.menu-active svg circle,
+body > header nav a.menu-active svg rect,
+body > header nav a.menu-active svg line,
+body > header nav a.menu-active svg polyline {
+  stroke:#fff !important;
+}
+</style>
+
