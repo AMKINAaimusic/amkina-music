@@ -9771,6 +9771,7 @@ window.showCommunityPage = function(event) {
     <div id="track-edit-status" class="track-edit-status"></div>
     <div class="track-edit-actions">
       <button type="button" class="track-edit-cancel" onclick="closeTrackEdit()">취소</button>
+      <button type="button" class="track-edit-save" style="background:#eefde5;color:#111;border-color:#b7ef91" onclick="openKaraokeSyncEditor()">🎤 노래방 가사 싱크</button>
       <button type="button" class="track-edit-save" onclick="saveTrackEdit()">수정 저장</button>
     </div>
   </div>
@@ -11542,3 +11543,157 @@ function fill(){const a=list();if(!a.length)return false;const d=new Date(),t=a[
 let n=0,t=setInterval(()=>{n++;if(mount()&&fill())clearInterval(t);if(n>35)clearInterval(t)},400)
 })();
 </script>
+
+<style id="amkina-promo-card-compact-fix">
+@media(min-width:769px){
+  #ak-promo{
+    margin:14px 16px 110px !important;
+    padding:9px !important;
+    max-height:230px !important;
+    overflow:hidden !important;
+  }
+  #ak-promo .akp-label{margin-bottom:7px !important;font-size:7px !important}
+  #ak-promo .akp-img{
+    width:100% !important;
+    height:112px !important;
+    aspect-ratio:auto !important;
+  }
+  #ak-promo #akp-cover{height:112px !important}
+  #ak-promo #akp-title{margin-top:7px !important;font-size:9px !important}
+  #ak-promo #akp-artist{font-size:7px !important}
+  #ak-promo #akp-play{height:27px !important;margin-top:7px !important;font-size:7px !important}
+}
+</style>
+
+<style id="amkina-karaoke-v1">
+/* PC compact lyric area -> true 2-line karaoke */
+@media(min-width:769px){
+.compact-lyrics-panel{height:150px!important}
+.compact-lyrics-inner{grid-template-columns:90px minmax(0,1fr) 110px!important}
+.compact-lyrics-preview{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:12px!important;padding:15px 34px!important;text-align:center}
+.compact-lyrics-preview .compact-lyrics-col{display:none!important}
+#ak-karaoke-current,#ak-karaoke-next{display:block!important;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ak-karaoke-current{font-size:24px;font-weight:900;line-height:1.25;color:#fff}
+#ak-karaoke-next{font-size:17px;font-weight:800;line-height:1.25;color:#686c72}
+.ak-karaoke-fill{position:relative;display:inline-block;color:#fff}
+.ak-karaoke-fill::after{content:attr(data-text);position:absolute;left:0;top:0;width:var(--ak-progress,0%);overflow:hidden;white-space:nowrap;color:#a7ff67}
+body.compact-lyrics-open{padding-bottom:236px!important}
+}
+
+/* uploader sync editor */
+#ak-sync-modal{position:fixed;inset:0;z-index:100100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62)}
+#ak-sync-modal.open{display:flex}
+.ak-sync-box{width:min(760px,96vw);max-height:88vh;overflow:auto;background:#fff;border-radius:22px;padding:26px;color:#111;box-shadow:0 30px 90px #0006}
+.ak-sync-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.ak-sync-head h2{margin:4px 0;font-size:24px}.ak-sync-head p{margin:5px 0 0;color:#888;font-size:12px}
+.ak-sync-close{border:0;background:#f2f2f2;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer}
+.ak-sync-player{display:flex;align-items:center;gap:12px;margin:20px 0;padding:13px;background:#111;color:#fff;border-radius:14px}
+#ak-sync-play{width:42px;height:42px;border:0;border-radius:50%;background:#fff;color:#111;font-size:17px;cursor:pointer}
+#ak-sync-time{font-weight:900;min-width:68px}.ak-sync-help{font-size:11px;color:#aaa}
+.ak-sync-list{border:1px solid #eee;border-radius:14px;overflow:hidden}
+.ak-sync-row{display:grid;grid-template-columns:84px 1fr 96px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #eee}
+.ak-sync-row:last-child{border:0}.ak-sync-row.active{background:#f4ffeD}
+.ak-sync-stamp{font:900 12px monospace;color:#555}.ak-sync-line{font-size:13px;font-weight:700}
+.ak-sync-hit{height:32px;border:1px solid #ddd;border-radius:9px;background:#fff;font-size:10px;font-weight:900;cursor:pointer}
+.ak-sync-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}.ak-sync-actions button{height:42px;border-radius:11px;padding:0 16px;font-weight:900;cursor:pointer}
+#ak-sync-reset{background:#fff;border:1px solid #ddd}#ak-sync-save{background:#111;color:#fff;border:1px solid #111;margin-left:auto}
+@media(max-width:768px){.ak-sync-box{padding:18px}.ak-sync-row{grid-template-columns:70px 1fr}.ak-sync-hit{grid-column:2}.ak-sync-line{font-size:12px}}
+</style>
+
+<div id="ak-sync-modal" aria-hidden="true">
+ <div class="ak-sync-box">
+  <div class="ak-sync-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:2px;color:#999">KARAOKE SYNC</div><h2>🎤 노래방 가사 싱크</h2><p>음악을 들으면서 각 가사가 시작되는 순간에 ‘시간 찍기’를 누르세요.</p></div><button class="ak-sync-close" onclick="closeKaraokeSyncEditor()">×</button></div>
+  <div class="ak-sync-player"><button id="ak-sync-play">▶</button><span id="ak-sync-time">00:00.0</span><span class="ak-sync-help">Space: 재생/일시정지 · Enter: 다음 줄 시간 찍기</span></div>
+  <div id="ak-sync-list" class="ak-sync-list"></div>
+  <div class="ak-sync-actions"><button id="ak-sync-reset" onclick="resetKaraokeSync()">시간 초기화</button><button id="ak-sync-save" onclick="saveKaraokeSync()">싱크 저장</button></div>
+ </div>
+</div>
+
+<script id="amkina-karaoke-v1-script">
+(function(){
+ let syncTrack=null,syncLines=[],syncIndex=0;
+ const audioEl=()=>document.getElementById("audio");
+ const fmt=s=>{s=Math.max(0,Number(s)||0);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0")+"."+Math.floor((s%1)*10)};
+ function currentTrack(){try{return (typeof currentIndex==="number"&&currentIndex>=0&&tracks[currentIndex])?tracks[currentIndex]:null}catch(e){return null}}
+ function parseSync(t){
+   let v=t?.karaoke_lyrics;
+   if(!v)return [];
+   if(typeof v==="string"){try{v=JSON.parse(v)}catch(e){return []}}
+   return Array.isArray(v)?v.filter(x=>x&&typeof x.text==="string").map(x=>({time:Number(x.time)||0,text:x.text})).sort((a,b)=>a.time-b.time):[];
+ }
+ function ensureKaraokeNodes(){
+   const wrap=document.getElementById("compact-lyrics-preview");if(!wrap)return;
+   if(!document.getElementById("ak-karaoke-current")){
+     const c=document.createElement("div");c.id="ak-karaoke-current";
+     const n=document.createElement("div");n.id="ak-karaoke-next";
+     wrap.append(c,n);
+   }
+ }
+ function renderKaraoke(){
+   ensureKaraokeNodes();
+   const c=document.getElementById("ak-karaoke-current"),n=document.getElementById("ak-karaoke-next");
+   if(!c||!n)return;
+   const t=currentTrack(),a=audioEl(),sync=parseSync(t);
+   if(!t){c.textContent="곡을 선택해주세요.";n.textContent="";return}
+   if(!sync.length){c.textContent=(t.lyrics?"노래방 싱크가 아직 없습니다.":"등록된 가사가 없습니다.");n.textContent=t.lyrics?"업로더가 가사 싱크를 등록하면 여기에 표시됩니다.":"";return}
+   const now=a?.currentTime||0;
+   let i=0;for(let k=0;k<sync.length;k++){if(sync[k].time<=now)i=k;else break}
+   const start=sync[i].time,end=(sync[i+1]?.time ?? (a?.duration||start+5)),pct=Math.max(0,Math.min(100,((now-start)/Math.max(.1,end-start))*100));
+   c.innerHTML="";
+   const span=document.createElement("span");span.className="ak-karaoke-fill";span.dataset.text=sync[i].text;span.textContent=sync[i].text;span.style.setProperty("--ak-progress",pct+"%");c.appendChild(span);
+   n.textContent=sync[i+1]?.text||"";
+ }
+ window.renderCompactLyrics=renderKaraoke;
+ ensureKaraokeNodes();
+ const a=audioEl();if(a){a.addEventListener("timeupdate",renderKaraoke);a.addEventListener("loadedmetadata",renderKaraoke);a.addEventListener("play",renderKaraoke)}
+ setInterval(()=>{const p=document.getElementById("compact-lyrics-panel");if(p?.classList.contains("open"))renderKaraoke()},120);
+
+ window.openKaraokeSyncEditor=function(){
+   const editId=(typeof editingTrackId!=="undefined"?editingTrackId:null);
+   let t=null;try{t=tracks.find(x=>String(x.id)===String(editId))}catch(e){}
+   if(!t)t=currentTrack();
+   if(!t){alert("곡을 먼저 선택해주세요.");return}
+   const raw=String(document.getElementById("track-edit-lyrics")?.value||t.lyrics||"").replace(/\r/g,"");
+   const lines=raw.split("\n").map(x=>x.trim()).filter(Boolean);
+   if(!lines.length){alert("먼저 일반 가사를 등록해주세요.");return}
+   syncTrack=t;
+   const old=parseSync(t);
+   syncLines=lines.map((text,i)=>({text,time:old.find(x=>x.text===text)?.time ?? null}));
+   syncIndex=Math.max(0,syncLines.findIndex(x=>x.time==null));if(syncIndex<0)syncIndex=0;
+   const modal=document.getElementById("ak-sync-modal");modal.classList.add("open");modal.setAttribute("aria-hidden","false");
+   if(typeof closeTrackEdit==="function")closeTrackEdit();
+   renderEditor();
+   const au=audioEl();if(au){
+     const idx=tracks.findIndex(x=>String(x.id)===String(t.id));
+     if(idx>=0&&typeof window.playTrack==="function"&&currentTrack()?.id!=t.id)window.playTrack(idx);
+   }
+ };
+ window.closeKaraokeSyncEditor=function(){document.getElementById("ak-sync-modal")?.classList.remove("open")};
+ function renderEditor(){
+   const box=document.getElementById("ak-sync-list");if(!box)return;
+   box.innerHTML=syncLines.map((x,i)=>`<div class="ak-sync-row ${i===syncIndex?"active":""}" data-i="${i}"><span class="ak-sync-stamp">${x.time==null?"--:--.-":fmt(x.time)}</span><span class="ak-sync-line"></span><button class="ak-sync-hit" type="button">시간 찍기</button></div>`).join("");
+   box.querySelectorAll(".ak-sync-row").forEach((r,i)=>{r.querySelector(".ak-sync-line").textContent=syncLines[i].text;r.querySelector(".ak-sync-hit").onclick=()=>stamp(i);r.onclick=e=>{if(!e.target.closest("button")){syncIndex=i;renderEditor()}}});
+   box.querySelector(".active")?.scrollIntoView({block:"nearest"});
+ }
+ function stamp(i){const a=audioEl();if(!a)return;syncLines[i].time=Number(a.currentTime.toFixed(2));syncIndex=Math.min(i+1,syncLines.length-1);renderEditor()}
+ window.resetKaraokeSync=function(){syncLines.forEach(x=>x.time=null);syncIndex=0;renderEditor()};
+ document.getElementById("ak-sync-play")?.addEventListener("click",()=>{const a=audioEl();if(!a)return;a.paused?a.play():a.pause()});
+ audioEl()?.addEventListener("timeupdate",()=>{const el=document.getElementById("ak-sync-time");if(el)el.textContent=fmt(audioEl().currentTime)});
+ document.addEventListener("keydown",e=>{if(!document.getElementById("ak-sync-modal")?.classList.contains("open"))return;if(e.code==="Space"){e.preventDefault();const a=audioEl();a.paused?a.play():a.pause()}if(e.key==="Enter"){e.preventDefault();stamp(syncIndex)}});
+
+ window.saveKaraokeSync=async function(){
+   if(!syncTrack)return;
+   if(syncLines.some(x=>x.time==null)){if(!confirm("시간을 찍지 않은 가사가 있습니다. 찍힌 부분만 저장할까요?"))return}
+   const data=syncLines.filter(x=>x.time!=null).sort((a,b)=>a.time-b.time).map(x=>({time:x.time,text:x.text}));
+   try{
+     if(typeof sbFetch!=="function")throw new Error("Supabase 연결 함수를 찾을 수 없습니다.");
+     const res=await sbFetch("tracks?id=eq."+encodeURIComponent(syncTrack.id),{method:"PATCH",headers:{"Content-Type":"application/json","Prefer":"return=representation"},body:JSON.stringify({karaoke_lyrics:data})});
+     if(!res.ok)throw new Error(await res.text());
+     syncTrack.karaoke_lyrics=data;
+     alert("노래방 가사 싱크를 저장했습니다.");
+     closeKaraokeSyncEditor();renderKaraoke();
+   }catch(e){console.error(e);alert("저장에 실패했습니다. 먼저 karaoke_lyrics SQL을 실행했는지 확인해주세요.")}
+ };
+})();
+</script>
+
