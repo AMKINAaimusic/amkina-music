@@ -3225,7 +3225,7 @@ body.track-full-open{overflow:hidden}
         type="button"
         title="좋아요"
         aria-label="현재 곡 좋아요"
-        onclick="toggleCurrentPlayerLike()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3 4.2 13A5.2 5.2 0 0 1 11.5 5.6L12 6.1l.5-.5A5.2 5.2 0 0 1 19.8 13z"/></svg></button>
+        onclick="amkinaPlayerLikeClick(event)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3 4.2 13A5.2 5.2 0 0 1 11.5 5.6L12 6.1l.5-.5A5.2 5.2 0 0 1 19.8 13z"/></svg></button>
 
       <button
         id="player-comment-btn"
@@ -12096,6 +12096,63 @@ window.openCurrentPlayerComments=function(){
     audio.addEventListener("loadedmetadata",updateStaticLike);
   }
   window.addEventListener("load",()=>setTimeout(updateStaticLike,200));
+})();
+</script>
+
+<script id="amkina-player-like-click-fix">
+(function(){
+  function currentTrack(){
+    try{
+      if(typeof currentIndex==="number" && currentIndex>=0 && Array.isArray(tracks)){
+        return tracks[currentIndex] || null;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function paint(){
+    const btn=document.getElementById("player-like-btn");
+    const t=currentTrack();
+    if(!btn)return;
+    const liked=!!(t && typeof amkinaTrackLikes!=="undefined" &&
+      amkinaTrackLikes && amkinaTrackLikes.has(String(t.id)));
+    btn.classList.toggle("is-liked",liked);
+    btn.title=liked?"좋아요 취소":"좋아요";
+  }
+
+  window.amkinaPlayerLikeClick=async function(e){
+    if(e){e.preventDefault();e.stopPropagation();}
+    const t=currentTrack();
+    if(!t){alert("곡을 먼저 선택해주세요.");return;}
+
+    if(typeof toggleTrackLike!=="function"){
+      alert("좋아요 기능을 불러오지 못했습니다.");
+      return;
+    }
+
+    const btn=document.getElementById("player-like-btn");
+    if(btn)btn.disabled=true;
+    try{
+      await toggleTrackLike(t.id);
+      paint();
+    }catch(err){
+      console.error("player like:",err);
+    }finally{
+      if(btn)btn.disabled=false;
+    }
+  };
+
+  /* No interval / no animation. Update only when track or like state changes. */
+  if(typeof audio!=="undefined" && audio){
+    audio.addEventListener("loadedmetadata",paint);
+    audio.addEventListener("play",paint);
+  }
+  document.addEventListener("click",function(e){
+    if(e.target.closest(".track-like-btn,[onclick*='actionMenuLike'],[onclick*='tfLike']")){
+      setTimeout(paint,300);
+    }
+  });
+  window.addEventListener("load",()=>setTimeout(paint,200));
 })();
 </script>
 
