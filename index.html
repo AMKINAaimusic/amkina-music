@@ -11686,13 +11686,31 @@ body.compact-lyrics-open{padding-bottom:236px!important}
    if(syncLines.some(x=>x.time==null)){if(!confirm("시간을 찍지 않은 가사가 있습니다. 찍힌 부분만 저장할까요?"))return}
    const data=syncLines.filter(x=>x.time!=null).sort((a,b)=>a.time-b.time).map(x=>({time:x.time,text:x.text}));
    try{
-     if(typeof sbFetch!=="function")throw new Error("Supabase 연결 함수를 찾을 수 없습니다.");
-     const res=await sbFetch("tracks?id=eq."+encodeURIComponent(syncTrack.id),{method:"PATCH",headers:{"Content-Type":"application/json","Prefer":"return=representation"},body:JSON.stringify({karaoke_lyrics:data})});
+     const s=(typeof amkinaGetSession==="function")?amkinaGetSession():null;
+     if(!s?.access_token||!s?.user?.id)throw new Error("LOGIN_REQUIRED");
+     const isAdmin=String(s.user.email||"").toLowerCase()==="psy88all@naver.com";
+     const mine=!!(syncTrack.uploader_id && String(syncTrack.uploader_id)===String(s.user.id));
+     if(!isAdmin && !mine)throw new Error("NO_PERMISSION");
+     const editFilter=isAdmin
+       ? `id=eq.${encodeURIComponent(syncTrack.id)}`
+       : `id=eq.${encodeURIComponent(syncTrack.id)}&uploader_id=eq.${encodeURIComponent(s.user.id)}`;
+     const res=await fetch(`${SUPABASE_URL}/rest/v1/tracks?${editFilter}`,{
+       method:"PATCH",
+       headers:{...amkinaTrackHeaders(true),"Prefer":"return=representation"},
+       body:JSON.stringify({karaoke_lyrics:data})
+     });
      if(!res.ok)throw new Error(await res.text());
+     const changed=await res.json();
+     if(!changed.length)throw new Error("NO_PERMISSION_OR_TRACK");
      syncTrack.karaoke_lyrics=data;
      alert("노래방 가사 싱크를 저장했습니다.");
      closeKaraokeSyncEditor();renderKaraoke();
-   }catch(e){console.error(e);alert("저장에 실패했습니다. 먼저 karaoke_lyrics SQL을 실행했는지 확인해주세요.")}
+   }catch(e){
+     console.error("Karaoke sync save error:",e);
+     if(String(e?.message)==="LOGIN_REQUIRED") alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+     else if(String(e?.message).includes("NO_PERMISSION")) alert("본인이 업로드한 곡만 노래방 싱크를 수정할 수 있습니다.");
+     else alert("노래방 싱크 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
+   }
  };
 })();
 </script>
