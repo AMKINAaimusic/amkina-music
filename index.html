@@ -1,5 +1,3 @@
-````
-```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12599,4 +12597,161 @@ main [class*="description"] {
   line-height:1.35 !important;
 }
 </style>
+
+`````
+
+<style id="amkina-home-community-latest-v1-style">
+#amkina-home-community-latest{width:100%;max-width:none;margin:20px 0 32px;padding:0;color:#111;box-sizing:border-box}
+.akhc-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:13px}.akhc-head h2{margin:0;font-size:20px;font-weight:850;letter-spacing:-.6px}.akhc-head p{margin:5px 0 0;color:#777;font-size:11px}.akhc-more{border:0;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer}.akhc-list{background:#fff;border-top:1px solid #e8e8e8}.akhc-row{display:grid;grid-template-columns:72px minmax(0,1fr) 105px 105px;gap:15px;align-items:center;padding:14px 6px;border-bottom:1px solid #ededed;cursor:pointer}.akhc-row:hover{background:#fafafa}.akhc-cat{font-size:10px;font-weight:800;color:#8b8d92}.akhc-title{font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.akhc-author,.akhc-date{font-size:10px;color:#8d8f94;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.akhc-empty{padding:24px 6px;color:#999;font-size:12px;border-bottom:1px solid #ededed}
+@media(max-width:768px){#amkina-home-community-latest{margin:16px 0 24px;padding:0 15px}.akhc-head h2{font-size:17px}.akhc-head p{font-size:10px}.akhc-row{grid-template-columns:52px minmax(0,1fr);gap:8px;padding:13px 3px}.akhc-author,.akhc-date{display:none}.akhc-title{font-size:12px}}
+</style>
+<script id="amkina-home-community-latest-v1-script">
+(function(){
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const cat=v=>({music:"음악 이야기",feedback:"피드백",free:"자유"})[v]||"자유";
+const dt=v=>v?new Date(v).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+function goCommunity(){if(typeof showCommunityPage==="function")showCommunityPage();else document.getElementById("community-nav")?.click()}
+async function openPost(id){goCommunity();setTimeout(async()=>{if(typeof loadCommunityPosts==="function")await loadCommunityPosts();if(typeof openCommunityDetail==="function")openCommunityDetail(String(id))},150)}
+function findNotice(){return document.getElementById("amkina-notice-section")||document.getElementById("amkina-home-notice")||document.querySelector(".amkina-notice-section")||[...document.querySelectorAll("section,div")].find(el=>/공지사항/.test((el.textContent||"").trim())&&el.querySelector("button,a"))}
+async function load(){const list=document.getElementById("akhc-list");if(!list)return;try{const h=typeof communityHeaders==="function"?communityHeaders(false):{"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY};const r=await fetch(SUPABASE_URL+"/rest/v1/community_posts?select=id,category,title,author_name,created_at&order=created_at.desc&limit=5",{headers:h});if(!r.ok)throw new Error("HTTP "+r.status);const rows=await r.json();list.innerHTML=rows.length?rows.map(p=>`<article class="akhc-row" data-id="${esc(p.id)}"><div class="akhc-cat">${esc(cat(p.category))}</div><div class="akhc-title">${esc(p.title)}</div><div class="akhc-author">${esc(p.author_name||"AMKINA USER")}</div><div class="akhc-date">${esc(dt(p.created_at))}</div></article>`).join(""):'<div class="akhc-empty">아직 커뮤니티 글이 없습니다.</div>';list.querySelectorAll(".akhc-row").forEach(x=>x.onclick=()=>openPost(x.dataset.id))}catch(e){console.error(e);list.innerHTML='<div class="akhc-empty">커뮤니티 글을 불러오지 못했습니다.</div>'}}
+function mount(){if(document.getElementById("amkina-home-community-latest"))return;const n=findNotice();if(!n)return;const b=document.createElement("section");b.id="amkina-home-community-latest";b.innerHTML='<div class="akhc-head"><div><h2>최신 커뮤니티 글</h2><p>AMKINA MUSIC에서 지금 나누고 있는 이야기</p></div><button class="akhc-more" type="button">더보기 →</button></div><div id="akhc-list" class="akhc-list"><div class="akhc-empty">게시글을 불러오는 중...</div></div>';n.insertAdjacentElement("afterend",b);const nr=n.getBoundingClientRect();if(nr.width){b.style.width=nr.width+"px";b.style.maxWidth=nr.width+"px";b.style.marginLeft=(n.offsetLeft||0)+"px"}b.querySelector(".akhc-more").onclick=goCommunity;load()}
+document.addEventListener("DOMContentLoaded",()=>{setTimeout(mount,600);setTimeout(mount,1400)});window.addEventListener("focus",()=>document.getElementById("akhc-list")&&load());
+})();
+</script>
+
+<style id="amkina-mypage-delete-v1-style">
+.mp-card{position:relative}
+.mp-delete-track{
+ position:absolute;right:8px;top:8px;z-index:8;
+ border:1px solid rgba(255,255,255,.55);background:rgba(15,15,15,.78);color:#fff;
+ width:34px;height:34px;border-radius:9px;font-size:15px;font-weight:800;cursor:pointer;
+ backdrop-filter:blur(8px)
+}
+.mp-delete-track:hover{background:#b42318;border-color:#b42318}
+.mp-admin-note{margin:0 0 16px;padding:13px 15px;border:1px solid #e4e4e4;border-radius:11px;background:#fff;color:#666;font-size:11px}
+.mp-admin-note b{color:#111}
+.mp-admin-track-owner{font-size:10px;color:#999;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+
+<script id="amkina-mypage-delete-v1-script">
+(function(){
+ const ADMIN_EMAIL="psy88all@naver.com";
+ function session(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
+ function isAdmin(){return String(session()?.user?.email||"").toLowerCase()===ADMIN_EMAIL}
+ function esc(v=""){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+ function cover(t){return t?.cover_url||mpDefaultAvatar}
+
+ // 관리자에게만 전체 음원 관리 탭 추가
+ function ensureAdminTab(){
+   const tabs=document.querySelector("#mypage .mp-tabs"); if(!tabs)return;
+   let b=document.getElementById("mp-admin-tracks-tab");
+   if(isAdmin()){
+     if(!b){
+       b=document.createElement("button");
+       b.id="mp-admin-tracks-tab"; b.className="mp-tab"; b.dataset.mptab="admintracks";
+       b.textContent="전체 음원 관리";
+       tabs.appendChild(b);
+       b.addEventListener("click",async()=>{
+         document.querySelectorAll(".mp-tab").forEach(x=>x.classList.remove("active"));
+         b.classList.add("active"); mpTab="admintracks";
+         await loadAdminTracks(); renderDeleteAwareTab();
+       });
+     }
+   }else if(b)b.remove();
+ }
+
+ async function loadAdminTracks(){
+   if(!isAdmin())return;
+   try{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/tracks?select=*&order=id.desc",{headers:mpHeaders(false)});
+     mpData.adminTracks=r.ok?await r.json():[];
+   }catch(e){console.error(e);mpData.adminTracks=[]}
+ }
+
+ function card(t,adminMode=false){
+   const owner=adminMode?`<div class="mp-admin-track-owner">업로더 · ${esc(t.artist||"AMKINA")} ${t.uploader_id?("· "+esc(t.uploader_id).slice(0,8)+"…"):"· 소유자 미지정"}</div>`:"";
+   return `<article class="mp-card" onclick="mpPlay('${esc(t.id)}')">
+     <button class="mp-delete-track" type="button" title="음원 삭제" aria-label="음원 삭제"
+       onclick="event.stopPropagation();deleteMyTrack('${esc(t.id)}',${adminMode?"true":"false"})">🗑</button>
+     <img src="${esc(cover(t))}">
+     <div class="mp-card-body">
+       <div class="mp-card-title">${esc(t.title||"Untitled")}</div>
+       <div class="mp-card-sub">${esc(t.artist||"AMKINA")} · ${esc(t.genre||"ORIGINAL")}</div>
+       ${owner}
+       <div class="mp-card-stat">▷ ${Number(t.play_count||0).toLocaleString()}</div>
+     </div>
+   </article>`;
+ }
+
+ function renderDeleteAwareTab(){
+   const el=document.getElementById("mp-content");if(!el)return false;
+   if(mpTab==="music"){
+     const rows=mpData.mine||[];
+     el.innerHTML=rows.length?'<div class="mp-grid">'+rows.map(t=>card(t,false)).join("")+"</div>":'<div class="mp-empty">아직 업로드한 음악이 없습니다.</div>';
+     return true;
+   }
+   if(mpTab==="admintracks" && isAdmin()){
+     const rows=mpData.adminTracks||[];
+     el.innerHTML='<div class="mp-admin-note"><b>관리자 음원 관리</b> · 전체 회원의 업로드 음원입니다. 중복·오등록 음원을 삭제할 수 있습니다.</div>'+
+       (rows.length?'<div class="mp-grid">'+rows.map(t=>card(t,true)).join("")+"</div>":'<div class="mp-empty">등록된 음원이 없습니다.</div>');
+     return true;
+   }
+   return false;
+ }
+
+ // 기존 렌더러는 나머지 탭을 그대로 사용
+ const oldRender=renderMyPageTab;
+ renderMyPageTab=function(){
+   ensureAdminTab();
+   if(renderDeleteAwareTab())return;
+   return oldRender();
+ };
+
+ const oldLoad=loadMyPage;
+ loadMyPage=async function(){
+   await oldLoad();
+   ensureAdminTab();
+   if(isAdmin())await loadAdminTracks();
+   renderMyPageTab();
+ };
+
+ window.deleteMyTrack=async function(trackId,adminMode=false){
+   const s=session();
+   if(!s?.access_token||!s?.user?.id){alert("다시 로그인해주세요.");return}
+   const source=adminMode?(mpData.adminTracks||[]):(mpData.mine||[]);
+   const t=source.find(x=>String(x.id)===String(trackId)) || (mpData.mine||[]).find(x=>String(x.id)===String(trackId));
+   if(!t)return alert("음원 정보를 찾지 못했습니다.");
+   if(!isAdmin() && String(t.uploader_id||"")!==String(s.user.id))return alert("본인이 업로드한 음원만 삭제할 수 있습니다.");
+
+   const ok=confirm(`"${t.title||"이 음원"}"\n\n정말 삭제하시겠습니까?\n삭제한 음원은 복구할 수 없습니다.`);
+   if(!ok)return;
+
+   try{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/delete_track_secure",{
+       method:"POST",
+       headers:{...mpHeaders(true),"Prefer":"return=representation"},
+       body:JSON.stringify({p_track_id:Number(trackId)})
+     });
+     if(!r.ok)throw new Error(await r.text());
+
+     mpData.mine=(mpData.mine||[]).filter(x=>String(x.id)!==String(trackId));
+     mpData.likes=(mpData.likes||[]).filter(x=>String(x.id)!==String(trackId));
+     mpData.featured=(mpData.featured||[]).filter(x=>String(x.id)!==String(trackId));
+     mpData.adminTracks=(mpData.adminTracks||[]).filter(x=>String(x.id)!==String(trackId));
+     try{
+       if(typeof tracks!=="undefined"&&Array.isArray(tracks)){
+         const i=tracks.findIndex(x=>String(x.id)===String(trackId)); if(i>=0)tracks.splice(i,1);
+       }
+     }catch(e){}
+     document.getElementById("mp-upload-count").textContent=(mpData.mine||[]).length.toLocaleString();
+     renderMyPageTab();
+     if(typeof loadMusic==="function")loadMusic();
+     alert("음원이 삭제되었습니다.");
+   }catch(e){
+     console.error("음원 삭제:",e);
+     alert("삭제하지 못했습니다. 먼저 제공된 음원 삭제 SQL을 Supabase에서 실행해주세요.");
+   }
+ };
+})();
+</script>
 
