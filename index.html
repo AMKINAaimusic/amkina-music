@@ -12136,23 +12136,135 @@ window.openCurrentPlayerComments=function(){
 }
 @media(max-width:768px){#amkina-language-menu{display:none!important}}
 </style>
-<script id="amkina-language-direct-js">
+
+<script id="amkina-i18n-full-v1">
 (function(){
-const D={
-ko:["홈","음악","아티스트","커뮤니티","마이페이지","알림센터","스튜디오","라이브러리","이벤트"],
-en:["Home","Music","Artists","Community","My Page","Notifications","Studio","Library","Events"],
-id:["Beranda","Musik","Artis","Komunitas","Halaman Saya","Notifikasi","Studio","Koleksi","Acara"],
-ja:["ホーム","音楽","アーティスト","コミュニティ","マイページ","通知","スタジオ","ライブラリ","イベント"]};
-const K=["홈","음악","아티스트","커뮤니티","마이페이지","알림센터","스튜디오","라이브러리","이벤트"];
+const LANGS=["ko","en","id","ja"];
+const T={
+"홈":["홈","Home","Beranda","ホーム"],"음악":["음악","Music","Musik","音楽"],"아티스트":["아티스트","Artists","Artis","アーティスト"],
+"커뮤니티":["커뮤니티","Community","Komunitas","コミュニティ"],"마이페이지":["마이페이지","My Page","Halaman Saya","マイページ"],
+"알림센터":["알림센터","Notifications","Notifikasi","通知"],"스튜디오":["스튜디오","Studio","Studio","スタジオ"],"라이브러리":["라이브러리","Library","Koleksi","ライブラリ"],
+"이벤트":["이벤트","Events","Acara","イベント"],"공지사항":["공지사항","Notices","Pengumuman","お知らせ"],"전체보기":["전체보기","View all","Lihat semua","すべて見る"],
+"처음이신가요?":["처음이신가요?","New here?","Baru di sini?","初めてですか？"],"필요한 기능만 골라서 빠르게 확인하세요.":["필요한 기능만 골라서 빠르게 확인하세요.","Quickly learn only the features you need.","Pelajari fitur yang Anda perlukan dengan cepat.","必要な機能だけをすぐ確認できます。"],
+"AMKINA MUSIC 시작하기":["AMKINA MUSIC 시작하기","Getting started","Mulai AMKINA MUSIC","AMKINA MUSICを始める"],
+"음악을 재생하고 좋아요·댓글을 남기거나 마음에 드는 곡을 라이브러리에서 관리할 수 있습니다.":["음악을 재생하고 좋아요·댓글을 남기거나 마음에 드는 곡을 라이브러리에서 관리할 수 있습니다.","Play music, like and comment, and manage favorites in your Library.","Putar musik, beri suka dan komentar, serta kelola lagu favorit di Koleksi.","音楽の再生、いいね・コメント、お気に入り曲のライブラリ管理ができます。"],
+"내 음악 올리기":["내 음악 올리기","Upload my music","Unggah musik saya","自分の音楽をアップロード"],
+"직접 만든 음악은 Studio에서 등록합니다.":["직접 만든 음악은 Studio에서 등록합니다.","Upload music you created from Studio.","Unggah musik buatan Anda melalui Studio.","自作した音楽はStudioから登録できます。"],
+"왼쪽 메뉴 Studio":["왼쪽 메뉴 Studio","Open Studio from the left menu","Buka Studio dari menu kiri","左メニューのStudioを開く"],
+"곡 제목·아티스트·장르 입력":["곡 제목·아티스트·장르 입력","Enter title, artist and genre","Masukkan judul, artis, dan genre","曲名・アーティスト・ジャンルを入力"],
+"가사·커버 이미지·음원 선택":["가사·커버 이미지·음원 선택","Choose lyrics, cover and audio","Pilih lirik, sampul, dan audio","歌詞・カバー画像・音源を選択"],
+"업로드하여 등록":["업로드하여 등록","Upload and publish","Unggah dan terbitkan","アップロードして登録"],
+"Studio로 이동":["Studio로 이동","Go to Studio","Buka Studio","Studioへ"],
+"노래방 가사 싱크":["노래방 가사 싱크","Karaoke lyric sync","Sinkronisasi lirik karaoke","カラオケ歌詞同期"],
+"내가 올린 곡의 가사에 직접 시간을 지정할 수 있습니다.":["내가 올린 곡의 가사에 직접 시간을 지정할 수 있습니다.","Set timing for each lyric line on your uploaded tracks.","Atur waktu setiap baris lirik pada lagu yang Anda unggah.","アップロードした曲の歌詞に時間を設定できます。"],
+"먼저 일반 가사를 등록":["먼저 일반 가사를 등록","Add regular lyrics first","Tambahkan lirik biasa terlebih dahulu","まず通常の歌詞を登録"],
+"내 곡의 ⋯ 노래 정보 수정":["내 곡의 ⋯ 노래 정보 수정","My track ⋯ Edit track info","Lagu saya ⋯ Edit info lagu","自分の曲 ⋯ 曲情報を編集"],
+"노래방 가사 싱크":["노래방 가사 싱크","Karaoke lyric sync","Sinkronisasi lirik karaoke","カラオケ歌詞同期"],
+"음악을 재생하고 각 줄 시작 순간 시간 찍기":["음악을 재생하고 각 줄 시작 순간 시간 찍기","Play the track and stamp each line's start time","Putar lagu dan tandai waktu mulai setiap baris","曲を再生し各行の開始時間を記録"],
+"마지막에 싱크 저장":["마지막에 싱크 저장","Save sync when finished","Simpan sinkronisasi setelah selesai","最後に同期を保存"],
+"등록한 곡 수정하기":["등록한 곡 수정하기","Edit uploaded track","Edit lagu yang diunggah","登録曲を編集"],
+"본인이 업로드한 곡은 제목, 아티스트, 장르, 가사와 커버를 수정할 수 있습니다.":["본인이 업로드한 곡은 제목, 아티스트, 장르, 가사와 커버를 수정할 수 있습니다.","You can edit the title, artist, genre, lyrics and cover of your own tracks.","Anda dapat mengedit judul, artis, genre, lirik, dan sampul lagu Anda sendiri.","自分がアップロードした曲の曲名、アーティスト、ジャンル、歌詞、カバーを編集できます。"],
+"곡 카드의 ⋯ 노래 정보 수정 → 수정 후 저장":["곡 카드의 ⋯ 노래 정보 수정 → 수정 후 저장","Track card ⋯ Edit track info → Save","Kartu lagu ⋯ Edit info lagu → Simpan","曲カード ⋯ 曲情報を編集 → 保存"],
+"자주 묻는 질문":["자주 묻는 질문","FAQ","Pertanyaan umum","よくある質問"],"다른 사람의 곡을 수정할 수 있나요?":["다른 사람의 곡을 수정할 수 있나요?","Can I edit someone else's track?","Bisakah saya mengedit lagu orang lain?","他の人の曲を編集できますか？"],
+"아니요. 본인이 올린 곡만 수정할 수 있습니다.":["아니요. 본인이 올린 곡만 수정할 수 있습니다.","No. You can only edit tracks you uploaded.","Tidak. Anda hanya dapat mengedit lagu yang Anda unggah.","いいえ。自分がアップロードした曲のみ編集できます。"],
+"노래방 싱크를 다시 맞출 수 있나요?":["노래방 싱크를 다시 맞출 수 있나요?","Can I redo karaoke sync?","Bisakah sinkronisasi karaoke diulang?","カラオケ同期をやり直せますか？"],
+"네. 같은 싱크 편집 화면에서 다시 시간을 지정해 저장하면 됩니다.":["네. 같은 싱크 편집 화면에서 다시 시간을 지정해 저장하면 됩니다.","Yes. Set the times again in the sync editor and save.","Ya. Atur ulang waktunya di editor sinkronisasi lalu simpan.","はい。同じ同期編集画面で時間を再設定して保存できます。"],
+"일반 가사가 없으면?":["일반 가사가 없으면?","What if there are no lyrics?","Bagaimana jika tidak ada lirik?","通常歌詞がない場合は？"],
+"먼저 곡 정보 수정에서 가사를 등록해주세요.":["먼저 곡 정보 수정에서 가사를 등록해주세요.","Add lyrics first from Edit track info.","Tambahkan lirik terlebih dahulu melalui Edit info lagu.","まず曲情報編集から歌詞を登録してください。"],
+"CHART 100 보기":["CHART 100 보기","View CHART 100","Lihat CHART 100","CHART 100を見る"],
+"곡명 또는 아티스트 검색":["곡명 또는 아티스트 검색","Search tracks or artists","Cari lagu atau artis","曲名またはアーティストを検索"],
+"전체":["전체","All","Semua","すべて"],"인기":["인기","Popular","Populer","人気"],"모든 장르":["모든 장르","All genres","Semua genre","すべてのジャンル"],
+"모든 아티스트":["모든 아티스트","All artists","Semua artis","すべてのアーティスト"],"최신순":["최신순","Newest","Terbaru","新着順"],
+"가사":["가사","Lyrics","Lirik","歌詞"],"가사 보기":["가사 보기","View lyrics","Lihat lirik","歌詞を見る"],"가사 접기":["가사 접기","Hide lyrics","Tutup lirik","歌詞を閉じる"],
+"좋아요":["좋아요","Like","Suka","いいね"],"댓글":["댓글","Comments","Komentar","コメント"],"공유":["공유","Share","Bagikan","共有"],"재생":["재생","Play","Putar","再生"],
+"랜덤 재생":["랜덤 재생","Shuffle","Acak","シャッフル"],"등록된 가사가 없습니다.":["등록된 가사가 없습니다.","No lyrics available.","Lirik belum tersedia.","登録された歌詞がありません。"],
+"등록된 음악이 없습니다.":["등록된 음악이 없습니다.","No music available.","Belum ada musik.","登録された音楽がありません。"],
+"음악을 불러오지 못했습니다.":["음악을 불러오지 못했습니다.","Could not load music.","Gagal memuat musik.","音楽を読み込めませんでした。"],
+"로그인이 필요합니다.":["로그인이 필요합니다.","Login required.","Silakan masuk terlebih dahulu.","ログインが必要です。"],"먼저 로그인해주세요.":["먼저 로그인해주세요.","Please log in first.","Silakan masuk terlebih dahulu.","先にログインしてください。"],
+"곡을 먼저 선택해주세요.":["곡을 먼저 선택해주세요.","Please select a track first.","Pilih lagu terlebih dahulu.","先に曲を選択してください。"],
+"곡을 선택해주세요.":["곡을 선택해주세요.","Please select a track.","Silakan pilih lagu.","曲を選択してください。"],"저장 중...":["저장 중...","Saving...","Menyimpan...","保存中..."],
+"업로드 중...":["업로드 중...","Uploading...","Mengunggah...","アップロード中..."],"게시 중...":["게시 중...","Posting...","Mengirim...","投稿中..."],
+"취소":["취소","Cancel","Batal","キャンセル"],"저장":["저장","Save","Simpan","保存"],"수정":["수정","Edit","Edit","編集"],"삭제":["삭제","Delete","Hapus","削除"],
+"닫기":["닫기","Close","Tutup","閉じる"],"제목":["제목","Title","Judul","タイトル"],"내용":["내용","Content","Isi","内容"],"공지":["공지","Notice","Pengumuman","お知らせ"],
+"업데이트":["업데이트","Update","Pembaruan","アップデート"],"안내":["안내","Info","Info","案内"],"상단 고정":["상단 고정","Pin to top","Sematkan di atas","上部に固定"],
+"공지 작성":["공지 작성","Write notice","Tulis pengumuman","お知らせ作成"],"게시하기":["게시하기","Publish","Terbitkan","投稿"],
+"곡 정보 수정":["곡 정보 수정","Edit track info","Edit info lagu","曲情報を編集"],"내 곡 수정":["내 곡 수정","Edit my track","Edit lagu saya","自分の曲を編集"],
+"곡 제목":["곡 제목","Track title","Judul lagu","曲名"],"장르":["장르","Genre","Genre","ジャンル"],"커버 이미지":["커버 이미지","Cover image","Gambar sampul","カバー画像"],
+"본인이 작성했거나 사용 권한이 있는 가사만 등록해주세요.":["본인이 작성했거나 사용 권한이 있는 가사만 등록해주세요.","Only upload lyrics you wrote or have permission to use.","Unggah hanya lirik yang Anda tulis atau memiliki izin untuk digunakan.","自分で作成した、または使用許可のある歌詞のみ登録してください。"],
+"청취주의":["청취주의","Content warning","Peringatan konten","視聴注意"],"폭력·공포":["폭력·공포","Violence · Horror","Kekerasan · Horor","暴力・恐怖"],
+"민감한 내용":["민감한 내용","Sensitive content","Konten sensitif","センシティブな内容"],"19+ 성인 주제":["19+ 성인 주제","19+ Adult themes","19+ Tema dewasa","19+ 成人向けテーマ"],
+"로그인":["로그인","Log in","Masuk","ログイン"],"회원가입":["회원가입","Sign up","Daftar","新規登録"],"비밀번호 찾기":["비밀번호 찾기","Forgot password","Lupa kata sandi","パスワードを忘れた場合"],
+"이메일":["이메일","Email","Email","メール"],"비밀번호":["비밀번호","Password","Kata sandi","パスワード"],"계정이 없으신가요?":["계정이 없으신가요?","Don't have an account?","Belum punya akun?","アカウントをお持ちでないですか？"],
+"이미 계정이 있으신가요?":["이미 계정이 있으신가요?","Already have an account?","Sudah punya akun?","すでにアカウントをお持ちですか？"],
+"로그아웃되었습니다.":["로그아웃되었습니다.","Logged out.","Berhasil keluar.","ログアウトしました。"],"로그인되었습니다.":["로그인되었습니다.","Logged in.","Berhasil masuk.","ログインしました。"],
+"음악 업로드 완료!":["음악 업로드 완료!","Music uploaded!","Musik berhasil diunggah!","音楽をアップロードしました！"],"음악 등록 완료!":["음악 등록 완료!","Music published!","Musik berhasil diterbitkan!","音楽を登録しました！"],
+"음악 파일을 선택해주세요.":["음악 파일을 선택해주세요.","Please choose an audio file.","Pilih file audio.","音源ファイルを選択してください。"],
+"곡 제목을 입력해주세요.":["곡 제목을 입력해주세요.","Please enter a track title.","Masukkan judul lagu.","曲名を入力してください。"],
+"앨범 커버를 선택해주세요.":["앨범 커버를 선택해주세요.","Please choose album cover art.","Pilih sampul album.","アルバムカバーを選択してください。"],
+"아직 댓글이 없습니다. 첫 댓글을 남겨보세요.":["아직 댓글이 없습니다. 첫 댓글을 남겨보세요.","No comments yet. Be the first to comment.","Belum ada komentar. Jadilah yang pertama.","まだコメントはありません。最初のコメントをどうぞ。"],
+"댓글을 입력해주세요.":["댓글을 입력해주세요.","Please enter a comment.","Masukkan komentar.","コメントを入力してください。"],
+"링크가 복사되었습니다.":["링크가 복사되었습니다.","Link copied.","Tautan disalin.","リンクをコピーしました。"],
+"본인이 업로드한 곡만 수정할 수 있습니다.":["본인이 업로드한 곡만 수정할 수 있습니다.","You can only edit tracks you uploaded.","Anda hanya dapat mengedit lagu yang Anda unggah.","自分がアップロードした曲のみ編集できます。"],
+"곡 정보가 수정되었습니다.":["곡 정보가 수정되었습니다.","Track information updated.","Info lagu diperbarui.","曲情報を更新しました。"],
+"마이페이지는 로그인이 필요합니다.":["마이페이지는 로그인이 필요합니다.","Login is required for My Page.","Silakan masuk untuk membuka Halaman Saya.","マイページにはログインが必要です。"],
+"업로드 곡":["업로드 곡","Uploaded tracks","Lagu diunggah","アップロード曲"],"총 재생수":["총 재생수","Total plays","Total pemutaran","総再生数"],"받은 좋아요":["받은 좋아요","Likes received","Suka diterima","獲得いいね"],
+"아직 업로드한 음악이 없습니다.":["아직 업로드한 음악이 없습니다.","No uploaded music yet.","Belum ada musik yang diunggah.","まだアップロードした音楽はありません。"],
+"아직 좋아요한 곡이 없습니다.":["아직 좋아요한 곡이 없습니다.","No liked tracks yet.","Belum ada lagu yang disukai.","まだいいねした曲はありません。"],
+"대표곡":["대표곡","Featured track","Lagu unggulan","代表曲"],"가입일":["가입일","Joined","Bergabung","登録日"],"아티스트 검색":["아티스트 검색","Search artists","Cari artis","アーティストを検索"],
+"표시할 아티스트가 없습니다.":["표시할 아티스트가 없습니다.","No artists to display.","Tidak ada artis untuk ditampilkan.","表示するアーティストがいません。"],
+"게시글 검색":["게시글 검색","Search posts","Cari postingan","投稿を検索"],"음악 이야기":["음악 이야기","Music talk","Obrolan musik","音楽トーク"],"피드백":["피드백","Feedback","Masukan","フィードバック"],
+"게시글을 불러오는 중...":["게시글을 불러오는 중...","Loading posts...","Memuat postingan...","投稿を読み込み中..."],"아직 게시글이 없습니다. 첫 글을 남겨보세요.":["아직 게시글이 없습니다. 첫 글을 남겨보세요.","No posts yet. Create the first one.","Belum ada postingan. Buat postingan pertama.","まだ投稿はありません。最初の投稿をどうぞ。"],
+"댓글을 불러오는 중...":["댓글을 불러오는 중...","Loading comments...","Memuat komentar...","コメントを読み込み中..."],"이용가이드":["이용가이드","Guide","Panduan","利用ガイド"]
+};
+const idx=l=>({ko:0,en:1,id:2,ja:3}[l]??0);
+const rev={};Object.entries(T).forEach(([k,a])=>a.forEach(v=>rev[v]=k));
+function trExact(v,l){const k=T[v]?v:rev[v];return k?T[k][idx(l)]:v}
+function translateTextNode(n,l){
+ if(!n||!n.nodeValue||!/[가-힣]/.test(n.nodeValue))return;
+ const raw=n.nodeValue,trim=raw.trim();if(!trim)return;
+ let out=trExact(trim,l);
+ if(out===trim){
+   out=trim;
+   // Replace known Korean UI phrases inside longer UI strings.
+   Object.keys(T).sort((a,b)=>b.length-a.length).forEach(k=>{if(out.includes(k))out=out.split(k).join(T[k][idx(l)])});
+ }
+ if(out!==trim)n.nodeValue=raw.replace(trim,out);
+}
+function translateElement(el,l){
+ if(!el||el.closest("#amkina-language-menu")||el.closest("#amkina-language-select"))return;
+ [...el.childNodes].forEach(n=>{if(n.nodeType===3)translateTextNode(n,l)});
+ ["placeholder","title","aria-label"].forEach(a=>{
+   const v=el.getAttribute?.(a);if(!v)return;
+   let out=trExact(v,l);
+   if(out===v)Object.keys(T).sort((a,b)=>b.length-a.length).forEach(k=>{if(out.includes(k))out=out.split(k).join(T[k][idx(l)])});
+   if(out!==v)el.setAttribute(a,out);
+ });
+}
+function translateTree(root,l){
+ if(root?.nodeType===1)translateElement(root,l);
+ const w=document.createTreeWalker(root||document.body,NodeFilter.SHOW_ELEMENT);
+ let e;while(e=w.nextNode())translateElement(e,l);
+}
 function apply(l){
- localStorage.setItem("amkina_language",l);document.documentElement.lang=l;
- const nodes=[...document.querySelectorAll(".amkina-sidebar-nav .nav-text")];
- nodes.forEach(n=>{let i=K.indexOf(n.dataset.akBase||n.textContent.trim());if(i<0){for(const a of Object.values(D)){let j=a.indexOf(n.textContent.trim());if(j>=0){i=j;break}}}if(i>=0){n.dataset.akBase=K[i];n.textContent=D[l][i]}});
- document.getElementById("amkina-language-select").value=l;
+ if(!LANGS.includes(l))l="ko";localStorage.setItem("amkina_language",l);document.documentElement.lang=l;
+ translateTree(document.body,l);
+ const q=document.getElementById("amkina-language-select");if(q)q.value=l;
 }
 window.akApplyLanguage=apply;
-const q=document.getElementById("amkina-language-select");
-q.addEventListener("change",e=>apply(e.target.value));
-apply(localStorage.getItem("amkina_language")||"ko");
+const oldAlert=window.alert.bind(window),oldConfirm=window.confirm.bind(window);
+window.alert=function(msg){return oldAlert(trExact(String(msg),localStorage.getItem("amkina_language")||"ko"))};
+window.confirm=function(msg){return oldConfirm(trExact(String(msg),localStorage.getItem("amkina_language")||"ko"))};
+function init(){
+ const q=document.getElementById("amkina-language-select");
+ if(q){q.onchange=e=>{location.hash=location.hash;apply(e.target.value)}}
+ apply(localStorage.getItem("amkina_language")||"ko");
+ const mo=new MutationObserver(ms=>{
+   const l=localStorage.getItem("amkina_language")||"ko";
+   ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)translateTree(n,l);else if(n.nodeType===3)translateTextNode(n,l)}));
+ });
+ mo.observe(document.body,{childList:true,subtree:true});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
+
