@@ -1,3 +1,4 @@
+````
 ```
 <!DOCTYPE html>
 <html lang="ko">
@@ -3217,6 +3218,23 @@ body.track-full-open{overflow:hidden}
         onclick="toggleCompactLyrics()">
         가사
       </button>
+
+      <button
+        id="player-like-btn"
+        class="control-btn player-like-btn"
+        type="button"
+        title="좋아요"
+        aria-label="현재 곡 좋아요"
+        onclick="toggleCurrentPlayerLike()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3 4.2 13A5.2 5.2 0 0 1 11.5 5.6L12 6.1l.5-.5A5.2 5.2 0 0 1 19.8 13z"/></svg></button>
+
+      <button
+        id="player-comment-btn"
+        class="control-btn player-comment-btn"
+        type="button"
+        title="댓글"
+        aria-label="현재 곡 댓글 보기"
+        onclick="openCurrentPlayerComments()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8 8.8 8.8 0 0 1-3.5-.8L4 20l1.3-4.1A8 8 0 1 1 20 11.5z"/></svg></button>
+      <button id="player-share-btn" class="control-btn player-share-btn" type="button" title="공유" aria-label="현재 곡 공유" onclick="shareCurrentPlayerTrack()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10.4 13.6M21 3l-6.7 18-3.9-7.4L3 9.7 21 3z"/></svg></button>
 
     </div>
 
@@ -11959,4 +11977,125 @@ body.compact-lyrics-open{padding-bottom:236px!important}
   }
 }
 </style>
+
+````
+
+
+
+
+
+<script id="amkina-player-comment-clean-v2">
+window.openCurrentPlayerComments=function(){
+  let t=null;
+  try{if(typeof currentIndex==="number"&&currentIndex>=0&&Array.isArray(tracks))t=tracks[currentIndex]||null}catch(e){}
+  try{if(!t&&typeof currentTrack!=="undefined"&&currentTrack)t=currentTrack}catch(e){}
+  if(!t){alert("곡을 먼저 선택해주세요.");return}
+  if(typeof openTrackComments==="function")openTrackComments(t.id);
+  else alert("댓글 기능을 불러오지 못했습니다.");
+};
+</script>
+
+<style id="amkina-player-social-instagram">
+#player-like-btn,#player-comment-btn,#player-share-btn{
+  width:34px!important;height:34px!important;min-width:34px!important;
+  margin:0 1px!important;padding:0!important;border:0!important;
+  border-radius:0!important;background:transparent!important;
+  color:#fff!important;box-shadow:none!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  cursor:pointer!important;opacity:.96;transition:opacity .15s ease,transform .15s ease!important;
+}
+#player-like-btn:hover,#player-comment-btn:hover,#player-share-btn:hover{opacity:.68;transform:scale(1.06)!important}
+#player-like-btn svg,#player-comment-btn svg,#player-share-btn svg{
+  width:23px!important;height:23px!important;display:block!important;
+  fill:none!important;stroke:currentColor!important;stroke-width:2!important;
+  stroke-linecap:round!important;stroke-linejoin:round!important;
+}
+#player-like-btn.is-liked{color:#ff1744!important}
+#player-like-btn.is-liked svg{fill:#ff1744!important;stroke:#ff1744!important}
+#player-share-btn svg{width:24px!important;height:24px!important}
+@media(max-width:768px){
+ #player-like-btn,#player-comment-btn,#player-share-btn{width:38px!important;height:38px!important}
+ #player-like-btn svg,#player-comment-btn svg,#player-share-btn svg{width:24px!important;height:24px!important}
+}
+</style>
+<script id="amkina-player-social-instagram-script">
+(function(){
+ function cur(){
+   try{return (typeof currentIndex==="number"&&currentIndex>=0&&Array.isArray(tracks))?tracks[currentIndex]:null}catch(e){return null}
+ }
+ window.openCurrentPlayerComments=function(){
+   const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
+   if(typeof openTrackComments==="function")openTrackComments(t.id);
+ };
+ window.shareCurrentPlayerTrack=async function(){
+   const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
+   const u=new URL(location.href);u.searchParams.set("track",t.id);
+   try{
+     if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC"),text:(t.artist||"")+" · AMKINA MUSIC",url:u.toString()});}
+     else{await navigator.clipboard.writeText(u.toString());alert("곡 링크를 복사했습니다.");}
+   }catch(e){}
+ };
+ function paint(){
+   const b=document.getElementById("player-like-btn"),t=cur();if(!b)return;
+   const liked=!!(t&&typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(t.id)));
+   b.classList.toggle("is-liked",liked);
+   if(!b.querySelector("svg"))b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3 4.2 13A5.2 5.2 0 0 1 11.5 5.6L12 6.1l.5-.5A5.2 5.2 0 0 1 19.8 13z"/></svg>';
+ }
+ document.addEventListener("click",()=>setTimeout(paint,100));
+ if(typeof audio!=="undefined"&&audio){audio.addEventListener("play",paint);audio.addEventListener("loadedmetadata",paint)}
+ setTimeout(paint,100);
+})();
+</script>
+
+<style id="amkina-player-social-no-motion">
+#player-like-btn,
+#player-comment-btn,
+#player-share-btn,
+#player-like-btn:hover,
+#player-comment-btn:hover,
+#player-share-btn:hover,
+#player-like-btn:active,
+#player-comment-btn:active,
+#player-share-btn:active{
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+}
+#player-like-btn svg,
+#player-comment-btn svg,
+#player-share-btn svg{
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+}
+#player-like-btn:hover,
+#player-comment-btn:hover,
+#player-share-btn:hover{
+  opacity:.96!important;
+}
+</style>
+
+<script id="amkina-player-social-static-sync">
+(function(){
+  function updateStaticLike(){
+    const b=document.getElementById("player-like-btn");
+    if(!b)return;
+    let t=null;
+    try{
+      if(typeof currentIndex==="number"&&currentIndex>=0&&Array.isArray(tracks))t=tracks[currentIndex]||null;
+    }catch(e){}
+    const liked=!!(t&&typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(t.id)));
+    b.classList.toggle("is-liked",liked);
+  }
+  document.addEventListener("click",function(e){
+    if(e.target.closest("#player-like-btn") || e.target.closest(".track-like-btn") || e.target.closest("[onclick*='Like']")){
+      setTimeout(updateStaticLike,250);
+    }
+  });
+  if(typeof audio!=="undefined"&&audio){
+    audio.addEventListener("loadedmetadata",updateStaticLike);
+  }
+  window.addEventListener("load",()=>setTimeout(updateStaticLike,200));
+})();
+</script>
 
