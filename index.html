@@ -2900,6 +2900,17 @@ body.track-full-open{overflow:hidden}
         <small class="lyrics-rights-note">본인이 작성했거나 사용 권한이 있는 가사만 등록해주세요.</small>
       </div>
 
+      <div class="studio-field ak-advisory-field">
+        <label>CONTENT NOTICE</label>
+        <div class="ak-advisory-box">
+          <label class="ak-check"><input type="checkbox" id="studio-warning-explicit"> <span><b>청취주의</b><small>욕설·강한 표현 등</small></span></label>
+          <label class="ak-check"><input type="checkbox" id="studio-warning-violence"> <span><b>폭력·공포</b><small>폭력적이거나 불쾌감을 줄 수 있는 표현</small></span></label>
+          <label class="ak-check"><input type="checkbox" id="studio-warning-disturbing"> <span><b>민감한 내용</b><small>일부 청취자에게 불편할 수 있는 주제</small></span></label>
+          <label class="ak-check ak-adult"><input type="checkbox" id="studio-warning-adult"> <span><b>19+ 성인 주제</b><small>미성년자에게 적절하지 않은 성인용 주제</small></span></label>
+        </div>
+        <small class="ak-advisory-note">해당되는 항목만 표시해주세요. 19+ 표시는 AMKINA의 자체 콘텐츠 안내 표시이며 법적 등급 판정을 대신하지 않습니다.</small>
+      </div>
+
       <button
         type="button"
         class="studio-upload-btn"
@@ -3347,6 +3358,8 @@ async function loadMusic(){
         <div class="cover-wrap">
 
           ${index < 3 ? '<span class="amkina-new-badge">NEW</span>' : ''}
+          ${track.is_adult ? '<span class="ak-content-badge ak-badge-adult">19+</span>' :
+            (Array.isArray(track.content_warnings) && track.content_warnings.length ? '<span class="ak-content-badge ak-badge-warning">주의</span>' : '')}
 
           <img
             class="cover"
@@ -3886,6 +3899,12 @@ async function uploadStudioMusic(){
     const artist = document.getElementById('studio-artist').value.trim() || 'AMKINA';
     const genre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
     const lyrics = document.getElementById('studio-lyrics').value.trim();
+    const contentWarnings = [
+      document.getElementById('studio-warning-explicit')?.checked ? 'explicit' : null,
+      document.getElementById('studio-warning-violence')?.checked ? 'violence' : null,
+      document.getElementById('studio-warning-disturbing')?.checked ? 'disturbing' : null
+    ].filter(Boolean);
+    const isAdult = !!document.getElementById('studio-warning-adult')?.checked;
 
     const audioInput = document.getElementById('studio-audio');
     const coverInput = document.getElementById('studio-cover');
@@ -4014,6 +4033,8 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
                     artist:artist,
                     genre:genre,
                     lyrics:lyrics,
+                    content_warnings:contentWarnings,
+                    is_adult:isAdult,
                     audio_url:audioUrl,
                     cover_url:coverUrl,
                     release_date:
@@ -4037,6 +4058,9 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
         document.getElementById('studio-genre').value = '';
         document.getElementById('studio-description').value = '';
         document.getElementById('studio-lyrics').value = '';
+        ['studio-warning-explicit','studio-warning-violence','studio-warning-disturbing','studio-warning-adult'].forEach(id=>{
+          const el=document.getElementById(id); if(el)el.checked=false;
+        });
 
         audioInput.value = '';
         coverInput.value = '';
@@ -11774,6 +11798,140 @@ body.compact-lyrics-open{padding-bottom:236px!important}
     if(e.target.closest(".track-menu-item,.track-edit-btn,[onclick*='openTrackEdit']"))setTimeout(fix,100);
   });
   window.addEventListener("load",fix);
+})();
+</script>
+
+<style id="amkina-user-guide-v1">
+#ak-guide-float{
+ position:fixed;right:24px;bottom:104px;z-index:99970;
+ border:1px solid #e5e5e5;background:#fff;color:#111;border-radius:999px;
+ padding:11px 15px;font:900 11px Arial,sans-serif;box-shadow:0 7px 24px #0002;cursor:pointer
+}
+#ak-guide-modal{position:fixed;inset:0;z-index:100300;background:#0009;display:none;align-items:center;justify-content:center;padding:18px}
+#ak-guide-modal.open{display:flex}
+.ak-guide-box{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:24px;padding:28px;color:#111}
+.ak-guide-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.ak-guide-kicker{font:900 9px Arial;letter-spacing:2px;color:#999}
+.ak-guide-top h2{margin:5px 0 5px;font:900 28px Arial}.ak-guide-top p{margin:0;color:#888;font-size:12px}
+.ak-guide-x{border:0;background:#f1f1f1;border-radius:50%;width:38px;height:38px;font-size:20px;cursor:pointer}
+.ak-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
+.ak-guide-card{border:1px solid #e9e9e9;border-radius:17px;padding:17px;background:#fafafa}
+.ak-guide-card h3{font-size:15px;margin:0 0 9px}.ak-guide-card p{font-size:11px;line-height:1.75;color:#666;margin:0}
+.ak-guide-card button{margin-top:12px;border:0;border-radius:9px;background:#111;color:#fff;height:34px;padding:0 12px;font-size:10px;font-weight:900;cursor:pointer}
+.ak-guide-steps{margin-top:12px;border-top:1px solid #eee;padding-top:12px;font-size:11px;line-height:1.9;color:#555}
+#ak-welcome{position:fixed;inset:0;z-index:100400;background:#000a;display:none;align-items:center;justify-content:center;padding:20px}
+#ak-welcome.open{display:flex}
+.ak-welcome-box{width:min(500px,94vw);background:#fff;border-radius:25px;padding:32px;text-align:center}
+.ak-welcome-logo{font:900 12px Arial;letter-spacing:2px}.ak-welcome-box h2{font-size:25px;margin:14px 0 9px}.ak-welcome-box p{font-size:12px;line-height:1.7;color:#777}
+.ak-welcome-actions{display:flex;gap:8px;justify-content:center;margin-top:22px}.ak-welcome-actions button{height:42px;border-radius:11px;padding:0 18px;font-weight:900;cursor:pointer}
+.ak-welcome-skip{background:#fff;border:1px solid #ddd}.ak-welcome-go{background:#111;color:#fff;border:1px solid #111}
+@media(max-width:768px){
+ #ak-guide-float{right:13px;bottom:105px;padding:10px 13px}
+ .ak-guide-box{padding:19px}.ak-guide-top h2{font-size:22px}.ak-guide-grid{grid-template-columns:1fr}
+}
+</style>
+
+<button id="ak-guide-float" type="button" onclick="openAmkinaGuide()">❓ 이용가이드</button>
+
+<div id="ak-guide-modal" aria-hidden="true">
+ <div class="ak-guide-box">
+  <div class="ak-guide-top">
+   <div><div class="ak-guide-kicker">AMKINA MUSIC GUIDE</div><h2>처음이신가요?</h2><p>필요한 기능만 골라서 빠르게 확인하세요.</p></div>
+   <button class="ak-guide-x" onclick="closeAmkinaGuide()">×</button>
+  </div>
+  <div class="ak-guide-grid">
+   <section class="ak-guide-card"><h3>🎵 AMKINA MUSIC 시작하기</h3><p>음악을 재생하고 좋아요·댓글을 남기거나 마음에 드는 곡을 라이브러리에서 관리할 수 있습니다.</p><div class="ak-guide-steps">① 홈에서 음악 선택<br>② ▶ 재생<br>③ 좋아요·댓글·플레이리스트 활용</div></section>
+   <section class="ak-guide-card"><h3>⬆️ 내 음악 올리기</h3><p>직접 만든 음악은 Studio에서 등록합니다.</p><div class="ak-guide-steps">① 왼쪽 메뉴 <b>Studio</b><br>② 곡 제목·아티스트·장르 입력<br>③ 가사·커버 이미지·음원 선택<br>④ 업로드하여 등록</div><button onclick="akGuideGo('studio')">Studio로 이동</button></section>
+   <section class="ak-guide-card"><h3>🎤 노래방 가사 싱크</h3><p>내가 올린 곡의 가사에 직접 시간을 지정할 수 있습니다.</p><div class="ak-guide-steps">① 먼저 일반 가사를 등록<br>② 내 곡의 <b>⋮ → 노래 정보 수정</b><br>③ <b>🎤 노래방 가사 싱크</b><br>④ 음악을 재생하고 각 줄 시작 순간 <b>시간 찍기</b><br>⑤ 마지막에 <b>싱크 저장</b><br><br>PC: Space = 재생/정지 · Enter = 시간 찍기</div></section>
+   <section class="ak-guide-card"><h3>✏️ 등록한 곡 수정하기</h3><p>본인이 업로드한 곡은 제목, 아티스트, 장르, 가사와 커버를 수정할 수 있습니다.</p><div class="ak-guide-steps">곡 카드의 <b>⋮</b> → <b>노래 정보 수정</b> → 수정 후 저장</div></section>
+   <section class="ak-guide-card"><h3>📊 CHART 100</h3><p>AMKINA MUSIC에서 재생되는 음악의 차트를 확인할 수 있습니다. 새로운 음악을 발견해보세요.</p><button onclick="akGuideGo('chart')">CHART 100 보기</button></section>
+   <section class="ak-guide-card"><h3>💡 자주 묻는 질문</h3><p><b>다른 사람의 곡을 수정할 수 있나요?</b><br>아니요. 본인이 올린 곡만 수정할 수 있습니다.<br><br><b>노래방 싱크를 다시 맞출 수 있나요?</b><br>네. 같은 싱크 편집 화면에서 다시 시간을 지정해 저장하면 됩니다.<br><br><b>일반 가사가 없으면?</b><br>먼저 곡 정보 수정에서 가사를 등록해주세요.</p></section>
+  </div>
+ </div>
+</div>
+
+<div id="ak-welcome" aria-hidden="true">
+ <div class="ak-welcome-box">
+  <div class="ak-welcome-logo">AMKINA MUSIC</div>
+  <h2>환영합니다 👋</h2>
+  <p>음악을 듣고 발견하거나 직접 만든 음악을 공유할 수 있습니다.<br>처음이라면 1분 사용법을 확인해보세요.</p>
+  <div class="ak-welcome-actions"><button class="ak-welcome-skip" onclick="closeAmkinaWelcome()">둘러보기</button><button class="ak-welcome-go" onclick="openGuideFromWelcome()">1분 사용법 보기</button></div>
+ </div>
+</div>
+
+<script id="amkina-user-guide-v1-script">
+(function(){
+ window.openAmkinaGuide=function(){document.getElementById("ak-guide-modal")?.classList.add("open")};
+ window.closeAmkinaGuide=function(){document.getElementById("ak-guide-modal")?.classList.remove("open")};
+ window.closeAmkinaWelcome=function(){document.getElementById("ak-welcome")?.classList.remove("open");localStorage.setItem("amkina_welcome_seen_v1","1")};
+ window.openGuideFromWelcome=function(){closeAmkinaWelcome();openAmkinaGuide()};
+ window.akGuideGo=function(where){
+   closeAmkinaGuide();
+   if(where==="studio"){
+     if(typeof window.showStudioPage==="function")return window.showStudioPage();
+     const el=[...document.querySelectorAll("a,button")].find(x=>(x.textContent||"").trim().toLowerCase()==="studio"||(x.textContent||"").trim()==="스튜디오");if(el)el.click();
+   }
+   if(where==="chart"){
+     if(typeof window.openChart100==="function")return window.openChart100();
+     const el=[...document.querySelectorAll("a,button")].find(x=>(x.textContent||"").toUpperCase().includes("CHART 100"));if(el)el.click();
+   }
+ };
+ function addSidebarGuide(){
+   if(document.getElementById("ak-sidebar-guide"))return;
+   const about=[...document.querySelectorAll("a,button,[role=button],div")].find(x=>(x.textContent||"").trim()==="ABOUT"&&x.offsetParent!==null&&!x.closest("#ak-guide-modal"));
+   if(!about)return;
+   const b=document.createElement("button");b.id="ak-sidebar-guide";b.type="button";b.innerHTML="❓&nbsp;&nbsp;이용가이드";
+   b.style.cssText="width:100%;height:38px;border:0;background:transparent;text-align:left;padding:0 12px;font:700 10px Arial;color:#222;cursor:pointer;border-radius:8px";
+   b.onclick=openAmkinaGuide;
+   let anchor=about;while(anchor.parentElement&&anchor.parentElement.children.length===1&&!anchor.parentElement.matches("aside,nav,.sidebar"))anchor=anchor.parentElement;
+   anchor.insertAdjacentElement("beforebegin",b);
+ }
+ let tries=0,t=setInterval(()=>{tries++;addSidebarGuide();if(document.getElementById("ak-sidebar-guide")||tries>30)clearInterval(t)},400);
+ window.addEventListener("load",()=>{
+   setTimeout(addSidebarGuide,500);
+   // Show once per browser after a logged-in session exists.
+   setTimeout(()=>{
+     let logged=false;try{logged=!!(typeof amkinaGetSession==="function"&&amkinaGetSession()?.user)}catch(e){}
+     if(logged&&!localStorage.getItem("amkina_welcome_seen_v1"))document.getElementById("ak-welcome")?.classList.add("open");
+   },900);
+ });
+})();
+</script>
+
+<style id="amkina-content-advisory-v1">
+.ak-advisory-box{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:7px}
+.ak-check{display:flex!important;align-items:flex-start;gap:9px;border:1px solid #e5e5e5;border-radius:12px;padding:11px!important;cursor:pointer;background:#fafafa}
+.ak-check input{width:17px;height:17px;margin:1px 0 0;accent-color:#111}
+.ak-check span{display:flex;flex-direction:column;gap:3px}.ak-check b{font-size:11px}.ak-check small{font-size:9px;color:#999;line-height:1.35}
+.ak-check.ak-adult:has(input:checked){border-color:#ffb1b1;background:#fff5f5}
+.ak-advisory-note{display:block;margin-top:8px!important;color:#999!important;font-size:9px!important;line-height:1.5}
+.ak-content-badge{position:absolute;z-index:5;left:8px;top:8px;border-radius:7px;padding:5px 7px;font:900 9px Arial,sans-serif;box-shadow:0 2px 8px #0002}
+.ak-badge-adult{background:#e93434;color:#fff}.ak-badge-warning{background:#ffd84d;color:#111}
+@media(max-width:768px){.ak-advisory-box{grid-template-columns:1fr}.ak-content-badge{font-size:8px;padding:4px 6px}}
+</style>
+
+<script id="amkina-content-advisory-play-v1">
+(function(){
+ function warningText(t){
+   if(t?.is_adult)return "이 곡은 19+ 성인 주제로 표시되었습니다.";
+   const w=Array.isArray(t?.content_warnings)?t.content_warnings:[];
+   const names={explicit:"강한 표현",violence:"폭력·공포",disturbing:"민감한 내용"};
+   return w.length?"청취주의: "+w.map(x=>names[x]||x).join(" · "):"";
+ }
+ // First play of a flagged track in this browser session gets a lightweight notice.
+ const old=window.playTrack;
+ if(typeof old==="function"&&!old.__akAdvisory){
+   const wrapped=function(index){
+     const t=(typeof tracks!=="undefined")?tracks[index]:null;
+     const msg=warningText(t);
+     if(msg && !sessionStorage.getItem("ak_warning_"+t.id)){
+       if(!confirm(msg+"\\n\\n계속 재생하시겠습니까?"))return;
+       sessionStorage.setItem("ak_warning_"+t.id,"1");
+     }
+     return old.apply(this,arguments);
+   };
+   wrapped.__akAdvisory=true;window.playTrack=wrapped;
+ }
 })();
 </script>
 
