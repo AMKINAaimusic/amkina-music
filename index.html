@@ -11935,3 +11935,28 @@ body.compact-lyrics-open{padding-bottom:236px!important}
 })();
 </script>
 
+<style id="amkina-guide-player-overlap-fix">
+/* 이용가이드가 하단 고정 플레이어에 가려지지 않도록 */
+#ak-guide-modal{
+  align-items:flex-start!important;
+  overflow-y:auto!important;
+  padding-top:24px!important;
+  padding-bottom:150px!important;
+}
+#ak-guide-modal .ak-guide-box{
+  max-height:none!important;
+  overflow:visible!important;
+  margin:auto!important;
+  margin-bottom:40px!important;
+}
+@media(max-width:768px){
+  #ak-guide-modal{
+    padding:10px 10px 145px!important;
+  }
+  #ak-guide-modal .ak-guide-box{
+    width:100%!important;
+    margin-bottom:25px!important;
+  }
+}
+</style>
+
