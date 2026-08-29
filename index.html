@@ -12162,3 +12162,51 @@ window.openCurrentPlayerComments=function(){
 .sidebar .section-title,.sidebar .menu-section-title,.sidebar .nav-section-title,aside .section-title,aside .menu-section-title,aside .nav-section-title{font-weight:700!important;opacity:.55!important}
 }
 </style>
+
+<style id="ak-lang-style">
+#ak-language-card{margin:16px 14px;padding:11px;border:1px solid #e7e7e7;border-radius:13px;background:#fff}
+#ak-language-card .label{font:900 8px Arial;letter-spacing:1.4px;color:#aaa;margin-bottom:7px}
+#ak-language-select{width:100%;height:34px;border:0;border-radius:9px;background:#f5f5f5;padding:0 8px;font:700 10px Arial;color:#111;outline:0}
+@media(max-width:768px){#ak-language-card{display:none!important}}
+</style>
+<script id="ak-lang-script">
+(function(){
+const D={
+ko:{"홈":"홈","음악":"음악","아티스트":"아티스트","커뮤니티":"커뮤니티","마이페이지":"마이페이지","알림센터":"알림센터","스튜디오":"스튜디오","라이브러리":"라이브러리","이벤트":"이벤트","공지사항":"공지사항","전체보기":"전체보기","가사":"가사","이용가이드":"이용가이드"},
+en:{"홈":"Home","음악":"Music","아티스트":"Artists","커뮤니티":"Community","마이페이지":"My Page","알림센터":"Notifications","스튜디오":"Studio","라이브러리":"Library","이벤트":"Events","공지사항":"Notices","전체보기":"View all","가사":"Lyrics","이용가이드":"Guide"},
+id:{"홈":"Beranda","음악":"Musik","아티스트":"Artis","커뮤니티":"Komunitas","마이페이지":"Halaman Saya","알림센터":"Notifikasi","스튜디오":"Studio","라이브러리":"Koleksi","이벤트":"Acara","공지사항":"Pengumuman","전체보기":"Lihat semua","가사":"Lirik","이용가이드":"Panduan"},
+ja:{"홈":"ホーム","음악":"音楽","아티스트":"アーティスト","커뮤니티":"コミュニティ","마이페이지":"マイページ","알림센터":"通知","스튜디오":"スタジオ","라이브러리":"ライブラリ","이벤트":"イベント","공지사항":"お知らせ","전체보기":"すべて見る","가사":"歌詞","이용가이드":"利用ガイド"}};
+const R={};Object.values(D).forEach(x=>Object.entries(x).forEach(([k,v])=>R[v]=k));
+function apply(lang){
+ localStorage.setItem("amkina_language",lang);document.documentElement.lang=lang;
+ document.querySelectorAll("a,button,label,h1,h2,h3,h4,span").forEach(el=>{
+   if(el.closest("#ak-language-card")||el.children.length)return;
+   const raw=(el.textContent||"").trim(),base=R[raw]||raw,next=D[lang]?.[base];
+   if(next)el.textContent=(el.textContent||"").replace(raw,next);
+ });
+ document.querySelectorAll("input[placeholder]").forEach(el=>{
+   const P={ko:"곡명 또는 아티스트 검색",en:"Search tracks or artists",id:"Cari lagu atau artis",ja:"曲名またはアーティストを検索"};
+   if(["곡명 또는 아티스트 검색","Search tracks or artists","Cari lagu atau artis","曲名またはアーティストを検索"].includes(el.placeholder))el.placeholder=P[lang];
+ });
+ const q=document.getElementById("ak-language-select");if(q)q.value=lang;
+}
+window.akApplyLanguage=apply;
+function mount(){
+ if(document.getElementById("ak-language-card"))return true;
+ // Remove the old promoted card explicitly.
+ const promo=document.getElementById("ak-promo");if(promo)promo.remove();
+ document.querySelectorAll("[id*='promo'],[class*='promo']").forEach(el=>{if(/PROMOTED/i.test(el.textContent||""))el.remove()});
+ const logout=[...document.querySelectorAll("button,a")].find(x=>/^(LOGOUT|로그아웃|KELUAR|ログアウト)$/i.test((x.textContent||"").trim())&&x.offsetParent!==null);
+ if(!logout)return false;
+ const card=document.createElement("div");card.id="ak-language-card";
+ card.innerHTML='<div class="label">LANGUAGE</div><select id="ak-language-select"><option value="ko">한국어</option><option value="en">English</option><option value="id">Bahasa Indonesia</option><option value="ja">日本語</option></select>';
+ let anchor=logout;if(logout.parentElement&&logout.parentElement.children.length<=2)anchor=logout.parentElement;
+ anchor.insertAdjacentElement("afterend",card);
+ card.querySelector("select").onchange=e=>apply(e.target.value);
+ apply(localStorage.getItem("amkina_language")||"ko");return true;
+}
+let n=0,t=setInterval(()=>{if(mount()||++n>30)clearInterval(t)},300);
+window.addEventListener("load",()=>setTimeout(mount,300));
+})();
+</script>
+
