@@ -2509,6 +2509,71 @@ body.track-full-open{overflow:hidden}
 </style>
 
 
+
+<style id="amkina-sidebar-blackgray-v1">
+/* AMKINA sidebar — clean black & gray selection states */
+@media (min-width:769px){
+  /* Overall sidebar typography */
+  aside, .sidebar, #sidebar, .side-menu, .left-sidebar {
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  /* Section labels */
+  aside .section-title, .sidebar .section-title, #sidebar .section-title,
+  aside .menu-section-title, .sidebar .menu-section-title,
+  aside .nav-section-title, .sidebar .nav-section-title {
+    color:#9ca3af !important;
+    font-weight:700 !important;
+    letter-spacing:.12em !important;
+  }
+
+  /* Most sidebar navigation rows */
+  aside a, aside button,
+  .sidebar a, .sidebar button,
+  #sidebar a, #sidebar button,
+  .side-menu a, .side-menu button,
+  .left-sidebar a, .left-sidebar button {
+    transition:background-color .16s ease,color .16s ease,border-color .16s ease !important;
+  }
+
+  /* Remove the old green active treatment */
+  aside a.active, aside button.active,
+  .sidebar a.active, .sidebar button.active,
+  #sidebar a.active, #sidebar button.active,
+  .side-menu a.active, .side-menu button.active,
+  .left-sidebar a.active, .left-sidebar button.active,
+  aside [aria-current="page"],
+  .sidebar [aria-current="page"],
+  #sidebar [aria-current="page"] {
+    background:#111111 !important;
+    color:#ffffff !important;
+    border-color:#111111 !important;
+    box-shadow:none !important;
+  }
+
+  /* Icons/text inside active row */
+  aside a.active *, aside button.active *,
+  .sidebar a.active *, .sidebar button.active *,
+  #sidebar a.active *, #sidebar button.active *,
+  aside [aria-current="page"] *,
+  .sidebar [aria-current="page"] *,
+  #sidebar [aria-current="page"] * {
+    color:#ffffff !important;
+    fill:currentColor !important;
+  }
+
+  /* Hover / secondary gray state */
+  aside a:not(.active):hover, aside button:not(.active):hover,
+  .sidebar a:not(.active):hover, .sidebar button:not(.active):hover,
+  #sidebar a:not(.active):hover, #sidebar button:not(.active):hover,
+  .side-menu a:not(.active):hover, .side-menu button:not(.active):hover,
+  .left-sidebar a:not(.active):hover, .left-sidebar button:not(.active):hover {
+    background:#f5f5f5 !important;
+    color:#111827 !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -12269,128 +12334,49 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 })();
 </script>
 
-<style id="amkina-main-sign-style">
-#amkina-main-sign{
-  position:relative;
-  overflow:hidden;
-  margin:0 0 28px;
-  min-height:250px;
-  border-bottom:1px solid #ececec;
-  background:
-    radial-gradient(circle at 50% 46%, rgba(0,0,0,.025), transparent 34%),
-    #fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  box-sizing:border-box;
+<style id="amkina-menu-active-exact-fix">
+/* 실제 AMKINA 사이드바 활성 클래스 기준 */
+body > header nav a.menu-active,
+body > header nav a.menu-active:link,
+body > header nav a.menu-active:visited {
+    background: #111111 !important;
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    border-color: #111111 !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
-#amkina-main-sign::before,
-#amkina-main-sign::after{
-  content:"";
-  position:absolute;
-  top:50%;
-  width:24%;
-  height:82px;
-  opacity:.15;
-  background:
-    repeating-linear-gradient(90deg,
-      transparent 0 8px,
-      #111 8px 10px,
-      transparent 10px 15px);
-  -webkit-mask-image:linear-gradient(to bottom,transparent 4%,#000 48%,transparent 96%);
-  mask-image:linear-gradient(to bottom,transparent 4%,#000 48%,transparent 96%);
+
+/* 활성 메뉴 내부 아이콘/텍스트도 흰색 */
+body > header nav a.menu-active *,
+body > header nav a.menu-active svg,
+body > header nav a.menu-active svg * {
+    color: #ffffff !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
 }
-#amkina-main-sign::before{left:2%;transform:translateY(-50%) scaleY(.72)}
-#amkina-main-sign::after{right:2%;transform:translateY(-50%) scaleY(.72)}
-.ak-sign-inner{position:relative;z-index:2;padding:34px 20px;max-width:900px}
-.ak-sign-brand{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  font-size:clamp(64px,7vw,118px);
-  line-height:.84;
-  font-weight:950;
-  letter-spacing:.07em;
-  color:#050505;
+
+/* 기존 연두색/검정 왼쪽 세로선 제거 */
+body > header nav a.menu-active::before {
+    display: none !important;
+    content: none !important;
 }
-.ak-sign-sub{
-  margin-top:19px;
-  font:800 clamp(17px,2vw,31px)/1 Arial,Helvetica,sans-serif;
-  letter-spacing:.36em;
-  color:#111;
-  padding-left:.36em;
+
+/* 선택 메뉴에 마우스를 올려도 검정 유지 */
+body > header nav a.menu-active:hover,
+body > header nav a.menu-active:focus {
+    background: #111111 !important;
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    transform: none !important;
 }
-.ak-sign-kor{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:18px;
-  margin:24px auto 0;
-  font-size:14px;
-  font-weight:650;
-  letter-spacing:.42em;
-  color:#333;
-}
-.ak-sign-kor::before,.ak-sign-kor::after{
-  content:"";width:62px;height:1px;background:#aaa;
-}
-.ak-sign-meta{
-  margin-top:22px;
-  font:750 11px/1.3 Arial,Helvetica,sans-serif;
-  letter-spacing:.38em;
-  color:#333;
-}
-.ak-sign-wave{
-  position:absolute;left:0;right:0;bottom:0;height:52px;opacity:.08;
-  background:
-    radial-gradient(80px 18px at 5% 100%,transparent 58%,#111 60%,transparent 62%),
-    radial-gradient(110px 23px at 20% 100%,transparent 58%,#111 60%,transparent 62%),
-    radial-gradient(140px 29px at 38% 100%,transparent 58%,#111 60%,transparent 62%),
-    radial-gradient(160px 32px at 57% 100%,transparent 58%,#111 60%,transparent 62%),
-    radial-gradient(120px 25px at 76% 100%,transparent 58%,#111 60%,transparent 62%),
-    radial-gradient(90px 19px at 94% 100%,transparent 58%,#111 60%,transparent 62%);
-}
-@media(max-width:768px){
-  #amkina-main-sign{min-height:150px;margin-bottom:16px}
-  #amkina-main-sign::before,#amkina-main-sign::after{width:18%;height:54px;opacity:.10}
-  .ak-sign-inner{padding:25px 12px}
-  .ak-sign-brand{font-size:43px;letter-spacing:.06em}
-  .ak-sign-sub{margin-top:12px;font-size:12px;letter-spacing:.27em;padding-left:.27em}
-  .ak-sign-kor{margin-top:15px;gap:10px;font-size:9px;letter-spacing:.22em}
-  .ak-sign-kor::before,.ak-sign-kor::after{width:25px}
-  .ak-sign-meta{margin-top:13px;font-size:7px;letter-spacing:.25em}
-  .ak-sign-wave{height:28px}
+
+/* 선택되지 않은 메뉴는 깔끔한 회색 hover */
+body > header nav a:not(.menu-active):hover {
+    background: #f3f3f3 !important;
+    color: #111111 !important;
+    transform: none !important;
 }
 </style>
-
-<script id="amkina-main-sign-script">
-(function(){
- function build(){
-   if(document.getElementById("amkina-main-sign")) return;
-   const headings=[...document.querySelectorAll("h1,h2,h3,div")];
-   const discover=headings.find(el => (el.textContent||"").trim()==="DISCOVER AMKINA");
-   if(!discover) return;
-   let anchor=discover;
-   while(anchor.parentElement && anchor.parentElement!==document.body){
-     const p=anchor.parentElement;
-     if(p.children.length>1 && p.getBoundingClientRect().width>500){anchor=p;break;}
-     anchor=p;
-   }
-   const sign=document.createElement("section");
-   sign.id="amkina-main-sign";
-   sign.setAttribute("aria-label","AMKINA MUSIC");
-   sign.innerHTML=`
-     <div class="ak-sign-inner">
-       <div class="ak-sign-brand">AMKINA</div>
-       <div class="ak-sign-sub">AI MUSIC CHART</div>
-       <div class="ak-sign-kor">음악으로 소통하는 공간</div>
-       <div class="ak-sign-meta">ORIGINAL MUSIC · CHART · DISCOVER · CONNECT</div>
-     </div>
-     <div class="ak-sign-wave"></div>`;
-   anchor.parentNode.insertBefore(sign,anchor);
- }
- if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",()=>setTimeout(build,250));
- else setTimeout(build,250);
-})();
-</script>
 
