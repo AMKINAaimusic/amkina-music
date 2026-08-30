@@ -13333,3 +13333,84 @@ body.akh-active #track-full-page{display:none!important}
 })();
 </script>
 
+<style id="amkina-home-highlights-v3-style">
+#amkina-home-highlights{margin:30px 0 32px;width:100%;box-sizing:border-box}
+.amh3-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.amh3-left{display:flex;align-items:baseline;gap:10px}
+.amh3-title{font-size:19px;font-weight:900;letter-spacing:-.45px;color:#111}
+.amh3-sub{font-size:10px;color:#999;font-weight:500}
+.amh3-more{border:0;background:transparent;color:#333;font-size:10px;font-weight:700;cursor:pointer;padding:5px 0}
+.amh3-list{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.amh3-item{min-width:0;cursor:pointer}
+.amh3-cover{position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:#f0f0f0;border:1px solid #ededed}
+.amh3-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s ease,filter .2s ease}
+.amh3-play{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);width:42px;height:42px;border:0;border-radius:50%;background:#fff;color:#111;font-size:14px;box-shadow:0 4px 16px #0003;opacity:0;transition:.18s;cursor:pointer}
+.amh3-item:hover .amh3-cover img{transform:scale(1.025);filter:brightness(.84)}
+.amh3-item:hover .amh3-play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.amh3-name{font-size:12px;font-weight:800;color:#111;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amh3-artist{font-size:9px;color:#858585;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:1100px){.amh3-list{grid-template-columns:repeat(5,minmax(0,1fr))}.amh3-item:nth-child(n+6){display:none}}
+@media(max-width:768px){
+ #amkina-home-highlights{margin:24px 0 27px}
+ .amh3-left{display:block}.amh3-title{font-size:18px}.amh3-sub{margin-top:3px}
+ .amh3-list{display:flex;gap:11px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding-bottom:2px}
+ .amh3-list::-webkit-scrollbar{display:none}
+ .amh3-item{display:block!important;flex:0 0 38%;scroll-snap-align:start}
+ .amh3-play{opacity:1;width:38px;height:38px}
+}
+</style>
+
+<script id="amkina-home-highlights-v3-script">
+(function(){
+ const ID="amkina-home-highlights";
+ function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+ function headers(){try{const ss=JSON.parse(localStorage.getItem("amkina_session")||"null");return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+(ss?.access_token||SUPABASE_ANON_KEY)}}catch(e){return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY}}}
+
+ function exactHeading(text){
+   return [...document.querySelectorAll("h1,h2,h3,h4,h5,strong,div")].find(el=>!el.closest("#"+ID)&&(el.textContent||"").trim()===text)||null;
+ }
+ function sectionOf(h){
+   let n=h;
+   for(let i=0;i<6&&n?.parentElement;i++){
+     const p=n.parentElement,txt=(p.textContent||"");
+     if(txt.includes((h.textContent||"").trim())&&(p.querySelector("table")||p.querySelectorAll("tr").length>=2||p.children.length>=2)){n=p;break}
+     n=p;
+   }
+   return n;
+ }
+ function mount(){
+   let box=document.getElementById(ID);
+   const latest=exactHeading("Latest Releases");
+   if(!latest)return box;
+   const latestSection=sectionOf(latest);
+
+   if(!box){
+     box=document.createElement("section");box.id=ID;
+     box.innerHTML='<div class="amh3-head"><div class="amh3-left"><div class="amh3-title">HIGHLIGHTS</div><div class="amh3-sub">짧게 만나는 새로운 음악</div></div><button class="amh3-more">전체보기 →</button></div><div class="amh3-list"><div style="font-size:10px;color:#999">불러오는 중...</div></div>';
+     box.querySelector(".amh3-more").onclick=()=>document.getElementById("highlights-nav")?.click();
+   }
+   /* 핵심: Latest Releases 바로 앞. 따라서 최신 커뮤니티 글 아래에 위치 */
+   if(box.nextElementSibling!==latestSection) latestSection.parentNode.insertBefore(box,latestSection);
+   return box;
+ }
+ async function fill(){
+   const box=mount();if(!box||box.dataset.loaded==="1")return;
+   box.dataset.loaded="1";
+   try{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,cover_url,highlight_enabled&highlight_enabled=eq.true&order=id.desc&limit=18",{headers:headers()});
+     if(!r.ok)throw new Error(await r.text());
+     let rows=await r.json();rows=[...rows].sort(()=>Math.random()-.5).slice(0,6);
+     const list=box.querySelector(".amh3-list");
+     if(!rows.length){list.innerHTML='<div style="font-size:10px;color:#999">등록된 HIGHLIGHTS가 없습니다.</div>';return}
+     list.innerHTML=rows.map(t=>`<article class="amh3-item"><div class="amh3-cover"><img src="${esc(t.cover_url||"")}" alt=""><button class="amh3-play">▶</button></div><div class="amh3-name">${esc(t.title||"Untitled")}</div><div class="amh3-artist">${esc(t.artist||"AMKINA")}</div></article>`).join("");
+     list.querySelectorAll(".amh3-item").forEach(x=>x.onclick=()=>document.getElementById("highlights-nav")?.click());
+   }catch(e){console.error("HOME HIGHLIGHTS",e);box.dataset.loaded="";box.querySelector(".amh3-list").innerHTML='<div style="font-size:10px;color:#999">HIGHLIGHTS를 불러오지 못했습니다.</div>'}
+ }
+ function boot(){mount();fill()}
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+ window.addEventListener("load",boot);
+ setTimeout(boot,500);setTimeout(boot,1500);
+ new MutationObserver(()=>{if(!document.getElementById(ID))boot();else mount()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
