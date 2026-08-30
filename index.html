@@ -13160,3 +13160,50 @@ document.addEventListener("DOMContentLoaded",()=>{setTimeout(mount,600);setTimeo
 })();
 </script>
 
+
+
+<style id="amkina-modern-sidebar-icons">
+body > header nav .nav-icon{
+ width:17px!important;min-width:17px!important;height:17px!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ margin-right:10px!important;font-size:0!important;line-height:0!important;color:currentColor!important
+}
+body > header nav .nav-icon svg{
+ width:15px!important;height:15px!important;display:block!important;
+ fill:none!important;stroke:currentColor!important;stroke-width:1.6!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;opacity:.9
+}
+body > header nav a:hover .nav-icon svg,
+body > header nav a.menu-active .nav-icon svg{opacity:1}
+</style>
+<script id="amkina-modern-sidebar-icons-script">
+(function(){
+const I={
+"홈":'<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>',
+"음악":'<svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
+"CHART 100":'<svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V5M16 20v-8M22 20V8"/></svg>',
+"아티스트":'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-5 3.3-7 8-7s7.3 2 8 7"/></svg>',
+"커뮤니티":'<svg viewBox="0 0 24 24"><path d="M21 14a6 6 0 0 1-6 6H9l-5 2v-6a8 8 0 1 1 17-2Z"/></svg>',
+"마이페이지":'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.5-4.5 2.8-6.5 7-6.5s6.5 2 7 6.5"/></svg>',
+"FAQ":'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.5 2.1c-.9.5-1.3 1-1.3 2M12 17h.01"/></svg>',
+"스튜디오":'<svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg>',
+"라이브러리":'<svg viewBox="0 0 24 24"><path d="M5 4v16M10 4v16m5-15 4-1 2 15-4 1Z"/></svg>',
+"AMKINA 앨범":'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>',
+"RADIO":'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="m6 7 10-4"/><circle cx="15.5" cy="13.5" r="3"/><path d="M6 12h4M6 16h4"/></svg>',
+"이벤트":'<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg>',
+"ABOUT":'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 7h.01"/></svg>'
+};
+function apply(){
+ document.querySelectorAll("body > header nav a").forEach(a=>{
+  const label=(a.querySelector(".nav-text")?.textContent||a.textContent||"").replace(/\s+/g," ").trim();
+  if(!I[label])return;
+  let n=a.querySelector(".nav-icon");
+  if(!n){n=document.createElement("span");n.className="nav-icon";a.prepend(n)}
+  if(n.dataset.modern!==label){n.innerHTML=I[label];n.dataset.modern=label}
+ });
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",apply);else apply();
+new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>
+
