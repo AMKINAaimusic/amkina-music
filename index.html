@@ -13478,3 +13478,199 @@ new MutationObserver(apply).observe(document.documentElement,{subtree:true,child
 })();
 </script>
 
+<style id="amkina-highlights-isolated-page-v4-style">
+/* HIGHLIGHTS = 독립 페이지. 공통 하단 플레이어와 시각적으로 완전 분리 */
+body.amkina-highlights-open main,
+body.amkina-highlights-open #home,
+body.amkina-highlights-open #music,
+body.amkina-highlights-open #studio,
+body.amkina-highlights-open #community,
+body.amkina-highlights-open #artists-page,
+body.amkina-highlights-open #chart100-page,
+body.amkina-highlights-open #mypage,
+body.amkina-highlights-open #library-page,
+body.amkina-highlights-open #amkina-faq-page,
+body.amkina-highlights-open #track-full-page{
+  display:none!important;
+}
+body.amkina-highlights-open #highlights-page{
+  display:block!important;
+  position:fixed!important;
+  left:var(--akh-sidebar,0px)!important;
+  right:0!important;
+  top:0!important;
+  bottom:var(--akh-player,96px)!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#070707!important;
+  z-index:8000!important;
+}
+body.amkina-highlights-open #highlights-page .akh-shell{
+  height:100%!important;width:min(520px,100%)!important;margin:0 auto!important;padding:0!important;
+}
+body.amkina-highlights-open #highlights-page .akh-top{height:60px!important;position:relative!important;top:auto!important}
+body.amkina-highlights-open #highlights-page .akh-feed{
+  height:calc(100% - 60px)!important;min-height:0!important;overflow-y:auto!important;
+  scroll-snap-type:y mandatory!important;border-radius:16px 16px 0 0!important;
+}
+body.amkina-highlights-open #highlights-page .akh-card{
+  height:100%!important;min-height:100%!important;scroll-snap-align:start!important;
+}
+body.amkina-highlights-open #highlights-page .akh-cover-wrap{padding:46px 56px 158px!important}
+body.amkina-highlights-open #highlights-page .akh-info{bottom:22px!important}
+body.amkina-highlights-open #highlights-page .akh-actions{bottom:28px!important}
+
+/* 공통 하단 플레이어는 HIGHLIGHTS보다 항상 위에, 별도 영역으로 유지 */
+body.amkina-highlights-open #player{
+  z-index:9000!important;
+}
+@media(max-width:768px){
+ body.amkina-highlights-open #highlights-page{left:0!important;bottom:var(--akh-player,78px)!important}
+ body.amkina-highlights-open #highlights-page .akh-shell{width:100%!important}
+ body.amkina-highlights-open #highlights-page .akh-top{height:54px!important}
+ body.amkina-highlights-open #highlights-page .akh-feed{height:calc(100% - 54px)!important}
+ body.amkina-highlights-open #highlights-page .akh-cover-wrap{padding:42px 46px 150px!important}
+}
+</style>
+
+<script id="amkina-highlights-isolated-page-v4-script">
+(function(){
+  let akhClip=false, akhCard=null, akhStart=0, akhEnd=25, akhTrackId=null;
+  let akhIO=null;
+
+  function getRows(){
+    try{return (typeof hRows!=="undefined" && Array.isArray(hRows))?hRows:[]}catch(e){return[]}
+  }
+  function getTrack(id){
+    try{
+      if(typeof tracks!=="undefined"&&Array.isArray(tracks))
+        return tracks.find(t=>String(t.id)===String(id))||null;
+    }catch(e){}
+    return null;
+  }
+  function indexOfTrack(id){
+    try{return (typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(t=>String(t.id)===String(id)):-1}catch(e){return -1}
+  }
+  function stopLegacy(){
+    try{if(typeof hAudio!=="undefined"){hAudio.pause();hAudio.removeAttribute("src");hAudio.load()}}catch(e){}
+  }
+  function syncLayout(){
+    const page=document.getElementById("highlights-page");
+    if(!page)return;
+    const side=document.querySelector("body > header");
+    const player=document.getElementById("player");
+    const sw=(innerWidth>768 && side)?side.getBoundingClientRect().width:0;
+    const ph=player&&getComputedStyle(player).display!=="none"?player.getBoundingClientRect().height:(innerWidth<=768?78:96);
+    document.documentElement.style.setProperty("--akh-sidebar",Math.round(sw)+"px");
+    document.documentElement.style.setProperty("--akh-player",Math.max(70,Math.round(ph))+"px");
+  }
+  function setPlayerMeta(t){
+    if(!t)return;
+    const i=indexOfTrack(t.id);
+    if(i>=0)currentIndex=i;
+    const c=document.getElementById("now-cover"); if(c&&t.cover_url)c.src=t.cover_url;
+    const ti=document.getElementById("now-title"); if(ti)ti.textContent=t.title||"Untitled";
+    const ar=document.getElementById("now-artist"); if(ar)ar.textContent=t.artist||"AMKINA";
+    if(typeof refreshLyricsButton==="function")refreshLyricsButton();
+  }
+  function playClip(card,row){
+    if(!card||!row||typeof audio==="undefined")return;
+    stopLegacy();
+    akhClip=true;akhCard=card;akhTrackId=row.id;
+    akhStart=Math.max(0,Number(card.dataset.start||row.highlight_start||0));
+    akhEnd=Math.max(akhStart+5,Number(card.dataset.end||row.highlight_end||25));
+    const full=getTrack(row.id)||row;
+    setPlayerMeta(full);
+
+    const target=new URL(row.audio_url,location.href).href;
+    const same=audio.src===target;
+    if(!same)audio.src=row.audio_url;
+    const begin=()=>{
+      try{if(!same||audio.currentTime<akhStart||audio.currentTime>=akhEnd)audio.currentTime=akhStart}catch(e){}
+      audio.play().catch(()=>{});
+    };
+    if(audio.readyState>=1)begin();else audio.addEventListener("loadedmetadata",begin,{once:true});
+  }
+  function bindCards(){
+    document.querySelectorAll("#highlights-page .akh-card").forEach(card=>{
+      if(!card.dataset.akhV4Bound){
+        card.dataset.akhV4Bound="1";
+        const cover=card.querySelector(".akh-cover");
+        if(cover)cover.addEventListener("click",e=>{
+          e.preventDefault();e.stopPropagation();
+          const row=getRows()[Number(card.dataset.i)];
+          if(!row)return;
+          if(akhCard!==card||String(akhTrackId)!==String(row.id)){playClip(card,row);return}
+          if(audio.paused)audio.play().catch(()=>{});else audio.pause();
+        });
+      }
+    });
+    if(akhIO)akhIO.disconnect();
+    const feed=document.getElementById("akh-feed");
+    if(!feed)return;
+    akhIO=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting&&e.intersectionRatio>=.72){
+          const card=e.target,row=getRows()[Number(card.dataset.i)];
+          if(row && (akhCard!==card || String(akhTrackId)!==String(row.id)))playClip(card,row);
+        }
+      });
+    },{root:feed,threshold:[.72]});
+    document.querySelectorAll("#highlights-page .akh-card").forEach(c=>akhIO.observe(c));
+  }
+
+  /* 독립 페이지 열기 */
+  window.showHighlightsPage=async function(e){
+    e?.preventDefault?.();
+    document.body.classList.add("amkina-highlights-open");
+    document.getElementById("highlights-page")?.style.setProperty("display","block","important");
+    document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));
+    document.getElementById("highlights-nav")?.classList.add("menu-active");
+    document.querySelector("body > header nav")?.classList.remove("mobile-open");
+    syncLayout();window.scrollTo(0,0);
+    if(typeof load==="function")await load();
+    setTimeout(bindCards,80);
+    return false;
+  };
+
+  /* HIGHLIGHTS 이외 메뉴: 클립만 정지. 전체곡 재생은 계속 유지 */
+  document.addEventListener("click",e=>{
+    const nav=e.target.closest("body > header nav a");
+    if(!nav||nav.id==="highlights-nav")return;
+    document.body.classList.remove("amkina-highlights-open");
+    if(akhClip && typeof audio!=="undefined"){
+      audio.pause();
+      akhClip=false;akhCard=null;akhTrackId=null;
+    }
+  },true);
+
+  /* 전체 곡 듣기 = 클립 모드 종료 후 공통 플레이어의 정상 playTrack 사용 */
+  window.akhFull=function(id){
+    stopLegacy();
+    akhClip=false;akhCard=null;akhTrackId=null;
+    const i=indexOfTrack(id);
+    if(i>=0&&typeof playTrack==="function"){playTrack(i);return}
+    const t=getTrack(id);
+    if(t&&typeof audio!=="undefined"){setPlayerMeta(t);audio.src=t.audio_url;audio.play().catch(()=>{})}
+  };
+
+  /* 공통 플레이어와 재생/일시정지 상태 동기화 */
+  if(typeof audio!=="undefined"){
+    audio.addEventListener("timeupdate",()=>{
+      if(!akhClip||!akhCard)return;
+      const pct=Math.max(0,Math.min(1,(audio.currentTime-akhStart)/Math.max(1,akhEnd-akhStart)));
+      akhCard.querySelector(".akh-progress i")?.style.setProperty("width",(pct*100)+"%");
+      if(audio.currentTime>=akhEnd){audio.currentTime=akhStart;audio.play().catch(()=>{})}
+    });
+  }
+
+  const mo=new MutationObserver(()=>{if(document.body.classList.contains("amkina-highlights-open")){syncLayout();bindCards()}});
+  document.addEventListener("DOMContentLoaded",()=>{mo.observe(document.body,{subtree:true,childList:true});syncLayout()});
+  window.addEventListener("resize",syncLayout);
+})();
+</script>
+
