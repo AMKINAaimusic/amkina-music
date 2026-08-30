@@ -13990,3 +13990,101 @@ body.amkina-highlights-open #player{
 #highlights-page .akh-like:disabled{opacity:.55;pointer-events:none}
 </style>
 
+<style id="amkina-highlights-page-visibility-v7-style">
+/* 기본 상태에서는 HIGHLIGHTS를 무조건 숨김 */
+#highlights-page{
+  display:none!important;
+}
+/* 오직 HIGHLIGHTS가 현재 페이지일 때만 표시 */
+body.amkina-highlights-open #highlights-page{
+  display:block!important;
+}
+/* HIGHLIGHTS 모드에서는 일반 페이지 콘텐츠를 확실히 숨김 */
+body.amkina-highlights-open main,
+body.amkina-highlights-open #home,
+body.amkina-highlights-open #music,
+body.amkina-highlights-open #studio,
+body.amkina-highlights-open #community,
+body.amkina-highlights-open #artists-page,
+body.amkina-highlights-open #chart100-page,
+body.amkina-highlights-open #mypage,
+body.amkina-highlights-open #library-page,
+body.amkina-highlights-open #amkina-faq-page,
+body.amkina-highlights-open #track-full-page{
+  display:none!important;
+}
+</style>
+
+<script id="amkina-highlights-page-visibility-v7-script">
+(function(){
+  function isHighlightsNav(a){
+    return !!a && (a.id==="highlights-nav" || (a.getAttribute("href")||"")==="#highlights");
+  }
+  function closeHighlights(stopClip){
+    document.body.classList.remove("amkina-highlights-open");
+    const hp=document.getElementById("highlights-page");
+    if(hp) hp.style.setProperty("display","none","important");
+    document.getElementById("highlights-nav")?.classList.remove("menu-active");
+    if(stopClip){
+      try{
+        if(typeof audio!=="undefined" && !audio.paused) audio.pause();
+      }catch(e){}
+    }
+  }
+
+  /* 기존 사이트 메뉴가 어떤 show 함수로 이동하든, HIGHLIGHTS를 먼저 닫는다. */
+  document.addEventListener("click",function(e){
+    const nav=e.target.closest("body > header nav a");
+    if(!nav || isHighlightsNav(nav)) return;
+    closeHighlights(true);
+  },true);
+
+  /* 사이드바 외의 홈/로고/페이지 이동 링크도 대응 */
+  document.addEventListener("click",function(e){
+    const a=e.target.closest("a");
+    if(!a || isHighlightsNav(a)) return;
+    const href=a.getAttribute("href")||"";
+    if(document.body.classList.contains("amkina-highlights-open") &&
+       (href==="#" || href.startsWith("#") || href.includes("index.html"))){
+      closeHighlights(true);
+    }
+  },true);
+
+  /* hash/history 이동까지 동기화 */
+  window.addEventListener("hashchange",function(){
+    if(location.hash!=="#highlights") closeHighlights(true);
+  });
+  window.addEventListener("popstate",function(){
+    if(location.hash!=="#highlights") closeHighlights(true);
+  });
+
+  /* HIGHLIGHTS 열기 함수를 마지막으로 다시 감싸 현재 상태를 명확히 기록 */
+  const previousOpen=window.showHighlightsPage;
+  window.showHighlightsPage=async function(e){
+    e?.preventDefault?.();
+    document.body.classList.add("amkina-highlights-open");
+    const hp=document.getElementById("highlights-page");
+    if(hp) hp.style.setProperty("display","block","important");
+    try{
+      if(history.replaceState) history.replaceState(null,"","#highlights");
+    }catch(_){}
+    if(typeof previousOpen==="function") return await previousOpen(e);
+    return false;
+  };
+
+  /* 다른 페이지가 화면에 표시되면 HIGHLIGHTS를 자동 폐쇄하는 안전장치 */
+  const normalIds=["home","music","studio","community","artists-page","chart100-page","mypage","library-page","amkina-faq-page","track-full-page"];
+  const mo=new MutationObserver(function(){
+    if(!document.body.classList.contains("amkina-highlights-open")) return;
+    /* 메뉴 active가 HIGHLIGHTS가 아니면 즉시 닫기 */
+    const active=document.querySelector("body > header nav a.menu-active");
+    if(active && !isHighlightsNav(active)) closeHighlights(true);
+  });
+  document.addEventListener("DOMContentLoaded",function(){
+    mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:["class","style"]});
+    /* 첫 로드가 #highlights가 아니면 잔존 표시 제거 */
+    if(location.hash!=="#highlights") closeHighlights(false);
+  });
+})();
+</script>
+
