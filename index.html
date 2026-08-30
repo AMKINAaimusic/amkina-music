@@ -11276,6 +11276,90 @@ setTimeout(openDeepLinkedTrack,250);
   #amkina-home-community-latest{padding-left:0 !important;padding-right:0 !important;}
 }
 </style>
+
+
+<!-- ===== AMKINA VISITOR COUNTER v1 ===== -->
+<style id="amkina-visitors-v1-style">
+#amkina-visitors-card{display:block!important;margin:12px 0 0;padding:14px 13px 13px;border:1px solid #e6e6e6;border-radius:14px;background:#fff;color:#111;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+#amkina-visitors-card .akv-label{display:flex;align-items:center;gap:7px;margin-bottom:11px;color:#777;font-size:9px;font-weight:850;letter-spacing:1.35px}
+#amkina-visitors-card .akv-dot{width:7px;height:7px;border:1px solid #aaa;border-radius:50%;display:inline-block;box-sizing:border-box}
+#amkina-visitors-card .akv-total{font-size:23px;line-height:1;font-weight:900;letter-spacing:-.8px;color:#111;font-variant-numeric:tabular-nums}
+#amkina-visitors-card .akv-caption{margin-top:5px;color:#999;font-size:8px;font-weight:800;letter-spacing:.85px}
+#amkina-visitors-card .akv-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid #ededed}
+#amkina-visitors-card .akv-today-label{color:#999;font-size:8px;font-weight:850;letter-spacing:.9px}
+#amkina-visitors-card .akv-today{color:#111;font-size:11px;font-weight:900;font-variant-numeric:tabular-nums}
+#amkina-visitors-card .akv-status{margin-top:8px;color:#aaa;font-size:8px;line-height:1.35;display:none}
+@media(max-width:768px){#amkina-visitors-card{display:none!important}}
+</style>
+<script id="amkina-visitors-v1-script">
+(function(){
+  const COUNT_INTERVAL = 6 * 60 * 60 * 1000; // same browser: max once every 6 hours
+  const LAST_KEY = "amkina_last_visit_counted_at_v1";
+  const VISITOR_KEY = "amkina_visitor_id_v1";
+
+  function uid(){
+    let id=localStorage.getItem(VISITOR_KEY);
+    if(!id){
+      id=(crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now().toString(36)+Math.random().toString(36).slice(2));
+      localStorage.setItem(VISITOR_KEY,id);
+    }
+    return id;
+  }
+  function headers(json){
+    const h={"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY};
+    if(json) h["Content-Type"]="application/json";
+    return h;
+  }
+  function fmt(n){return Number(n||0).toLocaleString("ko-KR")}
+  function mount(){
+    if(document.getElementById("amkina-visitors-card")) return true;
+    const lang=document.getElementById("amkina-language-menu");
+    if(!lang) return false;
+    const card=document.createElement("section");
+    card.id="amkina-visitors-card";
+    card.innerHTML=`<div class="akv-label"><span class="akv-dot"></span> VISITORS</div>
+      <div id="akv-total" class="akv-total">—</div>
+      <div class="akv-caption">TOTAL VISITS</div>
+      <div class="akv-bottom"><span class="akv-today-label">TODAY</span><span id="akv-today" class="akv-today">—</span></div>
+      <div id="akv-status" class="akv-status"></div>`;
+    lang.insertAdjacentElement("afterend",card);
+    return true;
+  }
+  async function recordVisit(){
+    const last=Number(localStorage.getItem(LAST_KEY)||0);
+    if(Date.now()-last < COUNT_INTERVAL) return;
+    const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/amkina_record_visit",{
+      method:"POST",headers:headers(true),body:JSON.stringify({p_visitor_id:uid()})
+    });
+    if(!r.ok) throw new Error("record "+r.status+" "+await r.text());
+    localStorage.setItem(LAST_KEY,String(Date.now()));
+  }
+  async function loadStats(){
+    const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/amkina_visit_stats",{
+      method:"POST",headers:headers(true),body:"{}"
+    });
+    if(!r.ok) throw new Error("stats "+r.status+" "+await r.text());
+    const data=await r.json();
+    const row=Array.isArray(data)?data[0]:data;
+    document.getElementById("akv-total").textContent=fmt(row?.total_visits);
+    document.getElementById("akv-today").textContent="+"+fmt(row?.today_visits);
+  }
+  async function start(){
+    if(!mount()){setTimeout(start,500);return}
+    try{await recordVisit();await loadStats()}
+    catch(e){
+      console.warn("AMKINA visitor counter:",e);
+      const s=document.getElementById("akv-status");
+      if(s){s.textContent="VISITOR DB SETUP REQUIRED";s.style.display="block"}
+    }
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",()=>setTimeout(start,700));
+  else setTimeout(start,700);
+  window.addEventListener("focus",()=>{if(document.getElementById("amkina-visitors-card"))loadStats().catch(()=>{})});
+})();
+</script>
+<!-- ===== /AMKINA VISITOR COUNTER v1 ===== -->
+
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
