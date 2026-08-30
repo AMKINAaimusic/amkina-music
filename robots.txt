@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://amkinaaimusic.github.io/amkina-music/sitemap.xml
