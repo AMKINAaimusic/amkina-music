@@ -13319,3 +13319,162 @@ new MutationObserver(apply).observe(document.documentElement,{subtree:true,child
  setTimeout(()=>{addMenu();addStudio()},900);
 })();
 </script>
+
+<style id="amkina-highlights-player-integration-v2-style">
+/* 하단 기존 플레이어 높이를 정확히 비워서 HIGHLIGHTS 하단이 잘리지 않게 */
+@media(min-width:769px){
+  #highlights-page{height:calc(100dvh - 104px)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important}
+  .akh-shell{height:100%!important;padding-top:0!important}
+  .akh-top{height:64px!important}
+  .akh-feed{height:calc(100% - 64px)!important;min-height:0!important;border-radius:18px 18px 0 0!important}
+  .akh-card{height:100%!important;min-height:0!important}
+  .akh-cover-wrap{padding:55px 62px 150px!important}
+  .akh-info{bottom:22px!important}
+  .akh-actions{bottom:28px!important}
+}
+@media(max-width:768px){
+  #highlights-page{height:calc(100dvh - 78px)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important}
+  .akh-shell{height:100%!important}
+  .akh-feed{height:calc(100% - 54px)!important;min-height:0!important}
+  .akh-card{height:100%!important;min-height:0!important}
+  .akh-cover-wrap{padding:48px 48px 155px!important}
+}
+.akh-cover{cursor:pointer}
+.akh-cover-pause{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ z-index:6;width:64px;height:64px;border-radius:50%;
+ display:flex;align-items:center;justify-content:center;
+ background:rgba(0,0,0,.56);border:1px solid rgba(255,255,255,.38);
+ color:#fff;font-size:24px;opacity:0;pointer-events:none;
+ transition:opacity .18s ease;backdrop-filter:blur(8px)
+}
+.akh-card.akh-paused .akh-cover-pause{opacity:1}
+</style>
+
+<script id="amkina-highlights-player-integration-v2-script">
+(function(){
+ let clipMode=false, clipStart=0, clipEnd=25, activeCard=null;
+
+ function trackIndex(id){
+   try{return (typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(t=>String(t.id)===String(id)):-1}catch(e){return -1}
+ }
+ function paintMainPlayer(t){
+   const i=trackIndex(t.id);
+   if(i>=0) currentIndex=i; // 기존 하단 플레이어의 좋아요/댓글/공유도 현재 곡과 연결
+   const cover=document.getElementById("now-cover");
+   if(cover)cover.src=t.cover_url||cover.src;
+   const title=document.getElementById("now-title"); if(title)title.textContent=t.title||"Untitled";
+   const artist=document.getElementById("now-artist"); if(artist)artist.textContent=t.artist||"AMKINA";
+   if(typeof refreshLyricsButton==="function")refreshLyricsButton();
+   if(typeof renderCompactLyrics==="function")renderCompactLyrics();
+ }
+
+ window.akhPlayThroughMainPlayer=function(card,t){
+   if(!card||!t?.audio_url||typeof audio==="undefined")return;
+   clipMode=true; activeCard=card;
+   clipStart=Math.max(0,Number(card.dataset.start||t.highlight_start||0));
+   clipEnd=Math.max(clipStart+5,Number(card.dataset.end||t.highlight_end||25));
+   paintMainPlayer(t);
+
+   const same=audio.src===new URL(t.audio_url,location.href).href;
+   if(!same)audio.src=t.audio_url;
+
+   const begin=()=>{
+     try{
+       if(!same || audio.currentTime<clipStart || audio.currentTime>=clipEnd)audio.currentTime=clipStart;
+     }catch(e){}
+     audio.play().catch(()=>{});
+   };
+   if(audio.readyState>=1)begin();
+   else audio.addEventListener("loadedmetadata",begin,{once:true});
+ };
+
+ // 기존 별도 HIGHLIGHTS 오디오가 재생되면 즉시 정지시켜 이중재생 방지
+ function stopLegacyHighlightAudio(){
+   try{
+     if(typeof hAudio!=="undefined"&&hAudio&&hAudio!==audio){hAudio.pause();hAudio.src=""}
+   }catch(e){}
+ }
+
+ // 기존 playCard가 호출된 직후 메인 플레이어로 다시 연결
+ const observer=new MutationObserver(()=>{
+   document.querySelectorAll(".akh-card").forEach(card=>{
+     if(card.dataset.mainPlayerBound)return;
+     card.dataset.mainPlayerBound="1";
+     if(!card.querySelector(".akh-cover-pause")){
+       const p=document.createElement("div");p.className="akh-cover-pause";p.textContent="▶";
+       card.appendChild(p);
+     }
+     const cover=card.querySelector(".akh-cover");
+     if(cover)cover.addEventListener("click",e=>{
+       e.preventDefault();e.stopPropagation();
+       if(activeCard!==card){
+         const i=Number(card.dataset.i);const t=(typeof hRows!=="undefined"?hRows:[])[i];
+         stopLegacyHighlightAudio();window.akhPlayThroughMainPlayer(card,t);return;
+       }
+       if(audio.paused)audio.play().catch(()=>{});else audio.pause();
+     });
+   });
+ });
+ document.addEventListener("DOMContentLoaded",()=>observer.observe(document.body,{childList:true,subtree:true}));
+
+ // 현재 화면의 하이라이트가 바뀌면 별도 오디오 대신 기존 하단 플레이어로 자동 연결
+ const io=new IntersectionObserver(entries=>{
+   entries.forEach(e=>{
+     if(!e.isIntersecting||e.intersectionRatio<.72)return;
+     const card=e.target;
+     const i=Number(card.dataset.i);
+     let rows=[];try{rows=(typeof hRows!=="undefined"?hRows:[])}catch(_){}
+     const t=rows[i];if(!t)return;
+     stopLegacyHighlightAudio();
+     window.akhPlayThroughMainPlayer(card,t);
+   });
+ },{threshold:[.72]});
+
+ const bindCards=()=>document.querySelectorAll(".akh-card").forEach(c=>{if(!c.dataset.mainObserved){c.dataset.mainObserved="1";io.observe(c)}});
+ const cardObserver=new MutationObserver(bindCards);
+ document.addEventListener("DOMContentLoaded",()=>{cardObserver.observe(document.body,{childList:true,subtree:true});setTimeout(bindCards,800)});
+
+ // 하이라이트 구간만 반복. CHART play_count RPC는 호출하지 않음.
+ document.addEventListener("timeupdate",()=>{},true);
+ if(typeof audio!=="undefined"){
+   audio.addEventListener("timeupdate",()=>{
+     if(!clipMode||!activeCard)return;
+     const p=Math.max(0,Math.min(1,(audio.currentTime-clipStart)/Math.max(1,clipEnd-clipStart)));
+     activeCard.querySelector(".akh-progress i")?.style.setProperty("width",(p*100)+"%");
+     if(audio.currentTime>=clipEnd){audio.currentTime=clipStart;audio.play().catch(()=>{})}
+   });
+   audio.addEventListener("play",()=>{activeCard?.classList.remove("akh-paused")});
+   audio.addEventListener("pause",()=>{if(clipMode)activeCard?.classList.add("akh-paused")});
+ }
+
+ // 전체 곡 듣기: 하이라이트 모드 해제 후 기존 playTrack()으로 넘겨 하단 플레이어에서 그대로 이어서 재생
+ const oldFull=window.akhFull;
+ window.akhFull=function(id){
+   clipMode=false;activeCard?.classList.remove("akh-paused");
+   stopLegacyHighlightAudio();
+   const i=trackIndex(id);
+   if(i>=0&&typeof playTrack==="function"){playTrack(i);return}
+   if(typeof oldFull==="function")oldFull(id);
+ };
+
+ // HIGHLIGHTS를 벗어나도 사용자가 전체곡으로 전환했다면 기존 플레이어는 계속 유지.
+ // 단순 하이라이트 상태에서 다른 일반 페이지를 누르면 하이라이트 클립은 일시정지.
+ document.addEventListener("click",e=>{
+   const nav=e.target.closest("body > header nav a");
+   if(nav && nav.id!=="highlights-nav" && clipMode){
+     clipMode=false;
+     if(typeof audio!=="undefined")audio.pause();
+   }
+ },true);
+
+ // 최초/재렌더 후 기존 HIGHLIGHTS 별도 audio의 볼륨 버튼도 메인 audio에 적용
+ const oldSound=window.akhToggleSound;
+ window.akhToggleSound=function(){
+   if(typeof audio==="undefined")return oldSound?.();
+   audio.muted=!audio.muted;
+   document.querySelectorAll(".akh-sound").forEach(b=>b.textContent=(audio.muted?"🔇":"🔊")+" SOUND");
+ };
+})();
+</script>
+
