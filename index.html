@@ -13360,56 +13360,130 @@ body.akh-active #track-full-page{display:none!important}
 }
 </style>
 
-<script id="amkina-home-highlights-v3-script">
+<style id="amkina-highlights-close-v1-style">
+#highlights-page .akh-close{
+ position:absolute!important;z-index:30!important;top:18px!important;right:22px!important;
+ width:42px!important;height:42px!important;border-radius:50%!important;
+ border:1px solid rgba(255,255,255,.22)!important;background:rgba(20,20,20,.78)!important;
+ color:#fff!important;font-size:25px!important;font-weight:300!important;line-height:1!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ cursor:pointer!important;backdrop-filter:blur(8px)!important;
+ transition:background .18s ease,transform .18s ease!important
+}
+#highlights-page .akh-close:hover{background:#fff!important;color:#111!important;transform:scale(1.05)!important}
+@media(max-width:768px){
+ #highlights-page .akh-close{top:12px!important;right:12px!important;width:40px!important;height:40px!important}
+}
+</style>
+
+<script id="amkina-highlights-close-v1-script">
+(function(){
+ function ensureClose(){
+   const page=document.getElementById("highlights-page");
+   if(!page||document.getElementById("akh-close-btn"))return;
+   const b=document.createElement("button");
+   b.id="akh-close-btn";
+   b.className="akh-close";
+   b.type="button";
+   b.setAttribute("aria-label","HIGHLIGHTS 닫기");
+   b.innerHTML="×";
+   page.appendChild(b);
+   b.addEventListener("click",function(e){
+     e.preventDefault();e.stopPropagation();
+     try{if(typeof audio!=="undefined"&&!audio.paused)audio.pause()}catch(_){}
+     document.body.classList.remove("akh-active");
+     page.style.setProperty("display","none","important");
+     document.getElementById("highlights-nav")?.classList.remove("menu-active");
+
+     /* 기존 사이트의 홈 메뉴를 실제 클릭시켜 초기 홈 화면으로 복귀 */
+     const links=[...document.querySelectorAll("body > header nav a")];
+     const home=links.find(a=>{
+       const txt=(a.querySelector(".nav-text")?.textContent||a.textContent||"").trim();
+       const href=a.getAttribute("href")||"";
+       return txt==="홈" || txt.toUpperCase()==="HOME" || href==="#home";
+     });
+     if(home){
+       home.click();
+     }else{
+       /* 홈 링크를 못 찾는 경우 안전하게 첫 화면 상태로 복귀 */
+       try{history.replaceState(null,"",location.pathname+location.search)}catch(_){}
+       location.hash="";
+       window.scrollTo({top:0,behavior:"smooth"});
+     }
+   });
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ensureClose);else ensureClose();
+ window.addEventListener("load",ensureClose);
+ new MutationObserver(ensureClose).observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>
+
+<script id="amkina-home-highlights-v4-playerhandoff-script">
 (function(){
  const ID="amkina-home-highlights";
+ let previewRows=[];
+
  function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
  function headers(){try{const ss=JSON.parse(localStorage.getItem("amkina_session")||"null");return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+(ss?.access_token||SUPABASE_ANON_KEY)}}catch(e){return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY}}}
+ function exactHeading(text){return [...document.querySelectorAll("h1,h2,h3,h4,h5,strong,div")].find(el=>!el.closest("#"+ID)&&(el.textContent||"").trim()===text)||null}
+ function sectionOf(h){let n=h;for(let i=0;i<6&&n?.parentElement;i++){const p=n.parentElement,txt=(p.textContent||"");if(txt.includes((h.textContent||"").trim())&&(p.querySelector("table")||p.querySelectorAll("tr").length>=2||p.children.length>=2)){n=p;break}n=p}return n}
 
- function exactHeading(text){
-   return [...document.querySelectorAll("h1,h2,h3,h4,h5,strong,div")].find(el=>!el.closest("#"+ID)&&(el.textContent||"").trim()===text)||null;
- }
- function sectionOf(h){
-   let n=h;
-   for(let i=0;i<6&&n?.parentElement;i++){
-     const p=n.parentElement,txt=(p.textContent||"");
-     if(txt.includes((h.textContent||"").trim())&&(p.querySelector("table")||p.querySelectorAll("tr").length>=2||p.children.length>=2)){n=p;break}
-     n=p;
-   }
-   return n;
- }
  function mount(){
-   let box=document.getElementById(ID);
-   const latest=exactHeading("Latest Releases");
-   if(!latest)return box;
+   let box=document.getElementById(ID),latest=exactHeading("Latest Releases");if(!latest)return box;
    const latestSection=sectionOf(latest);
-
    if(!box){
      box=document.createElement("section");box.id=ID;
      box.innerHTML='<div class="amh3-head"><div class="amh3-left"><div class="amh3-title">HIGHLIGHTS</div><div class="amh3-sub">짧게 만나는 새로운 음악</div></div><button class="amh3-more">전체보기 →</button></div><div class="amh3-list"><div style="font-size:10px;color:#999">불러오는 중...</div></div>';
      box.querySelector(".amh3-more").onclick=()=>document.getElementById("highlights-nav")?.click();
    }
-   /* 핵심: Latest Releases 바로 앞. 따라서 최신 커뮤니티 글 아래에 위치 */
-   if(box.nextElementSibling!==latestSection) latestSection.parentNode.insertBefore(box,latestSection);
+   if(box.nextElementSibling!==latestSection)latestSection.parentNode.insertBefore(box,latestSection);
    return box;
  }
+
  async function fill(){
-   const box=mount();if(!box||box.dataset.loaded==="1")return;
-   box.dataset.loaded="1";
+   const box=mount();if(!box||box.dataset.loaded==="1")return;box.dataset.loaded="1";
    try{
-     const r=await fetch(SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,cover_url,highlight_enabled&highlight_enabled=eq.true&order=id.desc&limit=18",{headers:headers()});
+     const r=await fetch(SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,cover_url,audio_url,highlight_start,highlight_end,highlight_enabled&highlight_enabled=eq.true&order=id.desc&limit=18",{headers:headers()});
      if(!r.ok)throw new Error(await r.text());
-     let rows=await r.json();rows=[...rows].sort(()=>Math.random()-.5).slice(0,6);
+     let rows=await r.json();previewRows=[...rows].sort(()=>Math.random()-.5).slice(0,6);
      const list=box.querySelector(".amh3-list");
-     if(!rows.length){list.innerHTML='<div style="font-size:10px;color:#999">등록된 HIGHLIGHTS가 없습니다.</div>';return}
-     list.innerHTML=rows.map(t=>`<article class="amh3-item"><div class="amh3-cover"><img src="${esc(t.cover_url||"")}" alt=""><button class="amh3-play">▶</button></div><div class="amh3-name">${esc(t.title||"Untitled")}</div><div class="amh3-artist">${esc(t.artist||"AMKINA")}</div></article>`).join("");
-     list.querySelectorAll(".amh3-item").forEach(x=>x.onclick=()=>document.getElementById("highlights-nav")?.click());
+     if(!previewRows.length){list.innerHTML='<div style="font-size:10px;color:#999">등록된 HIGHLIGHTS가 없습니다.</div>';return}
+     list.innerHTML=previewRows.map(t=>`<article class="amh3-item" data-id="${esc(t.id)}"><div class="amh3-cover"><img src="${esc(t.cover_url||"")}" alt=""><button class="amh3-play" aria-label="하이라이트 재생">▶</button></div><div class="amh3-name">${esc(t.title||"Untitled")}</div><div class="amh3-artist">${esc(t.artist||"AMKINA")}</div></article>`).join("");
+     list.querySelectorAll(".amh3-item").forEach(card=>card.addEventListener("click",()=>handoff(card.dataset.id)));
    }catch(e){console.error("HOME HIGHLIGHTS",e);box.dataset.loaded="";box.querySelector(".amh3-list").innerHTML='<div style="font-size:10px;color:#999">HIGHLIGHTS를 불러오지 못했습니다.</div>'}
  }
+
+ function handoff(id){
+   const t=previewRows.find(x=>String(x.id)===String(id));if(!t)return;
+   /*
+     핵심 수정:
+     일반 음원이 재생 중이어도 별도 audio를 만들지 않고 기존 공통 audio를 그대로 넘겨받는다.
+     먼저 현재 일반곡 재생을 중단한 뒤 HIGHLIGHTS 페이지를 열고,
+     해당 카드가 렌더된 후 그 카드의 기존 playClip 동작을 실행한다.
+   */
+   try{if(typeof audio!=="undefined"){audio.pause();}}catch(e){}
+   document.getElementById("highlights-nav")?.click();
+
+   let tries=0;
+   const seek=setInterval(()=>{
+     tries++;
+     const cards=[...document.querySelectorAll("#akh-feed .akh-card")];
+     const card=cards.find(c=>(c.querySelector(".akh-title")?.textContent||"").trim()===String(t.title||"Untitled").trim() &&
+                              (c.querySelector(".akh-artist")?.textContent||"").trim()===String(t.artist||"AMKINA").trim());
+     if(card){
+       clearInterval(seek);
+       card.scrollIntoView({behavior:"auto",block:"start"});
+       setTimeout(()=>{
+         const cover=card.querySelector(".akh-cover");
+         if(cover)cover.click();
+       },180);
+     }else if(tries>20)clearInterval(seek);
+   },100);
+ }
+
  function boot(){mount();fill()}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
- window.addEventListener("load",boot);
- setTimeout(boot,500);setTimeout(boot,1500);
+ window.addEventListener("load",boot);setTimeout(boot,500);setTimeout(boot,1500);
  new MutationObserver(()=>{if(!document.getElementById(ID))boot();else mount()}).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
