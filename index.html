@@ -11262,8 +11262,85 @@ async function openDeepLinkedTrack(){
  go();
 }
 setTimeout(openDeepLinkedTrack,250);
-</script>
+</scri<style id="amkina-home-community-align-fix">
+/* ===== HOME 최신 커뮤니티 글 공지사항과 정확히 정렬 ===== */
 
+@media (min-width:769px){
+
+  #amkina-home-community-latest{
+    width:100% !important;
+    max-width:100% !important;
+
+    margin-left:0 !important;
+    margin-right:0 !important;
+
+    padding-left:0 !important;
+    padding-right:0 !important;
+
+    box-sizing:border-box !important;
+  }
+
+  #amkina-home-community-latest .akhc-head,
+  #amkina-home-community-latest .akhc-list{
+    width:100% !important;
+    max-width:none !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+}
+
+@media (max-width:768px){
+
+  #amkina-home-community-latest{
+    width:100% !important;
+    max-width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+}
+</style>
+
+<script id="amkina-home-community-align-fix-script">
+(function(){
+
+  function alignHomeCommunity(){
+
+    const community =
+      document.getElementById("amkina-home-community-latest");
+
+    if(!community) return;
+
+    /* 기존 JS가 넣어놓은 강제 위치값 제거 */
+    community.style.removeProperty("width");
+    community.style.removeProperty("max-width");
+    community.style.removeProperty("margin-left");
+
+    community.style.setProperty("width","100%","important");
+    community.style.setProperty("max-width","100%","important");
+    community.style.setProperty("margin-left","0","important");
+    community.style.setProperty("margin-right","0","important");
+  }
+
+  document.addEventListener("DOMContentLoaded",function(){
+    setTimeout(alignHomeCommunity,700);
+    setTimeout(alignHomeCommunity,1500);
+  });
+
+  window.addEventListener("resize",alignHomeCommunity);
+
+  const observer = new MutationObserver(function(){
+    alignHomeCommunity();
+  });
+
+  observer.observe(document.body,{
+    childList:true,
+    subtree:true
+  });
+
+})();
+</script>
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
