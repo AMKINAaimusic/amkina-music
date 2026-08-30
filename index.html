@@ -13674,3 +13674,157 @@ body.amkina-highlights-open #player{
 })();
 </script>
 
+<style id="amkina-highlights-v5-clean-fix-style">
+#akh-feed .akh-error{padding:110px 24px;text-align:center;color:#bbb;font-size:13px;line-height:1.8}
+#akh-feed .akh-error button{margin-top:15px;border:1px solid #444;background:#151515;color:#fff;border-radius:999px;padding:10px 18px;cursor:pointer}
+</style>
+<script id="amkina-highlights-v5-clean-fix-script">
+(function(){
+  const H={rows:[],mode:"for-you",card:null,start:0,end:25,clip:false,io:null,loading:false};
+
+  const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  function apiHeaders(){
+    try{if(typeof mpHeaders==="function")return mpHeaders(false)}catch(e){}
+    return {"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY};
+  }
+  function idx(id){
+    try{return (typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(t=>String(t.id)===String(id)):-1}catch(e){return -1}
+  }
+  function fullTrack(id){
+    const i=idx(id);
+    try{return i>=0?tracks[i]:null}catch(e){return null}
+  }
+  function stopOldHighlightAudio(){
+    // v1의 별도 Audio 객체는 스코프 밖이라 직접 접근 불가.
+    // v5에서는 v1 observer를 제거할 수 없으므로 카드 DOM을 새로 만들어 기존 observer 대상 자체를 폐기한다.
+  }
+  function setMeta(t){
+    const i=idx(t.id); if(i>=0)currentIndex=i;
+    const c=document.getElementById("now-cover"); if(c&&t.cover_url)c.src=t.cover_url;
+    const ti=document.getElementById("now-title");if(ti)ti.textContent=t.title||"Untitled";
+    const ar=document.getElementById("now-artist");if(ar)ar.textContent=t.artist||"AMKINA";
+    try{refreshLyricsButton()}catch(e){}
+  }
+  function render(){
+    const feed=document.getElementById("akh-feed");if(!feed)return;
+    const rows=H.mode==="for-you"?[...H.rows].sort(()=>Math.random()-.5):[...H.rows];
+    H.view=rows;
+    if(!rows.length){feed.innerHTML='<div class="akh-empty">등록된 하이라이트가 없습니다.</div>';return}
+    feed.innerHTML=rows.map((t,i)=>{
+      const st=Math.max(0,Number(t.highlight_start||0)),en=Math.max(st+5,Number(t.highlight_end||25));
+      return `<article class="akh-card akh-v5-card" data-i="${i}" data-start="${st}" data-end="${en}">
+       <div class="akh-bg" style="background-image:url('${esc(t.cover_url||"")}')"></div>
+       <div class="akh-cover-wrap"><img class="akh-cover" src="${esc(t.cover_url||"")}" alt="${esc(t.title||"")}"></div>
+       <div class="akh-shade"></div>
+       <button class="akh-sound" type="button">${audio.muted?"🔇":"🔊"} SOUND</button>
+       <div class="akh-info"><div class="akh-kicker">AMKINA HIGHLIGHT</div><div class="akh-title">${esc(t.title||"Untitled")}</div><div class="akh-artist">${esc(t.artist||"AMKINA")}</div><div class="akh-genre">${esc(t.genre||"ORIGINAL")}</div><div class="akh-progress"><i></i></div><button class="akh-full" type="button">▶ 전체 곡 듣기</button></div>
+       <div class="akh-actions"><button class="akh-action akh-like" type="button"><span class="ico">♡</span><small>LIKE</small></button><button class="akh-action akh-comment" type="button"><span class="ico">◯</span><small>COMMENT</small></button><button class="akh-action akh-share" type="button"><span class="ico">↗</span><small>SHARE</small></button></div>
+      </article>`;
+    }).join("");
+
+    feed.querySelectorAll(".akh-v5-card").forEach(card=>{
+      const t=rows[Number(card.dataset.i)];
+      card.querySelector(".akh-cover")?.addEventListener("click",e=>{
+        e.stopPropagation();
+        if(H.card!==card){playClip(card,t);return}
+        if(audio.paused)audio.play().catch(()=>{});else audio.pause();
+      });
+      card.querySelector(".akh-sound")?.addEventListener("click",()=>{
+        audio.muted=!audio.muted;
+        document.querySelectorAll("#highlights-page .akh-sound").forEach(b=>b.textContent=(audio.muted?"🔇":"🔊")+" SOUND");
+      });
+      card.querySelector(".akh-full")?.addEventListener("click",()=>playFull(t.id));
+      card.querySelector(".akh-like")?.addEventListener("click",()=>{try{toggleTrackLike(t.id)}catch(e){}});
+      card.querySelector(".akh-comment")?.addEventListener("click",()=>{audio.pause();try{openTrackComments(t.id)}catch(e){}});
+      card.querySelector(".akh-share")?.addEventListener("click",()=>share(t.id));
+    });
+    observe();
+  }
+  async function loadV5(){
+    if(H.loading)return;H.loading=true;
+    const feed=document.getElementById("akh-feed");
+    if(feed)feed.innerHTML='<div class="akh-empty">HIGHLIGHTS를 불러오는 중...</div>';
+    try{
+      const url=SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,genre,cover_url,audio_url,highlight_enabled,highlight_start,highlight_end&highlight_enabled=eq.true&order=id.desc&limit=100";
+      const r=await fetch(url,{headers:apiHeaders()});
+      if(!r.ok)throw new Error("Supabase "+r.status+" · "+await r.text());
+      H.rows=await r.json();
+      render();
+    }catch(e){
+      console.error("AMKINA HIGHLIGHTS v5:",e);
+      if(feed)feed.innerHTML='<div class="akh-error"><b>HIGHLIGHTS를 불러오지 못했습니다.</b><br>Supabase의 HIGHLIGHTS 컬럼 또는 권한을 확인해주세요.<br><button type="button" id="akh-retry">다시 시도</button></div>';
+      document.getElementById("akh-retry")?.addEventListener("click",loadV5);
+    }finally{H.loading=false}
+  }
+  function playClip(card,t){
+    if(!t?.audio_url)return;
+    H.clip=true;H.card=card;H.start=Math.max(0,Number(card.dataset.start||0));H.end=Math.max(H.start+5,Number(card.dataset.end||25));
+    setMeta(fullTrack(t.id)||t);
+    const target=new URL(t.audio_url,location.href).href;
+    const same=audio.src===target;
+    if(!same)audio.src=t.audio_url;
+    const begin=()=>{try{if(!same||audio.currentTime<H.start||audio.currentTime>=H.end)audio.currentTime=H.start}catch(e){};audio.play().catch(()=>{})};
+    if(audio.readyState>=1)begin();else audio.addEventListener("loadedmetadata",begin,{once:true});
+  }
+  function observe(){
+    H.io?.disconnect();
+    const feed=document.getElementById("akh-feed");if(!feed)return;
+    H.io=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting&&e.intersectionRatio>=.72){
+        const card=e.target,t=H.view[Number(card.dataset.i)];
+        if(t&&H.card!==card)playClip(card,t);
+      }
+    }),{root:feed,threshold:[.72]});
+    feed.querySelectorAll(".akh-v5-card").forEach(c=>H.io.observe(c));
+  }
+  function playFull(id){
+    H.clip=false;H.card=null;
+    const i=idx(id);
+    if(i>=0&&typeof playTrack==="function"){playTrack(i);return}
+    const t=fullTrack(id);if(t?.audio_url){setMeta(t);audio.src=t.audio_url;audio.play().catch(()=>{})}
+  }
+  async function share(id){
+    const u=new URL(location.href);u.search="";u.hash="";u.searchParams.set("track",id);
+    try{if(navigator.share)await navigator.share({title:"AMKINA MUSIC",url:u.href});else{await navigator.clipboard.writeText(u.href);alert("링크를 복사했습니다.")}}catch(e){}
+  }
+
+  audio.addEventListener("timeupdate",()=>{
+    if(!H.clip||!H.card)return;
+    const p=Math.max(0,Math.min(1,(audio.currentTime-H.start)/Math.max(1,H.end-H.start)));
+    H.card.querySelector(".akh-progress i")?.style.setProperty("width",(p*100)+"%");
+    if(audio.currentTime>=H.end){audio.currentTime=H.start;audio.play().catch(()=>{})}
+  });
+
+  // v4의 showHighlightsPage를 완전히 교체: 로딩 함수를 lexical load()에 의존하지 않는다.
+  window.showHighlightsPage=async function(e){
+    e?.preventDefault?.();
+    document.body.classList.add("amkina-highlights-open");
+    const p=document.getElementById("highlights-page");if(p)p.style.setProperty("display","block","important");
+    document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));
+    document.getElementById("highlights-nav")?.classList.add("menu-active");
+    document.querySelector("body > header nav")?.classList.remove("mobile-open");
+    window.scrollTo(0,0);
+    await loadV5();
+    return false;
+  };
+
+  // FOR YOU / NEW도 v5 데이터만 사용
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("#highlights-page .akh-tab");if(!b)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    document.querySelectorAll("#highlights-page .akh-tab").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");H.mode=b.dataset.mode||"for-you";render();
+  },true);
+
+  // 다른 메뉴로 나갈 때 하이라이트 클립만 정지
+  document.addEventListener("click",e=>{
+    const nav=e.target.closest("body > header nav a");
+    if(!nav||nav.id==="highlights-nav")return;
+    if(document.body.classList.contains("amkina-highlights-open")){
+      document.body.classList.remove("amkina-highlights-open");
+      if(H.clip){audio.pause();H.clip=false;H.card=null}
+    }
+  },true);
+})();
+</script>
+
