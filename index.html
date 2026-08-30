@@ -11262,85 +11262,20 @@ async function openDeepLinkedTrack(){
  go();
 }
 setTimeout(openDeepLinkedTrack,250);
-</scri<style id="amkina-home-community-align-fix">
-/* ===== HOME 최신 커뮤니티 글 공지사항과 정확히 정렬 ===== */
+</script>
 
-@media (min-width:769px){
 
-  #amkina-home-community-latest{
-    width:100% !important;
-    max-width:100% !important;
-
-    margin-left:0 !important;
-    margin-right:0 !important;
-
-    padding-left:0 !important;
-    padding-right:0 !important;
-
-    box-sizing:border-box !important;
-  }
-
-  #amkina-home-community-latest .akhc-head,
-  #amkina-home-community-latest .akhc-list{
-    width:100% !important;
-    max-width:none !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-  }
+<style id="amkina-home-community-final-align-fix">
+/* HOME: 최신 커뮤니티 글을 공지사항과 같은 좌우 기준선에 고정 */
+#amkina-home-community-latest{
+  margin-left:0 !important;
+  margin-right:0 !important;
+  box-sizing:border-box !important;
 }
-
-@media (max-width:768px){
-
-  #amkina-home-community-latest{
-    width:100% !important;
-    max-width:100% !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-    padding-left:0 !important;
-    padding-right:0 !important;
-  }
+@media (min-width:769px){
+  #amkina-home-community-latest{padding-left:0 !important;padding-right:0 !important;}
 }
 </style>
-
-<script id="amkina-home-community-align-fix-script">
-(function(){
-
-  function alignHomeCommunity(){
-
-    const community =
-      document.getElementById("amkina-home-community-latest");
-
-    if(!community) return;
-
-    /* 기존 JS가 넣어놓은 강제 위치값 제거 */
-    community.style.removeProperty("width");
-    community.style.removeProperty("max-width");
-    community.style.removeProperty("margin-left");
-
-    community.style.setProperty("width","100%","important");
-    community.style.setProperty("max-width","100%","important");
-    community.style.setProperty("margin-left","0","important");
-    community.style.setProperty("margin-right","0","important");
-  }
-
-  document.addEventListener("DOMContentLoaded",function(){
-    setTimeout(alignHomeCommunity,700);
-    setTimeout(alignHomeCommunity,1500);
-  });
-
-  window.addEventListener("resize",alignHomeCommunity);
-
-  const observer = new MutationObserver(function(){
-    alignHomeCommunity();
-  });
-
-  observer.observe(document.body,{
-    childList:true,
-    subtree:true
-  });
-
-})();
-</script>
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
@@ -12691,7 +12626,7 @@ function goCommunity(){if(typeof showCommunityPage==="function")showCommunityPag
 async function openPost(id){goCommunity();setTimeout(async()=>{if(typeof loadCommunityPosts==="function")await loadCommunityPosts();if(typeof openCommunityDetail==="function")openCommunityDetail(String(id))},150)}
 function findNotice(){return document.getElementById("amkina-notice-section")||document.getElementById("amkina-home-notice")||document.querySelector(".amkina-notice-section")||[...document.querySelectorAll("section,div")].find(el=>/공지사항/.test((el.textContent||"").trim())&&el.querySelector("button,a"))}
 async function load(){const list=document.getElementById("akhc-list");if(!list)return;try{const h=typeof communityHeaders==="function"?communityHeaders(false):{"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY};const r=await fetch(SUPABASE_URL+"/rest/v1/community_posts?select=id,category,title,author_name,created_at&order=created_at.desc&limit=5",{headers:h});if(!r.ok)throw new Error("HTTP "+r.status);const rows=await r.json();list.innerHTML=rows.length?rows.map(p=>`<article class="akhc-row" data-id="${esc(p.id)}"><div class="akhc-cat">${esc(cat(p.category))}</div><div class="akhc-title">${esc(p.title)}</div><div class="akhc-author">${esc(p.author_name||"AMKINA USER")}</div><div class="akhc-date">${esc(dt(p.created_at))}</div></article>`).join(""):'<div class="akhc-empty">아직 커뮤니티 글이 없습니다.</div>';list.querySelectorAll(".akhc-row").forEach(x=>x.onclick=()=>openPost(x.dataset.id))}catch(e){console.error(e);list.innerHTML='<div class="akhc-empty">커뮤니티 글을 불러오지 못했습니다.</div>'}}
-function mount(){if(document.getElementById("amkina-home-community-latest"))return;const n=findNotice();if(!n)return;const b=document.createElement("section");b.id="amkina-home-community-latest";b.innerHTML='<div class="akhc-head"><div><h2>최신 커뮤니티 글</h2><p>AMKINA MUSIC에서 지금 나누고 있는 이야기</p></div><button class="akhc-more" type="button">더보기 →</button></div><div id="akhc-list" class="akhc-list"><div class="akhc-empty">게시글을 불러오는 중...</div></div>';n.insertAdjacentElement("afterend",b);const nr=n.getBoundingClientRect();if(nr.width){b.style.width=nr.width+"px";b.style.maxWidth=nr.width+"px";b.style.marginLeft=(n.offsetLeft||0)+"px"}b.querySelector(".akhc-more").onclick=goCommunity;load()}
+function mount(){if(document.getElementById("amkina-home-community-latest"))return;const n=findNotice();if(!n)return;const b=document.createElement("section");b.id="amkina-home-community-latest";b.innerHTML='<div class="akhc-head"><div><h2>최신 커뮤니티 글</h2><p>AMKINA MUSIC에서 지금 나누고 있는 이야기</p></div><button class="akhc-more" type="button">더보기 →</button></div><div id="akhc-list" class="akhc-list"><div class="akhc-empty">게시글을 불러오는 중...</div></div>';n.insertAdjacentElement("afterend",b);const nr=n.getBoundingClientRect();if(nr.width){b.style.width=nr.width+"px";b.style.maxWidth=nr.width+"px";b.style.marginLeft="0px"}b.querySelector(".akhc-more").onclick=goCommunity;load()}
 document.addEventListener("DOMContentLoaded",()=>{setTimeout(mount,600);setTimeout(mount,1400)});window.addEventListener("focus",()=>document.getElementById("akhc-list")&&load());
 })();
 </script>
@@ -12831,4 +12766,3 @@ document.addEventListener("DOMContentLoaded",()=>{setTimeout(mount,600);setTimeo
  };
 })();
 </script>
-
