@@ -13828,3 +13828,165 @@ body.amkina-highlights-open #player{
 })();
 </script>
 
+<script id="amkina-highlights-like-autonext-v6">
+(function(){
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  function session(){
+    try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}
+  }
+  function authHeaders(json=false){
+    const ss=session();
+    const h={"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+(ss?.access_token||SUPABASE_ANON_KEY)};
+    if(json)h["Content-Type"]="application/json";
+    return h;
+  }
+
+  /* HIGHLIGHTS 좋아요: 기존 함수명에 의존하지 않고 track_likes를 직접 사용 */
+  async function highlightLike(btn,trackId){
+    const ss=session();
+    if(!ss?.user?.id||!ss?.access_token){
+      alert("좋아요는 로그인 후 사용할 수 있습니다.");
+      return;
+    }
+    btn.disabled=true;
+    try{
+      const q=SUPABASE_URL+"/rest/v1/track_likes?select=track_id&track_id=eq."+encodeURIComponent(trackId)+"&user_id=eq."+encodeURIComponent(ss.user.id);
+      const check=await fetch(q,{headers:authHeaders(false)});
+      if(!check.ok)throw new Error(await check.text());
+      const rows=await check.json();
+      const liked=rows.length>0;
+
+      let r;
+      if(liked){
+        r=await fetch(SUPABASE_URL+"/rest/v1/track_likes?track_id=eq."+encodeURIComponent(trackId)+"&user_id=eq."+encodeURIComponent(ss.user.id),{
+          method:"DELETE",headers:authHeaders(false)
+        });
+      }else{
+        r=await fetch(SUPABASE_URL+"/rest/v1/track_likes",{
+          method:"POST",
+          headers:{...authHeaders(true),"Prefer":"return=minimal"},
+          body:JSON.stringify({track_id:Number(trackId),user_id:ss.user.id})
+        });
+      }
+      if(!r.ok)throw new Error(await r.text());
+
+      const ico=btn.querySelector(".ico");
+      btn.classList.toggle("liked",!liked);
+      if(ico)ico.textContent=!liked?"♥":"♡";
+
+      /* 하단 플레이어 좋아요 상태도 가능한 경우 즉시 동기화 */
+      try{
+        if(typeof syncCurrentPlayerLike==="function")await syncCurrentPlayerLike();
+        if(typeof loadMyPage==="function" && document.getElementById("mypage")?.style.display!=="none")loadMyPage();
+      }catch(e){}
+    }catch(e){
+      console.error("HIGHLIGHTS like:",e);
+      alert("좋아요 처리에 실패했습니다.");
+    }finally{btn.disabled=false}
+  }
+
+  async function paintLike(btn,trackId){
+    const ss=session();
+    if(!ss?.user?.id)return;
+    try{
+      const q=SUPABASE_URL+"/rest/v1/track_likes?select=track_id&track_id=eq."+encodeURIComponent(trackId)+"&user_id=eq."+encodeURIComponent(ss.user.id);
+      const r=await fetch(q,{headers:authHeaders(false)});if(!r.ok)return;
+      const liked=(await r.json()).length>0;
+      btn.classList.toggle("liked",liked);
+      const ico=btn.querySelector(".ico");if(ico)ico.textContent=liked?"♥":"♡";
+    }catch(e){}
+  }
+
+  /* 새 카드가 만들어질 때 좋아요 버튼을 v6 핸들러로 교체 */
+  function bindLikes(){
+    document.querySelectorAll("#highlights-page .akh-v5-card").forEach(card=>{
+      const btn=card.querySelector(".akh-like");
+      if(!btn||btn.dataset.v6Like)return;
+      btn.dataset.v6Like="1";
+      const i=Number(card.dataset.i);
+      let row=null;
+      try{row=(typeof H!=="undefined"&&H.view)?H.view[i]:null}catch(e){}
+      /* H는 v5 IIFE 내부라 접근 불가하므로 카드 제목 대신 DOM의 현재 tracks/오디오 URL로 id 확보:
+         v5 렌더 순서와 REST 결과를 안정적으로 연결하기 위해 버튼에 id를 주입할 별도 조회 */
+    });
+  }
+
+  async function mapCards(){
+    const cards=[...document.querySelectorAll("#highlights-page .akh-v5-card")];
+    if(!cards.length)return;
+    try{
+      const r=await fetch(SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,audio_url,highlight_enabled&highlight_enabled=eq.true&order=id.desc&limit=100",{headers:authHeaders(false)});
+      if(!r.ok)return;
+      let rows=await r.json();
+
+      /* NEW는 id.desc 그대로. FOR YOU는 화면 카드의 title/artist/audio로 정확히 매칭 */
+      for(const card of cards){
+        const title=(card.querySelector(".akh-title")?.textContent||"").trim();
+        const artist=(card.querySelector(".akh-artist")?.textContent||"").trim();
+        let t=rows.find(x=>(x.title||"").trim()===title&&(x.artist||"AMKINA").trim()===artist);
+        if(!t)continue;
+        card.dataset.trackId=t.id;
+        const old=card.querySelector(".akh-like");
+        if(old && !old.dataset.v6Replaced){
+          const b=old.cloneNode(true);b.dataset.v6Replaced="1";
+          old.replaceWith(b);
+          b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();highlightLike(b,t.id)});
+          paintLike(b,t.id);
+        }
+      }
+    }catch(e){console.error("HIGHLIGHTS card mapping:",e)}
+  }
+
+  /* 하이라이트 구간이 끝나면 다음 카드로 부드럽게 자동 스와이프.
+     마지막 카드면 첫 카드로 순환. */
+  let lastAdvance=0;
+  function autoAdvance(){
+    if(!document.body.classList.contains("amkina-highlights-open"))return;
+    const feed=document.getElementById("akh-feed");
+    if(!feed)return;
+    const cards=[...feed.querySelectorAll(".akh-v5-card")];
+    if(cards.length<2)return;
+
+    let current=cards.find(c=>{
+      const r=c.getBoundingClientRect(),fr=feed.getBoundingClientRect();
+      const overlap=Math.max(0,Math.min(r.bottom,fr.bottom)-Math.max(r.top,fr.top));
+      return overlap/r.height>.70;
+    })||cards[0];
+    const i=cards.indexOf(current),next=cards[(i+1)%cards.length];
+    next.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  /* v5는 구간 끝에서 바로 처음으로 되감으므로, 끝 직전 감지해서 다음 카드로 넘긴다. */
+  if(typeof audio!=="undefined"){
+    audio.addEventListener("timeupdate",()=>{
+      if(!document.body.classList.contains("amkina-highlights-open"))return;
+      const feed=document.getElementById("akh-feed");if(!feed)return;
+      const card=[...feed.querySelectorAll(".akh-v5-card")].find(c=>{
+        const r=c.getBoundingClientRect(),fr=feed.getBoundingClientRect();
+        return Math.max(0,Math.min(r.bottom,fr.bottom)-Math.max(r.top,fr.top))/r.height>.70;
+      });
+      if(!card)return;
+      const end=Number(card.dataset.end||25);
+      if(audio.currentTime>=end-.18 && Date.now()-lastAdvance>1200){
+        lastAdvance=Date.now();
+        autoAdvance();
+      }
+    });
+  }
+
+  const mo=new MutationObserver(()=>{
+    clearTimeout(window.__akhV6MapTimer);
+    window.__akhV6MapTimer=setTimeout(mapCards,120);
+  });
+  document.addEventListener("DOMContentLoaded",()=>{
+    mo.observe(document.getElementById("highlights-page")||document.body,{subtree:true,childList:true});
+    setTimeout(mapCards,700);
+  });
+})();
+</script>
+<style id="amkina-highlights-like-v6-style">
+#highlights-page .akh-like.liked .ico{color:#fff;background:#e51b23;border-color:#e51b23}
+#highlights-page .akh-like:disabled{opacity:.55;pointer-events:none}
+</style>
+
