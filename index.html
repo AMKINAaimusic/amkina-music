@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -4249,7 +4248,10 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
                     cover_url:coverUrl,
                     release_date:
                         new Date().toISOString().slice(0,10),
-                    uploader_id:userId
+                    uploader_id:userId,
+                    highlight_enabled: document.getElementById('studio-highlight-enabled')?.checked ?? true,
+                    highlight_start: Math.max(0, Number(document.getElementById('studio-highlight-start')?.value || 0)),
+                    highlight_end: Math.max(5, Number(document.getElementById('studio-highlight-end')?.value || 25))
                 })
             }
         );
@@ -13207,3 +13209,113 @@ new MutationObserver(apply).observe(document.documentElement,{subtree:true,child
 })();
 </script>
 
+<style id="amkina-highlights-v1-style">
+#highlights-page{display:none;min-height:100vh;background:#070707;color:#fff;padding:0 0 105px}
+.akh-shell{width:min(520px,100%);margin:0 auto;position:relative}
+.akh-top{position:sticky;top:0;z-index:12;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:linear-gradient(#070707 70%,transparent)}
+.akh-brand{font-size:16px;font-weight:900;letter-spacing:1.4px}.akh-tabs{display:flex;gap:6px}.akh-tab{border:0;background:transparent;color:#777;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}.akh-tab.active{color:#fff;border-bottom:2px solid #fff}
+.akh-feed{height:calc(100vh - 64px - 82px);min-height:560px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none}.akh-feed::-webkit-scrollbar{display:none}
+.akh-card{height:100%;min-height:560px;scroll-snap-align:start;position:relative;overflow:hidden;background:#111}
+.akh-bg{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(34px) brightness(.34);transform:scale(1.14)}
+.akh-cover-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:70px 62px 165px}
+.akh-cover{width:min(100%,390px);aspect-ratio:1;object-fit:cover;border-radius:18px;box-shadow:0 28px 70px rgba(0,0,0,.5);animation:akhFloat 7s ease-in-out infinite}
+@keyframes akhFloat{50%{transform:scale(1.025)}}
+.akh-shade{position:absolute;inset:0;background:linear-gradient(transparent 48%,rgba(0,0,0,.2) 62%,rgba(0,0,0,.94) 100%);pointer-events:none}
+.akh-info{position:absolute;left:20px;right:82px;bottom:24px;z-index:4}.akh-kicker{font-size:9px;letter-spacing:2px;color:#bbb;font-weight:800}.akh-title{margin-top:6px;font-size:25px;font-weight:900;letter-spacing:-.7px}.akh-artist{margin-top:4px;color:#ddd;font-size:12px}.akh-genre{margin-top:7px;color:#999;font-size:10px}
+.akh-progress{height:2px;background:rgba(255,255,255,.22);margin:15px 0 13px;border-radius:9px;overflow:hidden}.akh-progress>i{display:block;width:0;height:100%;background:#fff}
+.akh-full{height:42px;padding:0 17px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:#fff;color:#111;font-size:11px;font-weight:900;cursor:pointer}
+.akh-actions{position:absolute;right:15px;bottom:30px;z-index:5;display:flex;flex-direction:column;gap:17px}.akh-action{border:0;background:transparent;color:#fff;width:50px;text-align:center;cursor:pointer}.akh-action .ico{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(10,10,10,.42);border:1px solid rgba(255,255,255,.18);font-size:20px;backdrop-filter:blur(8px)}.akh-action small{display:block;margin-top:4px;color:#ddd;font-size:9px}
+.akh-empty{padding:100px 25px;text-align:center;color:#aaa}.akh-sound{position:absolute;right:18px;top:75px;z-index:5;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.35);color:#fff;border-radius:999px;padding:8px 11px;font-size:10px;cursor:pointer}
+@media(min-width:769px){#highlights-page{padding-left:0}.akh-shell{padding-top:10px}.akh-feed{height:calc(100vh - 104px);border-radius:18px}.akh-card{min-height:650px}.akh-top{top:0}.akh-cover-wrap{padding-top:90px}}
+@media(max-width:768px){#highlights-page{padding-bottom:72px}.akh-shell{width:100%}.akh-top{height:54px}.akh-feed{height:calc(100dvh - 54px - 72px);min-height:480px}.akh-card{min-height:100%}.akh-cover-wrap{padding:58px 54px 170px}.akh-title{font-size:22px}}
+.akh-studio-box{margin-top:14px;padding:16px;border:1px solid #dedede;border-radius:12px;background:#fafafa}.akh-studio-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.akh-studio-box input[type=number]{width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;background:#fff;color:#111}.akh-studio-check{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:750;color:#222}
+</style>
+
+<section id="highlights-page" aria-label="AMKINA Highlights">
+ <div class="akh-shell">
+  <div class="akh-top"><div class="akh-brand">HIGHLIGHTS</div><div class="akh-tabs"><button class="akh-tab active" data-mode="for-you">FOR YOU</button><button class="akh-tab" data-mode="new">NEW</button></div></div>
+  <div id="akh-feed" class="akh-feed"><div class="akh-empty">HIGHLIGHTS를 불러오는 중...</div></div>
+ </div>
+</section>
+
+<script id="amkina-highlights-v1-script">
+(function(){
+ let hAudio=new Audio(), hRows=[], hMode="for-you", hObserver=null, hMuted=false;
+ hAudio.preload="metadata";
+ function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+ function headers(){return typeof mpHeaders==="function"?mpHeaders(false):{"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY}}
+ function allPagesOff(){
+   ["music","studio","community","artists-page","chart100-page","mypage","library-page","amkina-faq-page","track-full-page"].forEach(id=>{const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important")});
+   document.querySelectorAll(".hero,.hero-slider,#amkina-home-flow,#amkina-home-community-latest,.amkina-home-notice").forEach(x=>x.style.setProperty("display","none","important"));
+ }
+ function addMenu(){
+   const nav=document.querySelector("body > header nav");if(!nav||document.getElementById("highlights-nav"))return;
+   const radio=[...nav.querySelectorAll("a")].find(a=>(a.querySelector(".nav-text")?.textContent||"").trim()==="RADIO");
+   const a=document.createElement("a");a.href="#highlights";a.id="highlights-nav";
+   a.innerHTML='<span class="nav-icon">▶</span><span class="nav-text">HIGHLIGHTS</span>';
+   a.onclick=e=>{e.preventDefault();showHighlightsPage(e);return false};
+   radio?.insertAdjacentElement("afterend",a);
+ }
+ function addStudio(){
+   const lyrics=document.getElementById("studio-lyrics")?.closest(".studio-field");if(!lyrics||document.getElementById("studio-highlight-enabled"))return;
+   const d=document.createElement("div");d.className="studio-field akh-studio-box";
+   d.innerHTML='<label>HIGHLIGHTS</label><label class="akh-studio-check"><input id="studio-highlight-enabled" type="checkbox" checked> 하이라이트 피드에 이 곡 표시</label><div class="akh-studio-row"><div><small>시작 (초)</small><input id="studio-highlight-start" type="number" min="0" step="1" value="0"></div><div><small>종료 (초)</small><input id="studio-highlight-end" type="number" min="5" step="1" value="25"></div></div><small style="display:block;margin-top:8px;color:#888">추천 길이 15~30초 · 하이라이트 재생은 CHART 100 재생수와 분리됩니다.</small>';
+   lyrics.insertAdjacentElement("afterend",d);
+ }
+ async function load(){
+   const feed=document.getElementById("akh-feed");if(!feed)return;
+   try{
+     let url=SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,genre,cover_url,audio_url,highlight_enabled,highlight_start,highlight_end&highlight_enabled=eq.true&order=id.desc&limit=100";
+     const r=await fetch(url,{headers:headers()});if(!r.ok)throw new Error(await r.text());
+     hRows=await r.json();
+     if(hMode==="for-you")hRows=hRows.sort(()=>Math.random()-.5);
+     render();
+   }catch(e){console.error("Highlights:",e);feed.innerHTML='<div class="akh-empty">HIGHLIGHTS를 불러오지 못했습니다.<br><small>먼저 HIGHLIGHTS SQL을 실행해주세요.</small></div>'}
+ }
+ function render(){
+   const feed=document.getElementById("akh-feed");if(!feed)return;
+   if(!hRows.length){feed.innerHTML='<div class="akh-empty">등록된 하이라이트가 없습니다.</div>';return}
+   feed.innerHTML=hRows.map((t,i)=>{
+     const st=Math.max(0,Number(t.highlight_start||0)), en=Math.max(st+5,Number(t.highlight_end||25));
+     return `<article class="akh-card" data-i="${i}" data-start="${st}" data-end="${en}">
+       <div class="akh-bg" style="background-image:url('${esc(t.cover_url||"")}')"></div>
+       <div class="akh-cover-wrap"><img class="akh-cover" src="${esc(t.cover_url||"")}" alt=""></div><div class="akh-shade"></div>
+       <button class="akh-sound" type="button" onclick="akhToggleSound()">${hMuted?"🔇":"🔊"} SOUND</button>
+       <div class="akh-info"><div class="akh-kicker">AMKINA HIGHLIGHT</div><div class="akh-title">${esc(t.title||"Untitled")}</div><div class="akh-artist">${esc(t.artist||"AMKINA")}</div><div class="akh-genre">${esc(t.genre||"ORIGINAL")}</div><div class="akh-progress"><i></i></div><button class="akh-full" onclick="akhFull('${esc(t.id)}')">▶ 전체 곡 듣기</button></div>
+       <div class="akh-actions"><button class="akh-action" onclick="akhLike('${esc(t.id)}')"><span class="ico">♡</span><small>LIKE</small></button><button class="akh-action" onclick="akhComment('${esc(t.id)}')"><span class="ico">◯</span><small>COMMENT</small></button><button class="akh-action" onclick="akhShare('${esc(t.id)}')"><span class="ico">↗</span><small>SHARE</small></button></div>
+     </article>`}).join("");
+   observe();
+ }
+ function playCard(card){
+   const t=hRows[Number(card.dataset.i)];if(!t?.audio_url)return;
+   const st=Number(card.dataset.start||0), en=Number(card.dataset.end||25);
+   hAudio.pause();hAudio.src=t.audio_url;hAudio.muted=hMuted;
+   const go=()=>{try{hAudio.currentTime=st}catch(e){};hAudio.play().catch(()=>{})};
+   if(hAudio.readyState>=1)go();else hAudio.onloadedmetadata=go;
+   hAudio.ontimeupdate=()=>{
+     const p=Math.max(0,Math.min(1,(hAudio.currentTime-st)/Math.max(1,en-st)));
+     card.querySelector(".akh-progress i").style.width=(p*100)+"%";
+     if(hAudio.currentTime>=en){hAudio.currentTime=st;hAudio.play().catch(()=>{})}
+   };
+ }
+ function observe(){
+   hObserver?.disconnect();
+   hObserver=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.72)playCard(e.target)}),{root:document.getElementById("akh-feed"),threshold:[.72]});
+   document.querySelectorAll(".akh-card").forEach(x=>hObserver.observe(x));
+ }
+ window.showHighlightsPage=async function(e){
+   e?.preventDefault?.(); allPagesOff();
+   const p=document.getElementById("highlights-page");p.style.setProperty("display","block","important");
+   document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("highlights-nav")?.classList.add("menu-active");
+   document.querySelector("body > header nav")?.classList.remove("mobile-open");window.scrollTo(0,0);await load();return false;
+ };
+ window.akhToggleSound=function(){hMuted=!hMuted;hAudio.muted=hMuted;document.querySelectorAll(".akh-sound").forEach(b=>b.textContent=(hMuted?"🔇":"🔊")+" SOUND")};
+ window.akhLike=async id=>{if(typeof toggleTrackLike==="function")await toggleTrackLike(id)};
+ window.akhComment=id=>{hAudio.pause();if(typeof openTrackComments==="function")openTrackComments(id)};
+ window.akhShare=async id=>{const u=new URL(location.href);u.search="";u.hash="";u.searchParams.set("track",id);try{if(navigator.share)await navigator.share({title:"AMKINA MUSIC",url:u.href});else{await navigator.clipboard.writeText(u.href);alert("링크를 복사했습니다.")}}catch(e){}};
+ window.akhFull=function(id){hAudio.pause();const idx=(typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks.findIndex(t=>String(t.id)===String(id)):-1;if(idx>=0&&typeof playTrack==="function")playTrack(idx);if(typeof openTrackFullPage==="function")openTrackFullPage(id)};
+ document.addEventListener("click",e=>{const b=e.target.closest(".akh-tab");if(!b)return;document.querySelectorAll(".akh-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");hMode=b.dataset.mode;load()});
+ document.addEventListener("DOMContentLoaded",()=>{addMenu();addStudio()});
+ setTimeout(()=>{addMenu();addStudio()},900);
+})();
+</script>
