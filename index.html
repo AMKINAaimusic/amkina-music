@@ -10386,7 +10386,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">주간</button>
    </div>
   </div>
-  <div class="chart100-refresh">◷ 6시간마다 갱신 · 다음 갱신 <b id="chart100-countdown">--:--:--</b></div>
+  <div class="chart100-refresh">◷ 2시간마다 갱신 · 다음 갱신 <b id="chart100-countdown">--:--:--</b></div>
   <div id="chart100-list"></div>
  </div>
 </section>
@@ -10449,9 +10449,9 @@ function amkinaStartChartCountdown(){
   const draw=()=>{
     const el=document.getElementById("chart100-countdown"); if(!el)return;
     const base=amkinaChartSnapshotMeta.latest?new Date(amkinaChartSnapshotMeta.latest):new Date();
-    let next=new Date(base.getTime()+6*60*60*1000);
+    let next=new Date(base.getTime()+2*60*60*1000);
     const now=new Date();
-    while(next<=now) next=new Date(next.getTime()+6*60*60*1000);
+    while(next<=now) next=new Date(next.getTime()+2*60*60*1000);
     const sec=Math.max(0,Math.floor((next-now)/1000));
     const h=String(Math.floor(sec/3600)).padStart(2,"0");
     const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");
@@ -11420,7 +11420,7 @@ setTimeout(openDeepLinkedTrack,250);
 </style>
 <script id="amkina-visitors-v1-script">
 (function(){
-  const COUNT_INTERVAL = 6 * 60 * 60 * 1000; // same browser: max once every 6 hours
+  const COUNT_INTERVAL = 2 * 60 * 60 * 1000; // same browser: max once every 6 hours
   const LAST_KEY = "amkina_last_visit_counted_at_v1";
   const VISITOR_KEY = "amkina_visitor_id_v1";
 
