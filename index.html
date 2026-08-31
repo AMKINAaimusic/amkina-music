@@ -13488,3 +13488,57 @@ body.akh-active #track-full-page{display:none!important}
 })();
 </script>
 
+<style id="amkina-mobile-highlight-cleanup">
+@media(max-width:768px){
+ body.akh-active .akh-duplicate-mobile-header{display:none!important}
+ body.akh-active #highlights-page{
+   bottom:var(--akh-player-h,76px)!important;
+   margin-bottom:0!important;padding-bottom:0!important;height:auto!important
+ }
+ body.akh-active #highlights-page .akh-shell,
+ body.akh-active #highlights-page .akh-feed,
+ body.akh-active #highlights-page .akh-card{
+   margin-bottom:0!important;padding-bottom:0!important
+ }
+}
+</style>
+<script id="amkina-mobile-highlight-cleanup-script">
+(function(){
+ function sync(){
+   if(innerWidth>768||!document.body.classList.contains("akh-active"))return;
+
+   document.querySelectorAll(".akh-duplicate-mobile-header")
+     .forEach(x=>x.classList.remove("akh-duplicate-mobile-header"));
+
+   const candidates=[...document.querySelectorAll("header,.mobile-header,.topbar,.top-bar,div")]
+     .filter(el=>{
+       if(el.closest("#highlights-page"))return false;
+       const txt=(el.textContent||"").replace(/\s+/g," ").trim();
+       if(!txt.includes("AMKINA MUSIC"))return false;
+       const r=el.getBoundingClientRect();
+       return r.height>=45&&r.height<=160&&r.width>=innerWidth*.75&&el.querySelector("button");
+     })
+     .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+
+   if(candidates.length>1)candidates.slice(1).forEach(x=>x.classList.add("akh-duplicate-mobile-header"));
+
+   const page=document.getElementById("highlights-page");
+   const player=document.getElementById("player")||document.querySelector(".bottom-player")||document.querySelector(".player-bar");
+   if(page&&player){
+     const pr=player.getBoundingClientRect();
+     if(pr.height>0){
+       document.documentElement.style.setProperty("--akh-player-h",Math.ceil(pr.height)+"px");
+       page.style.setProperty("bottom",Math.max(0,innerHeight-pr.top)+"px","important");
+     }
+   }
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",sync);else sync();
+ window.addEventListener("load",sync);window.addEventListener("resize",sync);
+ document.addEventListener("click",e=>{
+   if(e.target.closest("#highlights-nav"))[50,250,700].forEach(ms=>setTimeout(sync,ms));
+ },true);
+ new MutationObserver(()=>{if(document.body.classList.contains("akh-active"))requestAnimationFrame(sync)})
+   .observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+})();
+</script>
+
