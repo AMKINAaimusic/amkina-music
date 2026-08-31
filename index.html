@@ -13598,3 +13598,119 @@ body.akh-active #track-full-page{display:none!important}
 })();
 </script>
 
+<style id="amkina-highlights-player-zero-gap-fix">
+@media(max-width:768px){
+ body.akh-active #highlights-page,
+ body.akh-active #highlights-page .akh-shell,
+ body.akh-active #highlights-page .akh-feed,
+ body.akh-active #highlights-page .akh-card,
+ body.akh-active #highlights-page .akh-card:last-child{
+   margin-bottom:0!important;
+   padding-bottom:0!important;
+   border-bottom:0!important;
+ }
+}
+</style>
+<script id="amkina-highlights-player-zero-gap-fix-script">
+(function(){
+ function player(){
+   return document.getElementById("player")||
+          document.querySelector(".bottom-player")||
+          document.querySelector(".player-bar");
+ }
+ function stick(){
+   if(innerWidth>768||!document.body.classList.contains("akh-active"))return;
+   const page=document.getElementById("highlights-page"), p=player();
+   if(!page||!p)return;
+   const r=p.getBoundingClientRect();
+   if(r.height<=0)return;
+   const bottom=Math.max(0,innerHeight-r.top);
+   page.style.setProperty("bottom",bottom+"px","important");
+   page.style.setProperty("margin-bottom","0","important");
+   page.style.setProperty("padding-bottom","0","important");
+   document.documentElement.style.setProperty("--akh-player-h",bottom+"px");
+ }
+ function enter(){requestAnimationFrame(stick);setTimeout(stick,80);setTimeout(stick,220)}
+ document.addEventListener("click",e=>{if(e.target.closest("#highlights-nav"))enter()},true);
+ window.addEventListener("resize",stick,{passive:true});
+ window.addEventListener("orientationchange",()=>setTimeout(stick,200),{passive:true});
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",stick,{once:true});else stick();
+})();
+</script>
+
+<style id="amkina-highlights-real-gap-fix-v2">
+@media(max-width:768px){
+  /* 스크린샷의 회색 띠는 HIGHLIGHTS 여백이 아니라
+     고정 플레이어 위쪽에 잡힌 offset/margin 영역까지 포함해 제거 */
+  body.akh-active #highlights-page{
+    margin:0!important;
+    padding-bottom:0!important;
+  }
+
+  body.akh-active #highlights-page .akh-shell,
+  body.akh-active #highlights-page .akh-feed,
+  body.akh-active #highlights-page .akh-card,
+  body.akh-active #highlights-page .akh-card:last-child{
+    margin-bottom:0!important;
+    padding-bottom:0!important;
+  }
+
+  body.akh-active #player,
+  body.akh-active .bottom-player,
+  body.akh-active .player-bar{
+    margin-top:0!important;
+    border-top-width:0!important;
+  }
+}
+</style>
+
+<script id="amkina-highlights-real-gap-fix-v2-script">
+(function(){
+  function getPlayer(){
+    return document.getElementById("player") ||
+           document.querySelector(".bottom-player") ||
+           document.querySelector(".player-bar");
+  }
+
+  function fixExactGap(){
+    if(innerWidth>768 || !document.body.classList.contains("akh-active")) return;
+
+    const page=document.getElementById("highlights-page");
+    const p=getPlayer();
+    if(!page || !p) return;
+
+    /* 플레이어 실제 콘텐츠 박스의 시작점에 HIGHLIGHTS 끝을 정확히 맞춤 */
+    const r=p.getBoundingClientRect();
+    const cs=getComputedStyle(p);
+    const mt=parseFloat(cs.marginTop)||0;
+
+    p.style.setProperty("margin-top","0","important");
+
+    const correctedTop=r.top-mt;
+    const bottom=Math.max(0,innerHeight-correctedTop);
+
+    page.style.setProperty("bottom",bottom+"px","important");
+    page.style.setProperty("margin-bottom","0","important");
+    page.style.setProperty("padding-bottom","0","important");
+    document.documentElement.style.setProperty("--akh-player-h",bottom+"px");
+  }
+
+  function run(){
+    requestAnimationFrame(fixExactGap);
+    setTimeout(fixExactGap,60);
+    setTimeout(fixExactGap,180);
+  }
+
+  document.addEventListener("click",e=>{
+    if(e.target.closest("#highlights-nav")) run();
+  },true);
+
+  window.addEventListener("resize",fixExactGap,{passive:true});
+  window.addEventListener("orientationchange",()=>setTimeout(fixExactGap,180),{passive:true});
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",run,{once:true});
+  }else run();
+})();
+</script>
+
