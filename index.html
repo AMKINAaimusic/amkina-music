@@ -13881,3 +13881,66 @@ body.akh-active #track-full-page{display:none!important}
  },true);
 })();
 </script>
+``````
+
+<!-- ===== AMKINA CHART 100 PREMIUM REDESIGN 2026 ===== -->
+<style id="amkina-chart100-premium-v2">
+#chart100-page{background:#f5f5f3!important;padding:32px 34px 155px!important}
+.chart100-wrap{max-width:1480px!important}
+.chart100-head{position:relative;align-items:center!important;margin:0 0 14px!important;padding:30px 32px!important;border:1px solid #e6e6e2!important;border-radius:20px!important;background:#fff!important;box-shadow:0 10px 34px rgba(0,0,0,.045)!important}
+.chart100-kicker{color:#a0a09b!important;font-size:9px!important;letter-spacing:.28em!important}
+.chart100-title{margin:7px 0 8px!important;font-size:42px!important;letter-spacing:-1.8px!important}
+.chart100-sub{color:#888!important;font-size:12px!important}
+.chart100-tabs{padding:4px!important;border:1px solid #e8e8e5!important;border-radius:999px!important;background:#f6f6f4!important}
+.chart100-tab{min-width:62px!important;padding:9px 14px!important;border:0!important;background:transparent!important;color:#8b8b87!important;cursor:pointer!important}
+.chart100-tab.active{background:#111!important;color:#fff!important;box-shadow:0 3px 10px rgba(0,0,0,.12)!important}
+.chart100-refresh{margin:0 4px 18px!important;color:#999!important;font-size:10px!important}.chart100-refresh b{color:#111!important}
+.chart100-podium{display:grid;grid-template-columns:1fr 1.18fr 1fr;gap:16px;align-items:end;margin:0 0 30px}
+.chart100-podium-card{position:relative;min-width:0;padding:18px;border:1px solid #e4e4e1;border-radius:20px;background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.045);cursor:pointer;overflow:hidden;transition:.22s ease}
+.chart100-podium-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(0,0,0,.08)}
+.chart100-podium-card.rank1{padding:20px;border-color:#d7d7d2;box-shadow:0 16px 40px rgba(0,0,0,.075)}
+.chart100-podium-cover{position:relative;aspect-ratio:16/10;border-radius:15px;overflow:hidden;background:#eee}
+.chart100-podium-cover img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .35s ease}.chart100-podium-card:hover img{transform:scale(1.025)}
+.chart100-podium-no{position:absolute;left:13px;top:13px;z-index:2;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:rgba(10,10,10,.88);color:#fff;font-size:18px;font-weight:950;backdrop-filter:blur(10px)}
+.rank1 .chart100-podium-no{width:48px;height:48px;background:#fff;color:#111;font-size:21px}
+.chart100-podium-play{position:absolute;right:13px;bottom:13px;z-index:2;width:46px;height:46px;border:0;border-radius:50%;background:#fff;color:#111;font-size:17px;box-shadow:0 5px 18px rgba(0,0,0,.18)}
+.chart100-podium-info{padding:15px 3px 2px}.chart100-podium-info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#111;font-size:16px;font-weight:900}.rank1 .chart100-podium-info b{font-size:18px}.chart100-podium-artist{margin-top:5px;color:#777;font-size:11px}
+.chart100-podium-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid #eee;color:#777;font-size:10px}.chart100-podium-stats{display:flex;gap:13px}.chart100-podium-move{font-weight:900}.chart100-podium-move .up{color:#e23d3d}.chart100-podium-move .down{color:#3479db}.chart100-podium-move .new{color:#111}
+.chart100-list-head{display:grid;grid-template-columns:62px 60px 58px minmax(190px,1fr) 120px 100px 52px;gap:14px;align-items:center;padding:0 16px 10px;color:#aaa;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.chart100-list-head span:nth-last-child(-n+3){text-align:right}
+.chart100-row{grid-template-columns:62px 60px 58px minmax(190px,1fr) 120px 100px 52px!important;gap:14px!important;margin:0 0 5px!important;padding:9px 16px!important;border:1px solid transparent!important;border-radius:12px!important;background:transparent!important;transition:.18s ease!important}
+.chart100-row:hover{background:#fff!important;border-color:#e7e7e4!important;box-shadow:0 7px 20px rgba(0,0,0,.035)!important;transform:translateY(-1px)}
+.chart100-row.top1,.chart100-row.top2,.chart100-row.top3{display:none!important}
+.chart100-rank{font-size:17px!important;font-weight:900!important;color:#1a1a1a!important}.chart100-medal{display:none!important}
+.chart100-move{font-size:10px!important}.chart100-move .arrow.up{color:#e23d3d!important}.chart100-move .arrow.down{color:#3479db!important}.chart100-move .new{color:#111!important;font-size:9px!important}
+.chart100-cover{width:50px!important;height:50px!important;border-radius:9px!important}
+.chart100-song b{font-size:13px!important;font-weight:850!important;color:#111!important}.chart100-song span{display:block;margin-top:4px!important;font-size:10px!important;color:#8b8b87!important}
+.chart100-genre{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#9a9a96!important;font-size:10px!important}.chart100-stat{font-size:10px!important;color:#666!important}
+.chart100-play-mini{display:flex;align-items:center;justify-content:center;width:34px;height:34px;margin-left:auto;border:1px solid #dededb;border-radius:50%;background:#fff;color:#111;font-size:12px}
+@media(max-width:768px){
+ #chart100-page{padding:14px 12px 120px!important;background:#f7f7f5!important}.chart100-head{display:block!important;margin-bottom:10px!important;padding:22px 20px!important;border-radius:16px!important}.chart100-title{font-size:31px!important}.chart100-sub{max-width:270px;line-height:1.55}.chart100-tabs{display:inline-flex!important;margin-top:18px!important}.chart100-refresh{justify-content:flex-start!important;margin:0 4px 13px!important}
+ .chart100-podium{grid-template-columns:1fr 1fr!important;gap:9px!important;margin-bottom:24px!important}.chart100-podium-card{padding:8px!important;border-radius:14px!important}.chart100-podium-card.rank1{grid-column:1/-1!important;padding:10px!important}.chart100-podium-card.rank1 .chart100-podium-cover{aspect-ratio:16/9!important}.chart100-podium-cover{aspect-ratio:1!important;border-radius:11px!important}.chart100-podium-no{left:8px;top:8px;width:34px!important;height:34px!important;border-radius:9px!important;font-size:14px!important}.rank1 .chart100-podium-no{font-size:17px!important}.chart100-podium-play{right:8px;bottom:8px;width:38px;height:38px}.chart100-podium-info{padding:10px 3px 3px}.chart100-podium-info b,.rank1 .chart100-podium-info b{font-size:13px!important}.chart100-podium-artist{font-size:9px}.chart100-podium-bottom{margin-top:8px;padding-top:8px;font-size:9px}.chart100-podium-stats{gap:8px}
+ .chart100-list-head{display:none!important}.chart100-row{grid-template-columns:34px 38px 46px minmax(0,1fr) 34px!important;gap:7px!important;margin:0!important;padding:9px 4px!important;border:0!important;border-bottom:1px solid #e8e8e5!important;border-radius:0!important}.chart100-row:hover{box-shadow:none!important;transform:none!important}.chart100-rank{font-size:15px!important}.chart100-move{font-size:9px!important}.chart100-cover{width:44px!important;height:44px!important;border-radius:8px!important}.chart100-song b{font-size:12px!important}.chart100-song span{font-size:9px!important}.chart100-genre,.chart100-stat{display:none!important}.chart100-play-mini{width:31px;height:31px;font-size:11px}
+}
+</style>
+<script id="amkina-chart100-premium-script-v2">
+function amkinaChartPodiumCard(t,rank){
+ const plays=amkinaTrackPlays(t).toLocaleString(),likes=amkinaChartLikeCount(t).toLocaleString();
+ return `<article class="chart100-podium-card rank${rank}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-podium-cover"><img src="${t.cover_url||t.cover||''}" alt=""><span class="chart100-podium-no">${String(rank).padStart(2,'0')}</span><button class="chart100-podium-play" type="button" aria-label="재생">▶</button></div><div class="chart100-podium-info"><b>${escapeHtmlChart(t.title||'Untitled')}</b><div class="chart100-podium-artist">${escapeHtmlChart(t.artist||'AMKINA')}</div><div class="chart100-podium-bottom"><span class="chart100-podium-move">${amkinaChartMoveHtml(t.id)}</span><span class="chart100-podium-stats"><span>▶ ${plays}</span><span>♡ ${likes}</span></span></div></div></article>`;
+}
+async function renderChart100(){
+ const el=document.getElementById('chart100-list'); if(!el)return;
+ const likeCounts={};
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/track_likes?select=track_id',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});if(r.ok)(await r.json()).forEach(x=>{const id=String(x.track_id);likeCounts[id]=(likeCounts[id]||0)+1})}catch(e){console.warn('CHART 100 좋아요 집계 실패',e)}
+ await amkinaLoadChartSnapshots(); amkinaStartChartCountdown();
+ const source=(typeof tracks!=='undefined'&&Array.isArray(tracks)?tracks:[]);source.forEach(t=>t._live_like_count=likeCounts[String(t.id)]||0);
+ let list=source.slice(),lm=amkinaChartSnapshotMeta.latestMap||{};
+ if(amkinaChartSnapshotMeta.latest&&Object.keys(lm).length)list=list.filter(t=>lm[String(t.id)]!=null).sort((a,b)=>lm[String(a.id)]-lm[String(b.id)]).slice(0,100);else list=list.sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
+ if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return}
+ const top=list.slice(0,3); const ordered=top.length>=3?[top[1],top[0],top[2]]:top;
+ const podium=`<div class="chart100-podium">${ordered.map(t=>amkinaChartPodiumCard(t,lm[String(t.id)]||list.indexOf(t)+1)).join('')}</div>`;
+ const head=`<div class="chart100-list-head"><span>RANK</span><span>MOVE</span><span></span><span>TRACK</span><span>PLAYS</span><span>LIKES</span><span></span></div>`;
+ const rows=list.map((t,i)=>{const rank=lm[String(t.id)]||i+1,topClass=rank<=3?' top'+rank:'';return `<div class="chart100-row${topClass}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-rank">${String(rank).padStart(2,'0')}</div><div class="chart100-move">${amkinaChartMoveHtml(t.id)}</div><img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt=""><div class="chart100-song"><b>${escapeHtmlChart(t.title||'Untitled')}</b><span>${escapeHtmlChart(t.artist||'AMKINA')}</span></div><div class="chart100-stat">${amkinaTrackPlays(t).toLocaleString()}</div><div class="chart100-stat chart100-like">${amkinaChartLikeCount(t).toLocaleString()}</div><div class="chart100-play-mini">▶</div></div>`}).join('');
+ el.innerHTML=podium+head+rows;
+}
+</script>
