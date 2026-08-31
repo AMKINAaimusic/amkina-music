@@ -3493,61 +3493,6 @@ let shuffleMode=false;
 const audio =
 document.getElementById("audio");
 
-/* AMKINA v9: 특정 브라우저/회원 재생 무반응 자동복구 + 진단 */
-let amkinaLastAudioError = "";
-function amkinaAudioErrorCode(err){
-  const n=(err&&err.name)||"";
-  if(n==="NotAllowedError") return "E01";
-  if(n==="NotSupportedError") return "E02";
-  if(n==="AbortError") return "E03";
-  if(n==="SecurityError") return "E04";
-  return "E09";
-}
-function amkinaShowPlayError(code, detail){
-  amkinaLastAudioError=code;
-  console.warn("AMKINA PLAY ERROR",code,detail||"");
-  let el=document.getElementById("amkina-play-error");
-  if(!el){
-    el=document.createElement("div"); el.id="amkina-play-error";
-    el.style.cssText="position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:999999;background:#111;color:#fff;padding:10px 14px;border-radius:12px;font:700 12px/1.35 Arial,sans-serif;box-shadow:0 6px 24px #0005;max-width:88vw;text-align:center";
-    document.body.appendChild(el);
-  }
-  el.textContent="재생 오류 "+code+" · 이 번호를 관리자에게 알려주세요";
-  el.style.display="block"; clearTimeout(el._t); el._t=setTimeout(()=>el.style.display="none",7000);
-}
-async function amkinaSafePlay(a=audio, retry=true){
-  if(!a) return false;
-  try{
-    if(a.networkState===HTMLMediaElement.NETWORK_NO_SOURCE) a.load();
-    await a.play();
-    amkinaLastAudioError="";
-    return true;
-  }catch(err){
-    console.warn("AMKINA first play failed",err);
-    if(retry && a.src){
-      try{
-        const src=a.currentSrc||a.src, pos=Number.isFinite(a.currentTime)?a.currentTime:0, muted=a.muted, volume=a.volume;
-        a.pause(); a.removeAttribute("src"); a.load(); a.src=src; a.muted=muted; a.volume=volume; a.load();
-        await new Promise((resolve,reject)=>{
-          const ok=()=>{cleanup();resolve()}; const bad=()=>{cleanup();reject(a.error||err)};
-          const cleanup=()=>{a.removeEventListener("canplay",ok);a.removeEventListener("error",bad)};
-          a.addEventListener("canplay",ok,{once:true}); a.addEventListener("error",bad,{once:true});
-          setTimeout(()=>{cleanup();resolve()},2500);
-        });
-        try{if(pos>0 && Number.isFinite(a.duration))a.currentTime=Math.min(pos,Math.max(0,a.duration-.2))}catch(e){}
-        await a.play(); amkinaLastAudioError=""; return true;
-      }catch(err2){ err=err2; }
-    }
-    amkinaShowPlayError(amkinaAudioErrorCode(err),err&&err.message);
-    return false;
-  }
-}
-audio.addEventListener("error",()=>{
-  const c=audio.error?.code;
-  const code=c===2?"E12":c===3?"E13":c===4?"E14":"E10";
-  amkinaShowPlayError(code,audio.error?.message||"");
-});
-
 const playButton =
 document.getElementById("main-play");
 
@@ -3754,7 +3699,7 @@ function playTrack(index){
   if(typeof refreshLyricsButton==="function") refreshLyricsButton();
   if(typeof renderCompactLyrics==="function") renderCompactLyrics();
 
-  amkinaSafePlay(audio);
+  audio.play();
 fetch(SUPABASE_URL + "/rest/v1/rpc/increment_play_count", {
   method: "POST",
   headers: {
@@ -3783,7 +3728,7 @@ function togglePlay(){
   }
 
   if(audio.paused){
-    amkinaSafePlay(audio);
+    audio.play();
   }else{
     audio.pause();
   }
@@ -13557,7 +13502,7 @@ new MutationObserver(apply).observe(document.documentElement,{subtree:true,child
      try{
        if(!same || audio.currentTime<clipStart || audio.currentTime>=clipEnd)audio.currentTime=clipStart;
      }catch(e){}
-     amkinaSafePlay(audio);
+     audio.play().catch(()=>{});
    };
    if(audio.readyState>=1)begin();
    else audio.addEventListener("loadedmetadata",begin,{once:true});
