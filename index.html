@@ -2655,10 +2655,9 @@ body.track-full-open{overflow:hidden}
 
     <div class="nav-section-label nav-discover">DISCOVER</div>
 
-    <a href="#" class="coming-link">
-        <span class="nav-icon">◉</span>
+    <a href="#" id="album-nav" onclick="showAmkinaAlbum(event); return false;">
+        <span class="nav-icon">▣</span>
         <span class="nav-text">AMKINA 앨범</span>
-        <span class="coming-soon">준비중</span>
     </a>
 
     <a href="#" class="coming-link">
@@ -13711,6 +13710,150 @@ body.akh-active #track-full-page{display:none!important}
   if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded",run,{once:true});
   }else run();
+})();
+</script>
+
+<style id="amkina-album-v1-style">
+#amkina-album-page{display:none;position:fixed;z-index:650;left:145px;right:0;top:0;bottom:78px;background:#fafafa;overflow-y:auto;color:#111}
+.aa-wrap{max-width:1280px;margin:0 auto;padding:54px 34px 70px}
+.aa-head{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:24px;border-bottom:1px solid #ddd}
+.aa-kicker{font-size:10px;font-weight:800;letter-spacing:3px;color:#888}
+.aa-title{font-size:38px;line-height:1;margin:8px 0 8px;font-weight:950;letter-spacing:-1.4px}
+.aa-desc{font-size:12px;color:#777}
+.aa-upload-btn{border:0;border-radius:999px;background:#111;color:#fff;font-weight:800;padding:13px 19px;cursor:pointer}
+.aa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 16px;margin-top:28px}
+.aa-card{min-width:0}.aa-photo{aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#ececec;cursor:pointer;position:relative}
+.aa-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .22s ease}.aa-photo:hover img{transform:scale(1.025)}
+.aa-meta{padding:9px 2px 0}.aa-name{font-size:13px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aa-author{font-size:10px;color:#888;margin-top:3px}.aa-empty{grid-column:1/-1;padding:90px 0;text-align:center;color:#999;font-size:13px}
+.aa-modal{display:none;position:fixed;z-index:1200;inset:0;background:#0009;align-items:center;justify-content:center;padding:20px}
+.aa-modal.open{display:flex}.aa-box{width:min(560px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:20px;padding:25px;box-shadow:0 25px 80px #0005}
+.aa-box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.aa-box-head b{font-size:21px}.aa-x{border:0;background:none;font-size:27px;cursor:pointer}
+.aa-field{margin:14px 0}.aa-field label{display:block;font-size:11px;font-weight:800;margin-bottom:7px}.aa-field input,.aa-field textarea{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:10px;padding:12px;font:inherit}.aa-field textarea{min-height:90px;resize:vertical}
+.aa-preview{display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;margin-top:10px;background:#eee}
+.aa-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.aa-actions button{border:1px solid #ddd;background:#fff;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer}.aa-actions .primary{background:#111;color:#fff;border-color:#111}
+.aa-view-img{width:100%;max-height:65vh;object-fit:contain;background:#111;border-radius:12px}.aa-view-title{font-size:18px;font-weight:900;margin-top:15px}.aa-view-desc{font-size:12px;line-height:1.7;color:#666;margin-top:6px;white-space:pre-wrap}.aa-delete{display:none;margin-top:15px;border:1px solid #ddd;background:#fff;border-radius:9px;padding:9px 12px;color:#d22;font-weight:800;cursor:pointer}
+@media(max-width:1000px){.aa-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:768px){
+ #amkina-album-page{left:0;top:86px;bottom:76px}
+ .aa-wrap{padding:28px 18px 45px}.aa-title{font-size:29px}.aa-head{align-items:center}.aa-desc{max-width:220px}
+ .aa-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 10px}
+ .aa-upload-btn{padding:11px 14px;font-size:11px}
+}
+</style>
+
+<section id="amkina-album-page">
+ <div class="aa-wrap">
+  <div class="aa-head">
+   <div><div class="aa-kicker">AMKINA COMMUNITY PHOTO</div><div class="aa-title">AMKINA ALBUM</div><div class="aa-desc">음악과 일상을 사진으로 기록하고 공유하세요.</div></div>
+   <button class="aa-upload-btn" id="aa-open-upload">＋ 사진 올리기</button>
+  </div>
+  <div class="aa-grid" id="aa-grid"><div class="aa-empty">사진을 불러오는 중...</div></div>
+ </div>
+</section>
+
+<div class="aa-modal" id="aa-upload-modal">
+ <div class="aa-box">
+  <div class="aa-box-head"><b>사진 올리기</b><button class="aa-x" data-aa-close>×</button></div>
+  <div class="aa-field"><label>사진</label><input id="aa-file" type="file" accept="image/jpeg,image/png,image/webp"><img id="aa-preview" class="aa-preview"></div>
+  <div class="aa-field"><label>제목</label><input id="aa-title" maxlength="80" placeholder="사진 제목"></div>
+  <div class="aa-field"><label>한줄 설명</label><textarea id="aa-desc" maxlength="500" placeholder="사진에 대한 이야기를 남겨주세요."></textarea></div>
+  <div class="aa-actions"><button data-aa-close>취소</button><button class="primary" id="aa-submit">게시하기</button></div>
+ </div>
+</div>
+
+<div class="aa-modal" id="aa-view-modal">
+ <div class="aa-box">
+  <div class="aa-box-head"><b>AMKINA ALBUM</b><button class="aa-x" data-aa-close>×</button></div>
+  <img id="aa-view-img" class="aa-view-img">
+  <div id="aa-view-title" class="aa-view-title"></div><div id="aa-view-author" class="aa-author"></div><div id="aa-view-desc" class="aa-view-desc"></div>
+  <button id="aa-delete" class="aa-delete">사진 삭제</button>
+ </div>
+</div>
+
+<script id="amkina-album-v1-script">
+(function(){
+ let albumRows=[], selected=null;
+ const $=q=>document.querySelector(q);
+ function session(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
+ function token(){return session()?.access_token||SUPABASE_ANON_KEY}
+ function userId(){return session()?.user?.id||null}
+ function userName(){const s=session();return s?.user?.user_metadata?.display_name||s?.user?.user_metadata?.name||s?.user?.email?.split("@")[0]||"AMKINA USER"}
+ function h(json=false){const x={apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+token()};if(json)x["Content-Type"]="application/json";return x}
+ function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+ window.showAmkinaAlbum=function(e){
+   if(e){e.preventDefault();e.stopPropagation()}
+   document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));
+   $("#album-nav")?.classList.add("menu-active");
+   $("#amkina-album-page").style.display="block";
+   document.body.classList.remove("akh-active");
+   const hp=$("#highlights-page"); if(hp)hp.style.setProperty("display","none","important");
+   if(typeof closeMobileMenu==="function")closeMobileMenu();
+   loadAlbum(); $("#amkina-album-page").scrollTop=0;
+ };
+ function hideAlbum(){const p=$("#amkina-album-page");if(p)p.style.display="none"}
+ ["showHomePage","showMusicPage","showStudioPage","showCommunityPage","showMyPage","showLibraryPage","showArtistsPage"].forEach(n=>{
+   const old=window[n];if(typeof old==="function")window[n]=function(){hideAlbum();return old.apply(this,arguments)}
+ });
+
+ async function loadAlbum(){
+   const grid=$("#aa-grid"); if(!grid)return;
+   grid.innerHTML='<div class="aa-empty">사진을 불러오는 중...</div>';
+   try{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/album_posts?select=*&order=created_at.desc&limit=100",{headers:h()});
+     if(!r.ok)throw new Error(await r.text());
+     albumRows=await r.json();
+     if(!albumRows.length){grid.innerHTML='<div class="aa-empty">아직 등록된 사진이 없습니다.<br>첫 번째 사진을 올려보세요.</div>';return}
+     grid.innerHTML=albumRows.map(x=>`<article class="aa-card" data-id="${x.id}"><div class="aa-photo"><img loading="lazy" src="${esc(x.image_url)}" alt=""></div><div class="aa-meta"><div class="aa-name">${esc(x.title||"Untitled")}</div><div class="aa-author">${esc(x.author_name||"AMKINA USER")}</div></div></article>`).join("");
+     grid.querySelectorAll(".aa-card").forEach(c=>c.onclick=()=>openView(c.dataset.id));
+   }catch(err){console.error(err);grid.innerHTML='<div class="aa-empty">앨범을 불러오지 못했습니다.<br>Supabase 앨범 설정을 먼저 적용해주세요.</div>'}
+ }
+
+ function openView(id){
+   selected=albumRows.find(x=>String(x.id)===String(id));if(!selected)return;
+   $("#aa-view-img").src=selected.image_url;$("#aa-view-title").textContent=selected.title||"";
+   $("#aa-view-author").textContent=selected.author_name||"AMKINA USER";$("#aa-view-desc").textContent=selected.description||"";
+   $("#aa-delete").style.display=(userId()&&selected.user_id===userId())?"inline-block":"none";
+   $("#aa-view-modal").classList.add("open");
+ }
+ function closeModals(){document.querySelectorAll(".aa-modal.open").forEach(m=>m.classList.remove("open"))}
+ document.querySelectorAll("[data-aa-close]").forEach(b=>b.onclick=closeModals);
+ document.querySelectorAll(".aa-modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModals()}));
+
+ $("#aa-open-upload").onclick=()=>{
+   if(!userId()){alert("로그인 후 사진을 올릴 수 있습니다.");return}
+   $("#aa-file").value="";$("#aa-title").value="";$("#aa-desc").value="";$("#aa-preview").style.display="none";$("#aa-upload-modal").classList.add("open");
+ };
+ $("#aa-file").onchange=e=>{const f=e.target.files?.[0];if(!f)return;const p=$("#aa-preview");p.src=URL.createObjectURL(f);p.style.display="block"};
+
+ $("#aa-submit").onclick=async function(){
+   const f=$("#aa-file").files?.[0], title=$("#aa-title").value.trim(), desc=$("#aa-desc").value.trim();
+   if(!f)return alert("사진을 선택해주세요."); if(!title)return alert("제목을 입력해주세요.");
+   if(f.size>10*1024*1024)return alert("사진은 10MB 이하로 올려주세요.");
+   this.disabled=true;this.textContent="업로드 중...";
+   try{
+     const ext=(f.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+     const path=userId()+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
+     const up=await fetch(SUPABASE_URL+"/storage/v1/object/album-images/"+path,{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+token(),"Content-Type":f.type||"image/jpeg","x-upsert":"false"},body:f});
+     if(!up.ok)throw new Error("이미지 업로드 실패: "+await up.text());
+     const imageUrl=SUPABASE_URL+"/storage/v1/object/public/album-images/"+path;
+     const ins=await fetch(SUPABASE_URL+"/rest/v1/album_posts",{method:"POST",headers:{...h(true),Prefer:"return=representation"},body:JSON.stringify({user_id:userId(),author_name:userName(),title,description:desc,image_url:imageUrl,storage_path:path})});
+     if(!ins.ok)throw new Error("게시물 저장 실패: "+await ins.text());
+     closeModals();await loadAlbum();
+   }catch(err){console.error(err);alert("업로드하지 못했습니다. Supabase 설정을 확인해주세요.")}
+   finally{this.disabled=false;this.textContent="게시하기"}
+ };
+
+ $("#aa-delete").onclick=async function(){
+   if(!selected||selected.user_id!==userId())return;if(!confirm("이 사진을 삭제할까요?"))return;
+   try{
+     const del=await fetch(SUPABASE_URL+"/rest/v1/album_posts?id=eq."+encodeURIComponent(selected.id),{method:"DELETE",headers:h()});
+     if(!del.ok)throw new Error(await del.text());
+     if(selected.storage_path)await fetch(SUPABASE_URL+"/storage/v1/object/album-images/"+selected.storage_path,{method:"DELETE",headers:h()});
+     closeModals();selected=null;await loadAlbum();
+   }catch(err){console.error(err);alert("삭제하지 못했습니다.")}
+ };
 })();
 </script>
 
