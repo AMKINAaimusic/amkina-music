@@ -13488,57 +13488,113 @@ body.akh-active #track-full-page{display:none!important}
 })();
 </script>
 
-<style id="amkina-mobile-highlight-cleanup">
+<style id="amkina-mobile-highlight-performance-v2">
 @media(max-width:768px){
- body.akh-active .akh-duplicate-mobile-header{display:none!important}
- body.akh-active #highlights-page{
-   bottom:var(--akh-player-h,76px)!important;
-   margin-bottom:0!important;padding-bottom:0!important;height:auto!important
- }
- body.akh-active #highlights-page .akh-shell,
- body.akh-active #highlights-page .akh-feed,
- body.akh-active #highlights-page .akh-card{
-   margin-bottom:0!important;padding-bottom:0!important
- }
+  body.akh-active .akh-duplicate-mobile-header{display:none!important}
+  body.akh-active #highlights-page{
+    bottom:var(--akh-player-h,76px)!important;
+    height:auto!important;
+    min-height:0!important;
+    margin-bottom:0!important;
+    padding-bottom:0!important
+  }
+  body.akh-active #highlights-page .akh-shell,
+  body.akh-active #highlights-page .akh-feed,
+  body.akh-active #highlights-page .akh-card{
+    margin-bottom:0!important;
+    padding-bottom:0!important
+  }
 }
 </style>
-<script id="amkina-mobile-highlight-cleanup-script">
+
+<script id="amkina-mobile-highlight-performance-v2-script">
 (function(){
- function sync(){
-   if(innerWidth>768||!document.body.classList.contains("akh-active"))return;
+  let lastActive=false;
+  let resizeTimer=null;
 
-   document.querySelectorAll(".akh-duplicate-mobile-header")
-     .forEach(x=>x.classList.remove("akh-duplicate-mobile-header"));
+  function getPlayer(){
+    return document.getElementById("player") ||
+           document.querySelector(".bottom-player") ||
+           document.querySelector(".player-bar");
+  }
 
-   const candidates=[...document.querySelectorAll("header,.mobile-header,.topbar,.top-bar,div")]
-     .filter(el=>{
-       if(el.closest("#highlights-page"))return false;
-       const txt=(el.textContent||"").replace(/\s+/g," ").trim();
-       if(!txt.includes("AMKINA MUSIC"))return false;
-       const r=el.getBoundingClientRect();
-       return r.height>=45&&r.height<=160&&r.width>=innerWidth*.75&&el.querySelector("button");
-     })
-     .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+  function hideDuplicateHeaderOnce(){
+    document.querySelectorAll(".akh-duplicate-mobile-header")
+      .forEach(el=>el.classList.remove("akh-duplicate-mobile-header"));
 
-   if(candidates.length>1)candidates.slice(1).forEach(x=>x.classList.add("akh-duplicate-mobile-header"));
+    const candidates=[...document.querySelectorAll("header,.mobile-header,.topbar,.top-bar,div")]
+      .filter(el=>{
+        if(el.closest("#highlights-page")) return false;
+        const txt=(el.textContent||"").replace(/\s+/g," ").trim();
+        if(!txt.includes("AMKINA MUSIC")) return false;
+        const r=el.getBoundingClientRect();
+        return r.height>=45 && r.height<=160 &&
+               r.width>=innerWidth*.75 && !!el.querySelector("button");
+      })
+      .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
 
-   const page=document.getElementById("highlights-page");
-   const player=document.getElementById("player")||document.querySelector(".bottom-player")||document.querySelector(".player-bar");
-   if(page&&player){
-     const pr=player.getBoundingClientRect();
-     if(pr.height>0){
-       document.documentElement.style.setProperty("--akh-player-h",Math.ceil(pr.height)+"px");
-       page.style.setProperty("bottom",Math.max(0,innerHeight-pr.top)+"px","important");
-     }
-   }
- }
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",sync);else sync();
- window.addEventListener("load",sync);window.addEventListener("resize",sync);
- document.addEventListener("click",e=>{
-   if(e.target.closest("#highlights-nav"))[50,250,700].forEach(ms=>setTimeout(sync,ms));
- },true);
- new MutationObserver(()=>{if(document.body.classList.contains("akh-active"))requestAnimationFrame(sync)})
-   .observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
+    if(candidates.length>1){
+      candidates.slice(1).forEach(el=>el.classList.add("akh-duplicate-mobile-header"));
+    }
+  }
+
+  function layoutOnce(){
+    if(innerWidth>768 || !document.body.classList.contains("akh-active")) return;
+
+    hideDuplicateHeaderOnce();
+
+    const page=document.getElementById("highlights-page");
+    const player=getPlayer();
+    if(page && player){
+      const pr=player.getBoundingClientRect();
+      if(pr.height>0){
+        const h=Math.ceil(pr.height);
+        document.documentElement.style.setProperty("--akh-player-h",h+"px");
+        page.style.setProperty("bottom",h+"px","important");
+      }
+    }
+  }
+
+  function onEnter(){
+    requestAnimationFrame(()=>{
+      layoutOnce();
+      setTimeout(layoutOnce,180);
+    });
+  }
+
+  /* 재생 중 DOM 전체 감시를 제거.
+     body의 akh-active 클래스가 실제로 켜지거나 꺼질 때만 반응한다. */
+  const bodyObserver=new MutationObserver(()=>{
+    const active=document.body.classList.contains("akh-active");
+    if(active && !lastActive) onEnter();
+    lastActive=active;
+  });
+
+  function init(){
+    lastActive=document.body.classList.contains("akh-active");
+    bodyObserver.observe(document.body,{attributes:true,attributeFilter:["class"]});
+    if(lastActive) onEnter();
+  }
+
+  /* 화면 크기/회전 변경 때만 한 번 재계산 */
+  window.addEventListener("resize",()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(layoutOnce,180);
+  },{passive:true});
+
+  window.addEventListener("orientationchange",()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(layoutOnce,250);
+  },{passive:true});
+
+  /* 메뉴 클릭 직후에만 보정. 반복 타이머 없음. */
+  document.addEventListener("click",e=>{
+    if(e.target.closest("#highlights-nav")) onEnter();
+  },true);
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",init,{once:true});
+  }else init();
 })();
 </script>
 
