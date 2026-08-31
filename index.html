@@ -14184,3 +14184,64 @@ async function renderChart100(){
  document.addEventListener('DOMContentLoaded',()=>{setTimeout(paint,200)});
 })();
 </script>
+
+
+<!-- ===== AMKINA PLAYER 5-BAND EQ v1 ===== -->
+<style id="amkina-player-eq-v1-style">
+#ak-eq-btn{height:32px;min-width:38px;padding:0 9px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:transparent;color:#aaa;font:800 10px/1 Arial,sans-serif;letter-spacing:.8px;cursor:pointer;transition:.18s ease}
+#ak-eq-btn:hover,#ak-eq-btn.active{background:#fff;color:#111;border-color:#fff}
+#ak-eq-btn.on::after{content:"";display:inline-block;width:5px;height:5px;margin-left:5px;border-radius:50%;background:currentColor;vertical-align:1px}
+#ak-eq-panel{position:fixed;right:28px;bottom:100px;width:430px;max-width:calc(100vw - 32px);z-index:100050;padding:18px;border:1px solid #282828;border-radius:18px;background:rgba(13,14,16,.985);box-shadow:0 18px 60px rgba(0,0,0,.38);color:#fff;font-family:Arial,Helvetica,sans-serif;display:none;box-sizing:border-box}
+#ak-eq-panel.open{display:block}
+.ak-eq-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.ak-eq-title{display:flex;align-items:baseline;gap:8px}.ak-eq-title b{font-size:15px;letter-spacing:.2px}.ak-eq-title span{font-size:9px;color:#777;letter-spacing:1.2px;font-weight:800}.ak-eq-head-actions{display:flex;align-items:center;gap:7px}.ak-eq-mini{height:30px;padding:0 10px;border:1px solid #333;border-radius:8px;background:#181818;color:#aaa;font-size:10px;font-weight:800;cursor:pointer}.ak-eq-mini:hover{border-color:#666;color:#fff}.ak-eq-power{color:#fff}.ak-eq-power.on{background:#fff;color:#111;border-color:#fff}
+.ak-eq-presets{display:flex;gap:6px;overflow-x:auto;padding:1px 0 12px;scrollbar-width:none}.ak-eq-presets::-webkit-scrollbar{display:none}.ak-eq-preset{flex:0 0 auto;height:29px;padding:0 10px;border:1px solid #303030;border-radius:999px;background:#171717;color:#8d8d8d;font-size:9px;font-weight:800;cursor:pointer}.ak-eq-preset.active{background:#fff;border-color:#fff;color:#111}
+.ak-eq-bands{height:176px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:9px 2px 0;border-top:1px solid #242424}.ak-eq-band{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:flex-end}.ak-eq-value{height:20px;color:#bbb;font-size:9px;font-variant-numeric:tabular-nums}.ak-eq-slider-wrap{height:112px;display:flex;align-items:center;justify-content:center}.ak-eq-range{width:108px;height:3px;margin:0;transform:rotate(-90deg);accent-color:#fff;cursor:pointer}.ak-eq-freq{margin-top:7px;color:#8a8a8a;font-size:9px;font-weight:800;white-space:nowrap}.ak-eq-foot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;padding-top:11px;border-top:1px solid #242424;color:#696969;font-size:8px;line-height:1.4}.ak-eq-foot strong{color:#aaa;font-weight:700}
+@media(max-width:768px){#ak-eq-btn{height:30px;min-width:34px;padding:0 7px;font-size:9px;border-radius:8px}#ak-eq-panel{left:10px;right:10px;bottom:82px;width:auto;max-width:none;padding:14px;border-radius:15px}.ak-eq-title span{display:none}.ak-eq-bands{height:158px;gap:2px}.ak-eq-slider-wrap{height:98px}.ak-eq-range{width:94px}.ak-eq-foot{font-size:7px}.ak-eq-head{margin-bottom:10px}}
+</style>
+<script id="amkina-player-eq-v1-script">
+(function(){
+ const STORE='amkina_player_eq_v1';
+ const bands=[{f:60,type:'lowshelf',label:'60Hz'},{f:250,type:'peaking',label:'250Hz'},{f:1000,type:'peaking',label:'1kHz'},{f:4000,type:'peaking',label:'4kHz'},{f:12000,type:'highshelf',label:'12kHz'}];
+ const presets={Flat:[0,0,0,0,0],'Bass Boost':[6,3,0,-1,-1],Vocal:[-2,-1,3,4,2],Bright:[-2,-1,0,3,6],Night:[3,2,0,-2,-4]};
+ let state={on:false,preset:'Flat',gains:[0,0,0,0,0]};
+ let ctx=null,source=null,filters=[],ready=false;
+ const audio=document.getElementById('audio'); if(!audio)return;
+ try{const x=JSON.parse(localStorage.getItem(STORE)||'null');if(x&&Array.isArray(x.gains)&&x.gains.length===5)state={on:!!x.on,preset:x.preset||'Custom',gains:x.gains.map(v=>Math.max(-12,Math.min(12,Number(v)||0)))}}catch(e){}
+ audio.crossOrigin='anonymous';
+ function save(){try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){}}
+ function initAudio(){
+   if(ready)return true;
+   try{
+     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+     ctx=new AC();source=ctx.createMediaElementSource(audio);let prev=source;
+     filters=bands.map((b,i)=>{const f=ctx.createBiquadFilter();f.type=b.type;f.frequency.value=b.f;if(b.type==='peaking')f.Q.value=1;f.gain.value=state.on?state.gains[i]:0;prev.connect(f);prev=f;return f});
+     prev.connect(ctx.destination);ready=true;return true;
+   }catch(e){console.warn('AMKINA EQ init failed',e);return false}
+ }
+ async function wake(){if(!initAudio())return false;try{if(ctx.state==='suspended')await ctx.resume()}catch(e){}return true}
+ function apply(){if(ready)filters.forEach((f,i)=>f.gain.setTargetAtTime(state.on?state.gains[i]:0,ctx.currentTime,.015));paint();save()}
+ function paint(){
+   const btn=document.getElementById('ak-eq-btn'),power=document.getElementById('ak-eq-power');
+   btn?.classList.toggle('on',state.on);power?.classList.toggle('on',state.on);if(power)power.textContent=state.on?'EQ ON':'EQ OFF';
+   document.querySelectorAll('.ak-eq-range').forEach((r,i)=>{r.value=state.gains[i];const v=document.querySelector('[data-eq-value="'+i+'"]');if(v)v.textContent=(state.gains[i]>0?'+':'')+state.gains[i].toFixed(1)+' dB'});
+   document.querySelectorAll('.ak-eq-preset').forEach(b=>b.classList.toggle('active',b.dataset.preset===state.preset));
+ }
+ function build(){
+   const buttons=document.querySelector('.player .buttons, .bottom-player .buttons, #player .buttons');if(!buttons||document.getElementById('ak-eq-btn'))return;
+   const eq=document.createElement('button');eq.id='ak-eq-btn';eq.type='button';eq.textContent='EQ';eq.title='이퀄라이저';eq.setAttribute('aria-label','이퀄라이저 열기');const lyric=document.getElementById('lyrics-player-btn');buttons.insertBefore(eq,lyric||null);
+   const panel=document.createElement('section');panel.id='ak-eq-panel';panel.setAttribute('aria-label','5밴드 이퀄라이저');
+   panel.innerHTML='<div class="ak-eq-head"><div class="ak-eq-title"><b>Equalizer</b><span>5-BAND AUDIO CONTROL</span></div><div class="ak-eq-head-actions"><button type="button" class="ak-eq-mini" id="ak-eq-reset">RESET</button><button type="button" class="ak-eq-mini ak-eq-power" id="ak-eq-power">EQ OFF</button></div></div><div class="ak-eq-presets">'+Object.keys(presets).map(n=>'<button type="button" class="ak-eq-preset" data-preset="'+n+'">'+n+'</button>').join('')+'</div><div class="ak-eq-bands">'+bands.map((b,i)=>'<label class="ak-eq-band"><span class="ak-eq-value" data-eq-value="'+i+'">0.0 dB</span><span class="ak-eq-slider-wrap"><input class="ak-eq-range" data-i="'+i+'" type="range" min="-12" max="12" step="0.5" value="0" aria-label="'+b.label+' 조절"></span><span class="ak-eq-freq">'+b.label+'</span></label>').join('')+'</div><div class="ak-eq-foot"><span><strong>-12 ~ +12 dB</strong> · 설정은 이 브라우저에 저장됩니다.</span><span>FLAT · BASS · VOCAL · BRIGHT · NIGHT</span></div>';
+   document.body.appendChild(panel);
+   eq.addEventListener('click',async e=>{e.stopPropagation();panel.classList.toggle('open');eq.classList.toggle('active',panel.classList.contains('open'));if(panel.classList.contains('open'))await wake()});
+   document.getElementById('ak-eq-power').addEventListener('click',async()=>{await wake();state.on=!state.on;apply()});
+   document.getElementById('ak-eq-reset').addEventListener('click',async()=>{await wake();state.on=false;state.preset='Flat';state.gains=[0,0,0,0,0];apply()});
+   panel.querySelectorAll('.ak-eq-preset').forEach(b=>b.addEventListener('click',async()=>{await wake();state.on=true;state.preset=b.dataset.preset;state.gains=[...presets[state.preset]];apply()}));
+   panel.querySelectorAll('.ak-eq-range').forEach(r=>r.addEventListener('input',async()=>{await wake();state.on=true;state.preset='Custom';state.gains[Number(r.dataset.i)]=Number(r.value);apply()}));
+   document.addEventListener('click',e=>{if(panel.classList.contains('open')&&!panel.contains(e.target)&&e.target!==eq){panel.classList.remove('open');eq.classList.remove('active')}});
+   paint();
+ }
+ audio.addEventListener('play',()=>wake());
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
+ window.amkinaEQ={open(){document.getElementById('ak-eq-panel')?.classList.add('open')},reset(){state={on:false,preset:'Flat',gains:[0,0,0,0,0]};apply()}};
+})();
+</script>
