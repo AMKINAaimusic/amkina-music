@@ -13944,3 +13944,93 @@ async function renderChart100(){
  el.innerHTML=podium+head+rows;
 }
 </script>
+
+<!-- ===== AMKINA LIBRARY PREMIUM V2 ===== -->
+<style id="amkina-library-premium-v2">
+#library-page{max-width:none!important;padding:0 0 150px!important;background:#f6f6f3!important;color:#111!important}
+#library-page .lib-head{position:relative;overflow:hidden;min-height:270px;margin:0!important;padding:58px clamp(24px,5vw,72px) 48px!important;align-items:flex-end!important;background:#0c0c0d!important;color:#fff!important;border-bottom:1px solid #202024}
+#library-page .lib-head:before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;right:-90px;top:-220px;background:radial-gradient(circle,#ffffff24 0,#ffffff08 42%,transparent 70%)}
+#library-page .lib-head:after{content:"AMKINA";position:absolute;right:3vw;bottom:-34px;font:900 clamp(72px,10vw,150px)/1 Arial,sans-serif;letter-spacing:-8px;color:#ffffff07;pointer-events:none}
+#library-page .lib-head>div,#library-page .lib-new-btn{position:relative;z-index:2}
+#library-page .lib-kicker{color:#a9a9ad!important;letter-spacing:3px!important;font-size:10px!important}
+#library-page .lib-head h1{font-size:clamp(42px,5vw,68px)!important;line-height:.95!important;letter-spacing:-4px!important;margin:10px 0 15px!important}
+#library-page .lib-head p{max-width:620px;color:#a9a9ad!important;font-size:13px!important;line-height:1.7}
+#library-page .lib-new-btn{background:#fff!important;color:#111!important;border:1px solid #fff!important;padding:13px 20px!important;box-shadow:none!important}
+#library-page .lib-new-btn:hover{background:#e9e9e9!important}
+.lib-premium-shell{padding:0 clamp(24px,5vw,72px)}
+#library-page .lib-toolbar{position:sticky;top:0;z-index:20;margin:0!important;padding:18px clamp(24px,5vw,72px) 0;background:#f6f6f3eF;backdrop-filter:blur(16px);align-items:center!important}
+#library-page .lib-tabs{gap:4px!important}
+#library-page .lib-tabs button{padding:11px 15px!important;border:0!important;border-radius:999px!important;font-size:12px!important}
+#library-page .lib-tabs button.active{background:#111!important;color:#fff!important}
+#library-page .lib-tools{padding:0!important}
+#library-page .lib-tools input,#library-page .lib-tools select{height:40px!important;background:#fff!important;border-color:#dededb!important;border-radius:12px!important}
+#library-page .lib-smart{margin:26px clamp(24px,5vw,72px) 8px!important;grid-template-columns:1.15fr 1fr 1fr!important;gap:12px!important}
+#library-page .lib-smart button{min-height:92px;padding:18px!important;border:1px solid #e2e2df!important;border-radius:18px!important;box-shadow:0 5px 22px #00000008!important}
+#library-page .lib-smart button:first-child{background:#111!important;color:#fff!important;border-color:#111!important}
+#library-page .lib-smart button:first-child small{color:#a9a9ad!important}
+#library-page .lib-smart-icon{width:50px!important;height:50px!important;border-radius:15px!important;background:#f0f0ed!important;color:#111!important}
+#library-page .lib-smart button:first-child .lib-smart-icon{background:#fff!important}
+#library-page .lib-smart b{font-size:14px!important}.lib-smart small{font-size:11px!important}
+.lib-premium-overview{margin:24px clamp(24px,5vw,72px) 4px;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.55fr);gap:14px}
+.lib-premium-panel{background:#fff;border:1px solid #e2e2df;border-radius:22px;padding:22px;min-width:0}
+.lib-premium-panel-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}.lib-premium-panel-head h2{font-size:18px;margin:0;letter-spacing:-.7px}.lib-premium-panel-head span{font-size:10px;color:#999;letter-spacing:1.4px;font-weight:800}
+.lib-recent-covers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.lib-recent-tile{min-width:0;cursor:pointer}.lib-recent-tile img,.lib-recent-placeholder{width:100%;aspect-ratio:1;object-fit:cover;border-radius:13px;background:#ececea}.lib-recent-tile b{display:block;margin-top:8px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lib-recent-tile small{display:block;color:#999;font-size:9px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-stat-stack{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lib-stat{background:#f5f5f2;border-radius:15px;padding:17px}.lib-stat span{display:block;color:#888;font-size:10px}.lib-stat strong{display:block;font-size:25px;margin-top:7px;letter-spacing:-1px}.lib-stat-wide{grid-column:1/-1;background:#111;color:#fff}.lib-stat-wide span{color:#aaa}
+#library-playlists-view,#library-liked-view,#library-recent-view,#library-detail,#library-login-note{margin:24px clamp(24px,5vw,72px) 0!important}
+#library-page .lib-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important;gap:20px 14px!important}
+#library-page .lib-card{border:0!important;background:transparent!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
+#library-page .lib-card:hover{transform:none!important;box-shadow:none!important}
+#library-page .lib-card-cover{border-radius:17px!important;box-shadow:0 12px 28px #00000012;transition:.22s;isolation:isolate}
+#library-page .lib-card:hover .lib-card-cover{transform:translateY(-4px);box-shadow:0 18px 34px #0000001c}
+#library-page .lib-card-cover:after{content:"▶";position:absolute;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#111;color:#fff;font-size:13px;opacity:0;transform:translateY(6px);transition:.2s;box-shadow:0 6px 18px #0004}
+#library-page .lib-card:hover .lib-card-cover:after{opacity:1;transform:none}
+#library-page .lib-card h3{font-size:14px!important;margin:11px 2px 4px!important}.lib-card-meta{justify-content:flex-start!important;gap:7px}.lib-card-meta p{font-size:10px!important;color:#929292!important}.lib-card-meta p+ p:before{content:"· ";}
+#library-page .lib-card-menu{z-index:3;opacity:.92}
+.lib-section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}.lib-section-title h2{font-size:22px;margin:0;letter-spacing:-1px}.lib-section-title span{font-size:10px;color:#999}
+#library-page .lib-song-list{background:#fff;border:1px solid #e3e3e0;border-radius:18px;overflow:hidden;gap:0!important}
+#library-page .lib-song{grid-template-columns:30px 54px minmax(0,1fr) 90px auto!important;min-height:72px;padding:8px 14px!important;border-bottom:1px solid #eeeeeb!important;background:#fff}
+#library-page .lib-song:last-child{border-bottom:0!important}.lib-song:hover{background:#f8f8f5!important;border-radius:0!important}
+.lib-song-index{display:block!important;width:auto!important;font-weight:800}.lib-song-cover{width:54px!important;height:54px!important;border-radius:10px!important;overflow:hidden}.lib-song-title{font-size:13px}.lib-song-artist{font-size:10px!important}.lib-song-plays{font-size:10px;color:#999;text-align:right;white-space:nowrap}.lib-song-actions button{border:0!important;background:#f1f1ef!important;border-radius:50%!important;width:34px;height:34px;padding:0!important;font-weight:900}
+.lib-empty{border:0!important;background:#fff!important;border-radius:20px!important;min-height:210px!important;box-shadow:inset 0 0 0 1px #e5e5e2}.lib-empty:before{content:"♫";display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#111;color:#fff;margin:0 auto 15px;font-size:18px}
+#library-page .lib-detail-hero{background:#111!important;color:#fff!important;border:0!important;border-radius:24px!important;padding:26px!important}.lib-detail-hero p{color:#aaa!important}.lib-detail-cover{box-shadow:0 18px 45px #0007}.lib-delete{background:#ffffff12!important;color:#fff!important;border-color:#ffffff25!important}
+.lib-rename{border:1px solid #ffffff25;background:#ffffff12;color:#fff;border-radius:999px;padding:11px 16px;cursor:pointer}
+@media(max-width:900px){.lib-premium-overview{grid-template-columns:1fr}.lib-recent-covers{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:700px){#library-page{padding-bottom:160px!important}#library-page .lib-head{min-height:235px;padding:42px 18px 34px!important;align-items:flex-start!important;flex-direction:column!important}#library-page .lib-head h1{font-size:44px!important;letter-spacing:-3px!important}#library-page .lib-head p{font-size:11px!important}#library-page .lib-new-btn{margin-top:10px}#library-page .lib-toolbar{position:relative;padding:13px 14px 0!important;display:block!important;overflow:hidden}.lib-tabs{overflow:auto;white-space:nowrap;padding-bottom:7px}.lib-tools{display:grid!important;grid-template-columns:1fr 115px;margin:4px 0 10px}.lib-tools input{width:auto!important}.lib-smart{margin:15px 14px 4px!important;display:flex!important;overflow:auto;gap:8px!important}.lib-smart button{min-width:185px;min-height:78px!important;padding:13px!important}.lib-smart-icon{width:43px!important;height:43px!important}.lib-premium-overview{margin:14px 14px 4px}.lib-premium-panel{padding:15px;border-radius:18px}.lib-recent-covers{grid-template-columns:repeat(3,1fr)}.lib-recent-tile:nth-child(n+4){display:none}.lib-stat strong{font-size:21px}#library-playlists-view,#library-liked-view,#library-recent-view,#library-detail,#library-login-note{margin:18px 14px 0!important}#library-page .lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 10px!important}#library-page .lib-card-cover{border-radius:14px!important}#library-page .lib-card-cover:after{opacity:1;width:36px;height:36px;right:9px;bottom:9px;transform:none}.lib-card-menu{display:none!important}#library-page .lib-song{grid-template-columns:22px 48px minmax(0,1fr) auto!important;padding:8px 9px!important}.lib-song-cover{width:48px!important;height:48px!important}.lib-song-plays{display:none}.lib-detail-hero{align-items:flex-start!important}.lib-detail-actions{flex-wrap:wrap}}
+</style>
+<script id="amkina-library-premium-v2-script">
+(function(){
+ const esc=v=>typeof libEsc==='function'?libEsc(v):String(v||'');
+ function ensureOverview(){
+  const page=document.getElementById('library-page'), smart=page?.querySelector('.lib-smart'); if(!page||!smart||document.getElementById('lib-premium-overview'))return;
+  const box=document.createElement('div');box.id='lib-premium-overview';box.className='lib-premium-overview';
+  box.innerHTML='<section class="lib-premium-panel"><div class="lib-premium-panel-head"><h2>최근 재생</h2><span>RECENTLY PLAYED</span></div><div id="lib-premium-recent" class="lib-recent-covers"></div></section><section class="lib-premium-panel"><div class="lib-premium-panel-head"><h2>My Library</h2><span>OVERVIEW</span></div><div class="lib-stat-stack"><div class="lib-stat"><span>좋아요</span><strong id="lib-premium-like-stat">0</strong></div><div class="lib-stat"><span>최근 감상</span><strong id="lib-premium-recent-stat">0</strong></div><div class="lib-stat lib-stat-wide"><span>AMKINA COLLECTION</span><strong id="lib-premium-playlist-stat">0 PLAYLISTS</strong></div></div></section>';
+  smart.after(box);
+ }
+ async function refreshOverview(){
+  ensureOverview(); const host=document.getElementById('lib-premium-recent');if(!host)return;
+  let recent=[],likes=[],pls=[];
+  if(typeof libraryNeedLogin==='function'&&!libSession()?.user?.id){host.innerHTML='<div style="grid-column:1/-1;color:#999;font-size:12px;padding:20px 0">로그인하면 최근 감상 음악이 여기에 표시됩니다.</div>';return}
+  try{const [rr,lr,pr]=await Promise.all([libFetch('listening_history?select=track_id,played_at&order=played_at.desc&limit=30'),libFetch('track_likes?select=track_id'),libFetch('playlists?select=id')]);recent=await rr.json();likes=await lr.json();pls=await pr.json()}catch(e){console.warn(e)}
+  const seen=new Set(),ts=[];for(const r of recent){if(!seen.has(String(r.track_id))){seen.add(String(r.track_id));const t=libTrack(r.track_id);if(t)ts.push(t)}if(ts.length>=5)break}
+  host.innerHTML=ts.length?ts.map(t=>{const c=libCover(t);return '<div class="lib-recent-tile" onclick="libraryPlayTrack(\''+t.id+'\')">'+(c?'<img src="'+esc(c)+'">':'<div class="lib-recent-placeholder"></div>')+'<b>'+esc(t.title)+'</b><small>'+esc(t.artist)+'</small></div>'}).join(''):'<div style="grid-column:1/-1;color:#999;font-size:12px;padding:20px 0">아직 재생 기록이 없습니다. 음악을 들어보세요.</div>';
+  const a=document.getElementById('lib-premium-like-stat'),b=document.getElementById('lib-premium-recent-stat'),c=document.getElementById('lib-premium-playlist-stat');if(a)a.textContent=likes.length;if(b)b.textContent=seen.size;if(c)c.textContent=pls.length+' PLAYLISTS';
+ }
+ const oldShow=window.showLibraryPage; if(typeof oldShow==='function')window.showLibraryPage=async function(e){const r=await oldShow(e);ensureOverview();await refreshOverview();decorateSections();return r};
+ const oldPlaylists=window.renderLibraryPlaylists;if(typeof oldPlaylists==='function')window.renderLibraryPlaylists=async function(){await oldPlaylists();const grid=document.getElementById('library-playlist-grid');if(grid&&!grid.previousElementSibling?.classList.contains('lib-section-title'))grid.insertAdjacentHTML('beforebegin','<div class="lib-section-title"><h2>내 플레이리스트</h2><span>COLLECTION</span></div>');const n=grid?.querySelectorAll('.lib-card').length||0;const s=document.getElementById('lib-premium-playlist-stat');if(s)s.textContent=n+' PLAYLISTS';};
+ window.renderLibrarySongs=function(el,arr,removable=false){
+  if(!el)return;if(!arr?.length){el.innerHTML='<div class="lib-empty"><b>아직 음악이 없습니다.</b><br>마음에 드는 음악을 저장하면 이곳에 모입니다.</div>';return}
+  const sort=document.getElementById('library-sort')?.value||'recent';arr=[...arr];if(sort==='name')arr.sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'ko'));if(sort==='plays')arr.sort((a,b)=>Number(b.play_count||0)-Number(a.play_count||0));
+  el.innerHTML=arr.map((t,i)=>{const c=libCover(t);return '<div class="lib-song" data-title="'+esc(t.title)+'" data-artist="'+esc(t.artist)+'"><div class="lib-song-index">'+String(i+1).padStart(2,'0')+'</div><div class="lib-song-cover">'+(c?'<img src="'+esc(c)+'" style="width:100%;height:100%;object-fit:cover">':'♪')+'</div><div onclick="libraryPlayTrack(\''+t.id+'\')" style="cursor:pointer;min-width:0"><div class="lib-song-title">'+esc(t.title)+'</div><div class="lib-song-artist">'+esc(t.artist)+'</div></div><div class="lib-song-plays">▶ '+Number(t.play_count||0).toLocaleString()+'</div><div class="lib-song-actions">'+(removable?'<button title="삭제" onclick="removeTrackFromLibraryPlaylist(\''+t.id+'\')">×</button>':'<button title="플레이리스트에 추가" onclick="openLibraryAddModal(\''+t.id+'\')">＋</button>')+'</div></div>'}).join('');
+ };
+ window.renameCurrentLibraryPlaylist=async function(){if(!libraryCurrentPlaylist)return;const name=prompt('새 플레이리스트 이름',libraryCurrentPlaylist.name||'');if(!name||!name.trim())return;try{await libFetch('playlists?id=eq.'+encodeURIComponent(libraryCurrentPlaylist.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({name:name.trim()})});await openLibraryPlaylist(libraryCurrentPlaylist.id)}catch(e){alert('이름 변경에 실패했습니다.')}};
+ function decorateSections(){
+  const liked=document.getElementById('library-liked-list'),recent=document.getElementById('library-recent-list');
+  if(liked&&!liked.previousElementSibling?.classList.contains('lib-section-title'))liked.insertAdjacentHTML('beforebegin','<div class="lib-section-title"><h2>좋아요한 곡</h2><span>LIKED TRACKS</span></div>');
+  if(recent&&!recent.previousElementSibling?.classList.contains('lib-section-title'))recent.insertAdjacentHTML('beforebegin','<div class="lib-section-title"><h2>최근 들은 곡</h2><span>LISTENING HISTORY</span></div>');
+  const actions=document.querySelector('#library-detail .lib-detail-actions');if(actions&&!actions.querySelector('.lib-rename')){const b=document.createElement('button');b.className='lib-rename';b.textContent='이름 변경';b.onclick=renameCurrentLibraryPlaylist;actions.insertBefore(b,actions.lastElementChild)}
+ }
+ const oldSwitch=window.switchLibraryTab;if(typeof oldSwitch==='function')window.switchLibraryTab=function(tab,btn){const r=oldSwitch(tab,btn);setTimeout(decorateSections,0);return r};
+ const oldSearch=window.libraryApplySearch;window.libraryApplySearch=function(){if(typeof oldSearch==='function')oldSearch();const q=(document.getElementById('library-search')?.value||'').trim().toLowerCase();document.querySelectorAll('#library-page .lib-song').forEach(row=>row.style.display=!q||row.textContent.toLowerCase().includes(q)?'grid':'none');};
+ document.addEventListener('DOMContentLoaded',()=>{ensureOverview();decorateSections()});
+})();
+</script>
