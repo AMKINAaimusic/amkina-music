@@ -11608,6 +11608,40 @@ setTimeout(openDeepLinkedTrack,250);
   };
 })();
 </script>
+
+<!-- AMKINA MOBILE HIGHLIGHT / PLAYER SEAM FIX -->
+<style id="amkina-mobile-highlight-player-seam-fix">
+@media (max-width:768px){
+  body.amkina-highlights-open #highlights-page{
+    bottom:var(--akh-player,78px)!important;
+    overflow:hidden!important;
+    background:#070707!important;
+  }
+  body.amkina-highlights-open #highlights-page .akh-shell,
+  body.amkina-highlights-open #highlights-page .akh-feed{
+    overflow-x:hidden!important;
+  }
+  body.amkina-highlights-open #highlights-page .akh-feed{
+    overscroll-behavior-y:contain!important;
+    scroll-padding-bottom:0!important;
+    border-radius:0!important;
+    background:#070707!important;
+  }
+  body.amkina-highlights-open #highlights-page .akh-card{
+    height:100%!important;
+    min-height:100%!important;
+    scroll-snap-stop:always!important;
+  }
+  /* 플레이어가 하이라이트 경계 위를 2px 덮어 다음 카드의 얇은 이미지 띠를 완전히 가림 */
+  body.amkina-highlights-open #player{
+    z-index:9001!important;
+    transform:translateY(-2px)!important;
+    margin-bottom:-2px!important;
+    border-top:1px solid #24272d!important;
+    box-shadow:0 -3px 0 #111318!important;
+  }
+}
+</style>
 </body>
 </html>
 <script id="amkina-artists-nav-safety">
