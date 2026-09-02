@@ -2821,6 +2821,225 @@ body.track-full-open{overflow:hidden}
 }
 </style>
 
+
+<!-- ===== AMKINA ARTISTS SCALE-UP UI 2026-09-02 ===== -->
+<style id="amkina-artists-scaleup-20260902">
+/* More scalable artist discovery layout */
+#artists-page .artists-grid,
+.artists-page .artists-grid,
+#artist-list{
+  align-items:stretch !important;
+}
+
+@media (min-width:769px){
+  #artists-page .artists-grid,
+  .artists-page .artists-grid,
+  #artist-list{
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:16px !important;
+  }
+}
+
+@media (max-width:768px){
+  #artists-page,
+  .artists-page{
+    padding-bottom:180px !important;
+    overflow-x:hidden !important;
+  }
+
+  #artists-page .artists-shell,
+  .artists-page .artists-shell{
+    width:100% !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+    box-sizing:border-box !important;
+  }
+
+  #artists-page .artists-grid,
+  .artists-page .artists-grid,
+  #artist-list{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+    width:100% !important;
+    padding-bottom:90px !important;
+  }
+
+  #artists-page .artist-card,
+  .artists-page .artist-card,
+  #artist-list .artist-card{
+    width:100% !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    padding:14px 12px !important;
+    border-radius:15px !important;
+    box-sizing:border-box !important;
+    box-shadow:none !important;
+  }
+
+  #artists-page .artist-avatar,
+  .artists-page .artist-avatar,
+  #artist-list .artist-avatar,
+  #artists-page .artist-card img,
+  .artists-page .artist-card img,
+  #artist-list .artist-card img{
+    width:72px !important;
+    height:72px !important;
+    min-width:72px !important;
+    max-width:72px !important;
+    object-fit:cover !important;
+    border-radius:50% !important;
+  }
+
+  #artists-page .artist-name,
+  .artists-page .artist-name,
+  #artist-list .artist-name{
+    margin-top:12px !important;
+    font-size:17px !important;
+    line-height:1.15 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Repeated ARTIST label is unnecessary on compact mobile cards */
+  #artists-page .artist-role,
+  .artists-page .artist-role,
+  #artist-list .artist-role{
+    display:none !important;
+  }
+
+  #artists-page .artist-stats,
+  .artists-page .artist-stats,
+  #artist-list .artist-stats{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:3px !important;
+    margin-top:14px !important;
+    padding-top:11px !important;
+  }
+
+  #artists-page .artist-stat,
+  .artists-page .artist-stat,
+  #artist-list .artist-stat{
+    min-width:0 !important;
+    text-align:center !important;
+  }
+
+  #artists-page .artist-stat strong,
+  .artists-page .artist-stat strong,
+  #artist-list .artist-stat strong{
+    display:block !important;
+    font-size:15px !important;
+    line-height:1.1 !important;
+  }
+
+  #artists-page .artist-stat span,
+  .artists-page .artist-stat span,
+  #artist-list .artist-stat span{
+    display:block !important;
+    margin-top:4px !important;
+    font-size:9px !important;
+    white-space:nowrap !important;
+  }
+
+  #artists-page .artist-featured,
+  .artists-page .artist-featured,
+  #artist-list .artist-featured{
+    min-width:0 !important;
+    margin-top:12px !important;
+    font-size:10.5px !important;
+    line-height:1.3 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Search/tabs remain compact as membership grows */
+  #artists-page input[type="search"],
+  .artists-page input[type="search"],
+  #artist-search{
+    width:100% !important;
+    max-width:none !important;
+    height:48px !important;
+    font-size:14px !important;
+  }
+
+  #artists-page .artists-tabs,
+  .artists-page .artists-tabs{
+    overflow-x:auto !important;
+    scrollbar-width:none !important;
+  }
+
+  #artists-page .artists-tabs::-webkit-scrollbar,
+  .artists-page .artists-tabs::-webkit-scrollbar{
+    display:none !important;
+  }
+}
+
+@media (max-width:360px){
+  #artists-page .artists-grid,
+  .artists-page .artists-grid,
+  #artist-list{
+    grid-template-columns:1fr !important;
+  }
+}
+</style>
+
+<script id="amkina-artist-sort-ui-20260902">
+document.addEventListener("DOMContentLoaded", function(){
+  function installArtistSort(){
+    const page = document.querySelector("#artists-page, .artists-page");
+    const grid = document.querySelector("#artist-list, #artists-page .artists-grid, .artists-page .artists-grid");
+    if(!page || !grid || page.querySelector(".amkina-artist-sort")) return;
+
+    const tabs = page.querySelector(".artists-tabs");
+    const bar = document.createElement("div");
+    bar.className = "amkina-artist-sort";
+    bar.innerHTML = `
+      <span>정렬</span>
+      <button type="button" data-sort="default" class="active">추천</button>
+      <button type="button" data-sort="plays">재생</button>
+      <button type="button" data-sort="likes">좋아요</button>
+      <button type="button" data-sort="songs">곡 수</button>
+    `;
+    Object.assign(bar.style,{
+      display:"flex",alignItems:"center",gap:"6px",overflowX:"auto",
+      margin:"12px 0 16px",padding:"2px 0",fontSize:"11px",whiteSpace:"nowrap"
+    });
+    bar.querySelector("span").style.cssText="color:#999;font-weight:700;margin-right:2px";
+    [...bar.querySelectorAll("button")].forEach(b=>{
+      b.style.cssText="border:1px solid #e1e1df;background:#fff;color:#666;border-radius:999px;padding:7px 11px;font-weight:700;cursor:pointer";
+    });
+    (tabs || grid).insertAdjacentElement(tabs ? "afterend" : "beforebegin", bar);
+
+    const original = [...grid.children];
+    function nums(card){
+      const values=[...card.querySelectorAll(".artist-stat strong")].map(x=>parseInt((x.textContent||"").replace(/[^0-9]/g,""),10)||0);
+      return {songs:values[0]||0,plays:values[1]||0,likes:values[2]||0};
+    }
+    bar.addEventListener("click",e=>{
+      const btn=e.target.closest("button[data-sort]");
+      if(!btn) return;
+      const mode=btn.dataset.sort;
+      let cards=[...grid.children];
+      if(mode==="default") cards=original.filter(x=>x.isConnected);
+      else cards.sort((a,b)=>nums(b)[mode]-nums(a)[mode]);
+      cards.forEach(c=>grid.appendChild(c));
+      [...bar.querySelectorAll("button")].forEach(x=>{
+        x.classList.toggle("active",x===btn);
+        x.style.background=x===btn?"#111":"#fff";
+        x.style.color=x===btn?"#fff":"#666";
+        x.style.borderColor=x===btn?"#111":"#e1e1df";
+      });
+    });
+  }
+  installArtistSort();
+  setTimeout(installArtistSort,700);
+});
+</script>
+
 </head>
 
 <body>
