@@ -1,9 +1,8 @@
-```````
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>AMKINA MUSIC | 창작 음악 스트리밍 플랫폼</title>
 <meta name="description" content="AMKINA MUSIC에서 다양한 창작 음악을 감상하고 새로운 음악과 아티스트를 발견해보세요.">
 <meta name="robots" content="index,follow">
@@ -3389,7 +3388,7 @@ body.track-full-open{overflow:hidden}
   </div>
  </div>
 </section>
-<div class="player">
+<div class="player" id="player" role="region" aria-label="음악 플레이어">
 
   <div class="now">
 
@@ -3701,6 +3700,7 @@ async function loadMusic(){
 
 
 function playTrack(index){
+  window.amkinaEndClip?.();
 
   if(!tracks[index]) return;
 
@@ -3772,6 +3772,7 @@ function togglePlay(){
 
 
 function previousTrack(){
+ if(window.amkinaHighlightStep?.(-1))return;
 
   if(!tracks.length) return;
 
@@ -3786,6 +3787,7 @@ function previousTrack(){
 
 
 function nextTrack(){
+ if(window.amkinaHighlightStep?.(1))return;
 
   if(!tracks.length) return;
 
@@ -3869,19 +3871,19 @@ audio.addEventListener(
 
     if(!audio.duration) return;
 
-    progress.value =
-      (audio.currentTime /
-       audio.duration)*100;
+    const clip=window.amkinaClipRange;
+    const start=clip?.start||0,end=clip?Math.min(clip.end,audio.duration):audio.duration;
+    progress.value=Math.max(0,Math.min(100,(audio.currentTime-start)/(end-start)*100));
 
     document.getElementById(
       "current-time"
     ).textContent =
-      formatTime(audio.currentTime);
+      formatTime(Math.max(0,audio.currentTime-start));
 
     document.getElementById(
       "duration-time"
     ).textContent =
-      formatTime(audio.duration);
+      formatTime(end-start);
 
   }
 );
@@ -3893,9 +3895,9 @@ progress.addEventListener(
 
     if(!audio.duration) return;
 
-    audio.currentTime =
-      (progress.value/100) *
-      audio.duration;
+    const clip=window.amkinaClipRange,start=clip?.start||0;
+    const end=clip?Math.min(clip.end,audio.duration):audio.duration;
+    audio.currentTime=start+(progress.value/100)*(end-start);
 
   }
 );
@@ -11664,7 +11666,6 @@ setTimeout(openDeepLinkedTrack,250);
   enhanceComposer();
  }
  function enhanceComposer(){const cat=document.getElementById('community-category'),ta=document.getElementById('community-content');if(cat&&!cat.querySelector('option[value="collab"]'))cat.insertAdjacentHTML('beforeend','<option value="collab">COLLAB</option>');if(ta&&!document.getElementById('akc-attach'))ta.insertAdjacentHTML('afterend',`<div class="akc-attach" id="akc-attach"><div class="akc-attach-title">내 음원 첨부 <span style="font-weight:400;color:#999">· 선택사항</span></div><select id="akc-track-select" class="akc-track-select"><option value="">음원을 첨부하지 않음</option></select><div class="akc-feedback-tags" id="akc-feedback-tags"><button type="button" class="akc-feedback-tag" data-tag="보컬">보컬</button><button type="button" class="akc-feedback-tag" data-tag="멜로디">멜로디</button><button type="button" class="akc-feedback-tag" data-tag="가사">가사</button><button type="button" class="akc-feedback-tag" data-tag="믹싱">믹싱</button><button type="button" class="akc-feedback-tag" data-tag="전체 느낌">전체 느낌</button></div></div>`);document.querySelectorAll('.akc-feedback-tag').forEach(b=>b.onclick=()=>{document.querySelectorAll('.akc-feedback-tag').forEach(x=>x.classList.remove('active'));if(state.feedbackTag===b.dataset.tag){state.feedbackTag=''}else{state.feedbackTag=b.dataset.tag;b.classList.add('active')}})}
- }
  async function fillMyTracks(){const sel=document.getElementById('akc-track-select'),s=sess();if(!sel||!s?.user?.id)return;try{const r=await fetch(SUPABASE_URL+'/rest/v1/tracks?uploader_id=eq.'+encodeURIComponent(s.user.id)+'&select=id,title,artist,cover_url&order=id.desc',{headers:communityHeaders(false)});if(!r.ok)return;const a=await r.json();sel.innerHTML='<option value="">음원을 첨부하지 않음</option>'+a.map(t=>`<option value="${esc(t.id)}">${esc(t.title)} · ${esc(t.artist||'AMKINA')}</option>`).join('')}catch(e){}}
  async function social(){try{const [l,c]=await Promise.all([fetch(SUPABASE_URL+'/rest/v1/community_post_likes?select=post_id,user_id',{headers:communityHeaders(false)}),fetch(SUPABASE_URL+'/rest/v1/community_comments?select=post_id',{headers:communityHeaders(false)})]);state.likes={};state.comments={};state.myLikes=new Set();if(l.ok)(await l.json()).forEach(x=>{let k=String(x.post_id);state.likes[k]=(state.likes[k]||0)+1;if(sess()?.user?.id===x.user_id)state.myLikes.add(k)});if(c.ok)(await c.json()).forEach(x=>{let k=String(x.post_id);state.comments[k]=(state.comments[k]||0)+1})}catch(e){} }
  function hot(){const grid=document.getElementById('akc-hot-grid');if(!grid)return;const arr=[...(window.communityPosts||communityPosts||[])].sort((a,b)=>((state.likes[String(b.id)]||0)*3+(state.comments[String(b.id)]||0))-((state.likes[String(a.id)]||0)*3+(state.comments[String(a.id)]||0))).slice(0,3);grid.innerHTML=arr.length?arr.map((p,i)=>`<article class="akc-hot-card" onclick="openCommunityDetail('${p.id}')"><div class="akc-hot-rank">HOT 0${i+1}</div><div class="akc-hot-title">${esc(p.title)}</div><div class="akc-hot-meta">${esc(p.author_name||'AMKINA USER')} · ♥ ${state.likes[String(p.id)]||0} · 댓글 ${state.comments[String(p.id)]||0}</div></article>`).join(''):'<div style="font-size:11px;color:#999">아직 HOT 게시물이 없습니다.</div>';const posts=(window.communityPosts||communityPosts||[]);document.getElementById('akc-posts').textContent=posts.length;document.getElementById('akc-artists').textContent=new Set(posts.map(x=>x.user_id).filter(Boolean)).size;document.getElementById('akc-reactions').textContent=Object.values(state.likes).reduce((a,b)=>a+b,0)}
@@ -11679,8 +11680,8 @@ setTimeout(openDeepLinkedTrack,250);
  document.addEventListener('DOMContentLoaded',ensureUI);setTimeout(ensureUI,100);
 })();
 </script>
-</body>
-</html>
+
+
 <script id="amkina-artists-nav-safety">
 (function(){
  ["showHomePage","showMusicPage","showCommunityPage","openChart100","showMyPage"].forEach(n=>{
@@ -12421,8 +12422,6 @@ body.compact-lyrics-open{padding-bottom:236px!important}
 }
 </style>
 
-````
-
 
 
 
@@ -13013,8 +13012,6 @@ main [class*="description"] {
 }
 </style>
 
-`````
-
 <style id="amkina-home-community-latest-v1-style">
 #amkina-home-community-latest{width:100%;max-width:none;margin:20px 0 32px;padding:0;color:#111;box-sizing:border-box}
 .akhc-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:13px}.akhc-head h2{margin:0;font-size:20px;font-weight:850;letter-spacing:-.6px}.akhc-head p{margin:5px 0 0;color:#777;font-size:11px}.akhc-more{border:0;background:transparent;color:#555;font-size:11px;font-weight:700;cursor:pointer}.akhc-list{background:#fff;border-top:1px solid #e8e8e8}.akhc-row{display:grid;grid-template-columns:72px minmax(0,1fr) 105px 105px;gap:15px;align-items:center;padding:14px 6px;border-bottom:1px solid #ededed;cursor:pointer}.akhc-row:hover{background:#fafafa}.akhc-cat{font-size:10px;font-weight:800;color:#8b8d92}.akhc-title{font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.akhc-author,.akhc-date{font-size:10px;color:#8d8f94;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.akhc-empty{padding:24px 6px;color:#999;font-size:12px;border-bottom:1px solid #ededed}
@@ -13464,7 +13461,7 @@ body.akh-active #track-full-page{display:none!important}
    if(radio)radio.insertAdjacentElement("afterend",a);else nav.appendChild(a);
  }
  function setMeta(t){
-   if(!t)return;const i=tindex(t.id);if(i>=0)currentIndex=i;
+   if(!t)return;let i=tindex(t.id);if(i<0&&Array.isArray(tracks)){tracks.push(t);i=tracks.length-1;}if(i>=0)currentIndex=i;
    const c=document.getElementById("now-cover");if(c&&t.cover_url)c.src=t.cover_url;
    const ti=document.getElementById("now-title");if(ti)ti.textContent=t.title||"Untitled";
    const ar=document.getElementById("now-artist");if(ar)ar.textContent=t.artist||"AMKINA";
@@ -13498,15 +13495,31 @@ body.akh-active #track-full-page{display:none!important}
    const lb=card.querySelector(".akh-like");paintLike(lb,t.id);lb.onclick=()=>toggleLike(lb,t.id);
  }
  async function paintLike(b,id){const ss=session();if(!ss?.user?.id)return;try{const r=await fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id&track_id=eq."+id+"&user_id=eq."+ss.user.id,{headers:headers()});const liked=r.ok&&(await r.json()).length>0;b.classList.toggle("liked",liked);b.querySelector(".ico").textContent=liked?"♥":"♡"}catch(e){}}
- async function toggleLike(b,id){const ss=session();if(!ss?.user?.id){alert("로그인 후 사용할 수 있습니다.");return}b.disabled=true;try{const q=SUPABASE_URL+"/rest/v1/track_likes?select=track_id&track_id=eq."+id+"&user_id=eq."+ss.user.id;let r=await fetch(q,{headers:headers()});if(!r.ok)throw 0;const liked=(await r.json()).length>0;if(liked)r=await fetch(SUPABASE_URL+"/rest/v1/track_likes?track_id=eq."+id+"&user_id=eq."+ss.user.id,{method:"DELETE",headers:headers()});else r=await fetch(SUPABASE_URL+"/rest/v1/track_likes",{method:"POST",headers:{...headers(true),"Prefer":"return=minimal"},body:JSON.stringify({track_id:+id,user_id:ss.user.id})});if(!r.ok)throw 0;b.classList.toggle("liked",!liked);b.querySelector(".ico").textContent=!liked?"♥":"♡"}catch(e){alert("좋아요 처리에 실패했습니다.")}finally{b.disabled=false}}
- function playClip(card,t){if(!t?.audio_url)return;S.card=card;S.clip=true;S.start=+card.dataset.start;S.end=+card.dataset.end;setMeta(fullTrack(t.id)||t);const target=new URL(t.audio_url,location.href).href,same=audio.src===target;if(!same)audio.src=t.audio_url;const go=()=>{if(!same||audio.currentTime<S.start||audio.currentTime>=S.end)audio.currentTime=S.start;audio.play().catch(()=>{})};audio.readyState>=1?go():audio.addEventListener("loadedmetadata",go,{once:true})}
- function playFull(id){S.clip=false;S.card=null;const i=tindex(id);if(i>=0&&typeof playTrack==="function")playTrack(i)}
- function observe(){S.io?.disconnect();const feed=document.getElementById("akh-feed");S.io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.72){const c=e.target,t=S.view[+c.dataset.i];if(c!==S.card)playClip(c,t)}}),{root:feed,threshold:[.72]});feed.querySelectorAll(".akh-card").forEach(c=>S.io.observe(c))}
- function nextCard(){if(S.advancing)return;S.advancing=true;const cards=[...document.querySelectorAll(".akh-card")],i=cards.indexOf(S.card),n=cards[(i+1)%cards.length];if(n)n.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>S.advancing=false,800)}
+ async function toggleLike(b,id){
+   b.disabled=true;try{await toggleTrackLike(id);await paintLike(b,id);const liked=typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes.has(String(id));const btn=document.getElementById("player-like-btn");btn?.classList.toggle("is-liked",!!liked);btn?.setAttribute("aria-pressed",String(!!liked));}finally{b.disabled=false}
+ }
+ document.getElementById("player-like-btn")?.addEventListener("click",()=>{
+   const sync=()=>{if(S.card){const t=S.view[+S.card.dataset.i];if(t)paintLike(S.card.querySelector(".akh-like"),t.id)}};
+   const btn=document.getElementById("player-like-btn");
+   if(btn.disabled){const observer=new MutationObserver(()=>{if(!btn.disabled){observer.disconnect();sync()}});observer.observe(btn,{attributes:true,attributeFilter:["disabled"]})}else sync();
+ });
+
+ function playClip(card,t){if(!t?.audio_url)return;S.card=card;S.clip=true;S.start=+card.dataset.start;S.end=+card.dataset.end;window.amkinaClipRange={start:S.start,end:S.end};setMeta(fullTrack(t.id)||t);const target=new URL(t.audio_url,location.href).href,same=audio.src===target;if(!same)audio.src=t.audio_url;const go=()=>{if(!S.clip||S.card!==card||audio.src!==target)return;if(!same||audio.currentTime<S.start||audio.currentTime>=S.end)audio.currentTime=S.start;audio.play().catch(()=>{})};audio.readyState>=1?go():audio.addEventListener("loadedmetadata",go,{once:true})}
+ function playFull(id){S.clip=false;S.card=null;window.amkinaClipRange=null;const i=tindex(id);if(i>=0&&typeof playTrack==="function")playTrack(i)}
+ window.amkinaEndClip=function(){S.clip=false;S.card=null;window.amkinaClipRange=null;};
+ window.amkinaHighlightStep=function(delta){
+   if(!S.clip||!document.body.classList.contains("akh-active"))return false;
+   const cards=[...document.querySelectorAll(".akh-card")];if(!cards.length)return false;
+   const i=cards.indexOf(S.card),card=cards[(i+delta+cards.length)%cards.length];
+   card.scrollIntoView({behavior:"instant",block:"start"});playClip(card,S.view[+card.dataset.i]);return true;
+ };
+ audio.addEventListener("loadstart",()=>{if(S.clip&&S.card){const t=S.view[+S.card.dataset.i];if(t&&audio.src!==new URL(t.audio_url,location.href).href){S.clip=false;S.card=null;window.amkinaClipRange=null;}}});
+ function observe(){S.io?.disconnect();const feed=document.getElementById("akh-feed");S.io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.72){const c=e.target,t=S.view[+c.dataset.i];if(document.body.classList.contains("akh-active")&&c!==S.card)playClip(c,t)}}),{root:feed,threshold:[.72]});feed.querySelectorAll(".akh-card").forEach(c=>S.io.observe(c))}
+ function nextCard(){if(S.advancing)return;S.advancing=true;const cards=[...document.querySelectorAll(".akh-card")],i=cards.indexOf(S.card),n=cards[(i+1)%cards.length];if(n){n.scrollIntoView({behavior:"instant",block:"start"});playClip(n,S.view[+n.dataset.i]);}setTimeout(()=>S.advancing=false,800)}
  audio.addEventListener("timeupdate",()=>{if(!S.clip||!S.card||!document.body.classList.contains("akh-active"))return;const p=Math.max(0,Math.min(1,(audio.currentTime-S.start)/(S.end-S.start)));S.card.querySelector(".akh-progress i").style.width=(p*100)+"%";if(audio.currentTime>=S.end-.12)nextCard()});
 
- async function openHighlights(e){e?.preventDefault?.();e?.stopPropagation?.();document.body.classList.add("akh-active");layout();document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("highlights-nav")?.classList.add("menu-active");document.querySelector("body > header nav")?.classList.remove("mobile-open");await load()}
- function closeHighlights(){if(!document.body.classList.contains("akh-active"))return;document.body.classList.remove("akh-active");document.getElementById("highlights-nav")?.classList.remove("menu-active");if(S.clip){audio.pause();S.clip=false;S.card=null}}
+ async function openHighlights(e){e?.preventDefault?.();e?.stopPropagation?.();document.getElementById("highlights-page")?.style.removeProperty("display");document.body.classList.add("akh-active");layout();document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("highlights-nav")?.classList.add("menu-active");document.querySelector("body > header nav")?.classList.remove("mobile-open");await load()}
+ function closeHighlights(){if(!document.body.classList.contains("akh-active"))return;document.body.classList.remove("akh-active");document.getElementById("highlights-nav")?.classList.remove("menu-active");if(S.clip){audio.pause();S.clip=false;S.card=null;window.amkinaClipRange=null}}
 
  /* 단 하나의 메뉴 라우팅 처리기 */
  document.addEventListener("click",e=>{
@@ -13579,7 +13592,7 @@ body.akh-active #track-full-page{display:none!important}
    page.appendChild(b);
    b.addEventListener("click",function(e){
      e.preventDefault();e.stopPropagation();
-     try{if(typeof audio!=="undefined"&&!audio.paused)audio.pause()}catch(_){}
+     window.amkinaEndClip?.();try{if(typeof audio!=="undefined"&&!audio.paused)audio.pause()}catch(_){}
      document.body.classList.remove("akh-active");
      page.style.setProperty("display","none","important");
      document.getElementById("highlights-nav")?.classList.remove("menu-active");
@@ -13696,96 +13709,7 @@ body.akh-active #track-full-page{display:none!important}
 }
 </style>
 
-<script id="amkina-mobile-highlight-performance-v2-script">
-(function(){
-  let lastActive=false;
-  let resizeTimer=null;
 
-  function getPlayer(){
-    return document.getElementById("player") ||
-           document.querySelector(".bottom-player") ||
-           document.querySelector(".player-bar");
-  }
-
-  function hideDuplicateHeaderOnce(){
-    document.querySelectorAll(".akh-duplicate-mobile-header")
-      .forEach(el=>el.classList.remove("akh-duplicate-mobile-header"));
-
-    const candidates=[...document.querySelectorAll("header,.mobile-header,.topbar,.top-bar,div")]
-      .filter(el=>{
-        if(el.closest("#highlights-page")) return false;
-        const txt=(el.textContent||"").replace(/\s+/g," ").trim();
-        if(!txt.includes("AMKINA MUSIC")) return false;
-        const r=el.getBoundingClientRect();
-        return r.height>=45 && r.height<=160 &&
-               r.width>=innerWidth*.75 && !!el.querySelector("button");
-      })
-      .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
-
-    if(candidates.length>1){
-      candidates.slice(1).forEach(el=>el.classList.add("akh-duplicate-mobile-header"));
-    }
-  }
-
-  function layoutOnce(){
-    if(innerWidth>768 || !document.body.classList.contains("akh-active")) return;
-
-    hideDuplicateHeaderOnce();
-
-    const page=document.getElementById("highlights-page");
-    const player=getPlayer();
-    if(page && player){
-      const pr=player.getBoundingClientRect();
-      if(pr.height>0){
-        const h=Math.ceil(pr.height);
-        document.documentElement.style.setProperty("--akh-player-h",h+"px");
-        page.style.setProperty("bottom",h+"px","important");
-      }
-    }
-  }
-
-  function onEnter(){
-    requestAnimationFrame(()=>{
-      layoutOnce();
-      setTimeout(layoutOnce,180);
-    });
-  }
-
-  /* 재생 중 DOM 전체 감시를 제거.
-     body의 akh-active 클래스가 실제로 켜지거나 꺼질 때만 반응한다. */
-  const bodyObserver=new MutationObserver(()=>{
-    const active=document.body.classList.contains("akh-active");
-    if(active && !lastActive) onEnter();
-    lastActive=active;
-  });
-
-  function init(){
-    lastActive=document.body.classList.contains("akh-active");
-    bodyObserver.observe(document.body,{attributes:true,attributeFilter:["class"]});
-    if(lastActive) onEnter();
-  }
-
-  /* 화면 크기/회전 변경 때만 한 번 재계산 */
-  window.addEventListener("resize",()=>{
-    clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(layoutOnce,180);
-  },{passive:true});
-
-  window.addEventListener("orientationchange",()=>{
-    clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(layoutOnce,250);
-  },{passive:true});
-
-  /* 메뉴 클릭 직후에만 보정. 반복 타이머 없음. */
-  document.addEventListener("click",e=>{
-    if(e.target.closest("#highlights-nav")) onEnter();
-  },true);
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",init,{once:true});
-  }else init();
-})();
-</script>
 
 <style id="amkina-highlights-player-zero-gap-fix">
 @media(max-width:768px){
@@ -13800,32 +13724,7 @@ body.akh-active #track-full-page{display:none!important}
  }
 }
 </style>
-<script id="amkina-highlights-player-zero-gap-fix-script">
-(function(){
- function player(){
-   return document.getElementById("player")||
-          document.querySelector(".bottom-player")||
-          document.querySelector(".player-bar");
- }
- function stick(){
-   if(innerWidth>768||!document.body.classList.contains("akh-active"))return;
-   const page=document.getElementById("highlights-page"), p=player();
-   if(!page||!p)return;
-   const r=p.getBoundingClientRect();
-   if(r.height<=0)return;
-   const bottom=Math.max(0,innerHeight-r.top);
-   page.style.setProperty("bottom",bottom+"px","important");
-   page.style.setProperty("margin-bottom","0","important");
-   page.style.setProperty("padding-bottom","0","important");
-   document.documentElement.style.setProperty("--akh-player-h",bottom+"px");
- }
- function enter(){requestAnimationFrame(stick);setTimeout(stick,80);setTimeout(stick,220)}
- document.addEventListener("click",e=>{if(e.target.closest("#highlights-nav"))enter()},true);
- window.addEventListener("resize",stick,{passive:true});
- window.addEventListener("orientationchange",()=>setTimeout(stick,200),{passive:true});
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",stick,{once:true});else stick();
-})();
-</script>
+
 
 <style id="amkina-highlights-real-gap-fix-v2">
 @media(max-width:768px){
@@ -13853,55 +13752,7 @@ body.akh-active #track-full-page{display:none!important}
 }
 </style>
 
-<script id="amkina-highlights-real-gap-fix-v2-script">
-(function(){
-  function getPlayer(){
-    return document.getElementById("player") ||
-           document.querySelector(".bottom-player") ||
-           document.querySelector(".player-bar");
-  }
 
-  function fixExactGap(){
-    if(innerWidth>768 || !document.body.classList.contains("akh-active")) return;
-
-    const page=document.getElementById("highlights-page");
-    const p=getPlayer();
-    if(!page || !p) return;
-
-    /* 플레이어 실제 콘텐츠 박스의 시작점에 HIGHLIGHTS 끝을 정확히 맞춤 */
-    const r=p.getBoundingClientRect();
-    const cs=getComputedStyle(p);
-    const mt=parseFloat(cs.marginTop)||0;
-
-    p.style.setProperty("margin-top","0","important");
-
-    const correctedTop=r.top-mt;
-    const bottom=Math.max(0,innerHeight-correctedTop);
-
-    page.style.setProperty("bottom",bottom+"px","important");
-    page.style.setProperty("margin-bottom","0","important");
-    page.style.setProperty("padding-bottom","0","important");
-    document.documentElement.style.setProperty("--akh-player-h",bottom+"px");
-  }
-
-  function run(){
-    requestAnimationFrame(fixExactGap);
-    setTimeout(fixExactGap,60);
-    setTimeout(fixExactGap,180);
-  }
-
-  document.addEventListener("click",e=>{
-    if(e.target.closest("#highlights-nav")) run();
-  },true);
-
-  window.addEventListener("resize",fixExactGap,{passive:true});
-  window.addEventListener("orientationchange",()=>setTimeout(fixExactGap,180),{passive:true});
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",run,{once:true});
-  }else run();
-})();
-</script>
 
 <style id="amkina-album-v1-style">
 #amkina-album-page{display:none;position:fixed;z-index:650;left:145px;right:0;top:0;bottom:78px;background:#fafafa;overflow-y:auto;color:#111}
@@ -14071,7 +13922,6 @@ body.akh-active #track-full-page{display:none!important}
  },true);
 })();
 </script>
-``````
 
 <!-- ===== AMKINA CHART 100 PREMIUM REDESIGN 2026 ===== -->
 <style id="amkina-chart100-premium-v2">
@@ -14337,4 +14187,96 @@ async function renderChart100(){
  window.amkinaEQ={open(){document.getElementById('ak-eq-panel')?.classList.add('open')},reset(){state={on:false,preset:'Flat',gains:[0,0,0,0,0]};apply()}};
 })();
 </script>
-```````
+<style id="amkina-mobile-layout-audit-v1">
+:root{--ak-player-height:92px;--ak-bottom-nav:0px}
+#player{position:fixed!important;bottom:var(--ak-bottom-nav)!important;z-index:99999!important;visibility:visible!important;transform:none!important}
+#ak-player-more{display:none}
+body{padding-bottom:calc(var(--ak-player-height) + var(--ak-bottom-nav) + 16px)!important}
+body.akh-active #highlights-page{bottom:calc(var(--ak-player-height) + var(--ak-bottom-nav))!important}
+#ak-guide-float{bottom:calc(var(--ak-player-height) + var(--ak-bottom-nav) + 12px)!important}
+body.akh-active #ak-guide-float{display:none!important}
+.akh-shade{pointer-events:none}
+@media(max-width:768px){
+ body>header{height:64px!important;min-height:64px!important;padding:0 16px!important}
+ body>header .logo{font-size:18px!important;letter-spacing:2px!important}
+ body>header .mobile-menu-btn{top:10px!important;right:14px!important;width:44px!important;height:44px!important;font-size:25px!important}
+ body>header nav.mobile-open{top:64px!important;max-height:calc(100dvh - 64px - var(--ak-player-height))!important;overflow-y:auto!important;overscroll-behavior:contain}
+ #player{left:0!important;right:0!important;width:100%!important;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;padding:8px 12px calc(6px + env(safe-area-inset-bottom))!important;overflow:visible!important}
+ #player::before{display:none!important}
+ #player .now{display:flex!important;width:100%!important;min-width:0!important;gap:10px!important;padding:0!important;flex:none!important}
+ #player .now img{width:38px!important;height:38px!important;margin:0!important;flex-shrink:0!important}
+ #player .now-text{flex:1!important;min-width:0!important;width:auto!important}
+ #player #now-title,#player #now-artist{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important}
+ #player #now-title{font-size:13px!important;line-height:18px!important}
+ #player #now-artist{font-size:11px!important;margin-top:2px!important}
+ #player .controls{display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important}
+ #player .buttons{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;width:100%!important}
+ #player .buttons>button{min-width:44px!important;min-height:44px!important;margin:0!important;flex:0 0 44px!important}
+ #player .buttons>button[onclick="previousTrack()"],#player .buttons>button[onclick="nextTrack()"],#player #main-play,#player #player-like-btn,#player #ak-player-more{display:inline-flex!important;align-items:center!important;justify-content:center!important;position:static!important}
+ #player #shuffle-btn,#player #lyrics-player-btn,#player #ak-eq-btn,#player #player-comment-btn,#player #player-share-btn{display:none!important}
+ #player.ak-tools-open #shuffle-btn,#player.ak-tools-open #lyrics-player-btn,#player.ak-tools-open #ak-eq-btn,#player.ak-tools-open #player-comment-btn,#player.ak-tools-open #player-share-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+ #player #ak-player-more{background:none;color:#fff;border:0;font-size:22px}
+ #player .progress-row{display:flex!important;width:100%!important;max-width:none!important;margin:0!important;gap:8px!important;position:static!important}
+ #player #progress{height:20px!important;min-width:0!important;margin:0!important;touch-action:pan-y}
+ #player .time{display:block!important;flex:0 0 32px!important;color:#bbb!important;font-size:10px!important}
+ #player .volume{display:none!important}
+ #mypage{padding:16px 12px 28px!important;min-width:0!important}
+ #mypage .mp-profile{display:flex!important;flex-direction:column!important;align-items:center!important;gap:12px!important;min-height:0!important;padding:48px 20px 24px!important;text-align:center!important}
+ #mypage .mp-profile::after{top:20px!important;left:20px!important;right:20px!important}
+ #mypage .mp-avatar,#mypage .mp-profile-main,#mypage .mp-profile>.mp-edit{position:relative!important;inset:auto!important;float:none!important;margin:0!important}
+ #mypage .mp-avatar{width:88px!important;height:88px!important;flex-shrink:0!important}
+ #mypage .mp-profile-main{max-width:100%!important;width:100%!important;min-width:0!important}
+ #mypage .mp-name{font-size:clamp(22px,6vw,28px)!important;letter-spacing:-.7px!important;overflow-wrap:anywhere!important;line-height:1.2!important}
+ #mypage .mp-bio,#mypage .mp-handle{overflow-wrap:anywhere!important;line-height:1.6!important}
+ #mypage .mp-profile>.mp-edit{height:44px!important;min-height:44px!important;font-size:12px!important;width:min(100%,240px)!important}
+ #ak-guide-float{position:static!important;display:block!important;margin:12px auto!important;width:max-content!important;max-width:90%!important}
+ body.akh-active>header{visibility:hidden!important}
+ body.akh-active #highlights-page{top:0!important}
+ .akh-title{font-size:clamp(17px,5vw,23px)!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .akh-info{bottom:12px!important}
+ .akh-coverbox{padding:24px 42px 145px!important}
+ #amkina-album-page{bottom:calc(var(--ak-player-height) + var(--ak-bottom-nav))!important}
+ input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important;max-width:100%}
+}
+@media(max-width:768px) and (max-height:550px){.akh-kicker,.akh-genre{display:none!important}.akh-actions{gap:4px!important}.akh-info{bottom:8px!important}.akh-title{-webkit-line-clamp:2}.akh-coverbox{padding:8px 90px!important}}
+</style>
+<script id="amkina-mobile-layout-audit-script">
+(function(){
+ function init(){
+  const p=document.getElementById('player');if(!p)return;
+  const more=document.createElement('button');more.id='ak-player-more';more.type='button';more.textContent='⋯';more.setAttribute('aria-label','플레이어 추가 기능');more.setAttribute('aria-expanded','false');
+  more.onclick=()=>{const open=p.classList.toggle('ak-tools-open');more.setAttribute('aria-expanded',String(open));};
+  p.querySelector('.buttons').appendChild(more);
+  p.querySelector('[onclick="previousTrack()"]')?.setAttribute('aria-label','이전 곡');
+  p.querySelector('[onclick="nextTrack()"]')?.setAttribute('aria-label','다음 곡');
+  document.getElementById('main-play')?.setAttribute('aria-label','재생 또는 일시정지');
+  document.getElementById('progress')?.setAttribute('aria-label','재생 위치');
+  // Keep the footer after pages added by earlier scripts.
+  const footer=document.querySelector('body>footer');if(footer)document.body.appendChild(footer);
+  const guide=document.getElementById('ak-guide-float');if(guide&&footer)footer.prepend(guide);
+  let frame=0;
+  function measure(){cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{
+   const bottom=document.getElementById('amkina-mobile-bottom');
+   const navHeight=bottom&&getComputedStyle(bottom).display!=='none'?bottom.getBoundingClientRect().height:0;
+   const height=Math.ceil(p.getBoundingClientRect().height);
+   const root=document.documentElement;
+   root.style.setProperty('--ak-player-height',height+'px');
+   root.style.setProperty('--ak-bottom-nav',navHeight+'px');
+   root.style.setProperty('--akh-player-h',(height+navHeight)+'px');
+  });}
+  new ResizeObserver(measure).observe(p);
+  window.addEventListener('resize',measure,{passive:true});window.visualViewport?.addEventListener('resize',measure,{passive:true});measure();
+  const nav=document.querySelector('body>header nav'),button=document.querySelector('.mobile-menu-btn');
+  function close(){if(typeof closeMobileMenu==='function')closeMobileMenu();button?.setAttribute('aria-expanded','false');}
+  document.addEventListener('click',e=>{
+   if(e.target.closest('.mobile-menu-btn')&&innerWidth<=768){e.preventDefault();e.stopImmediatePropagation();const open=!nav.classList.contains('mobile-open');nav.classList.toggle('mobile-open',open);nav.style.removeProperty('display');button.textContent=open?'×':'☰';button.setAttribute('aria-expanded',String(open));return;}
+   if(innerWidth<=768&&nav?.classList.contains('mobile-open')&&!nav.contains(e.target))close();
+  },true);
+  nav?.addEventListener('click',e=>{if(e.target.closest('a'))close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+</body>
+</html>
