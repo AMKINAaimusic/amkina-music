@@ -3324,6 +3324,74 @@ document.addEventListener("DOMContentLoaded", function(){
 })();
 </script>
 
+
+<style id="amkina-google-login-style">
+#auth-modal .ak-auth-divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  margin:15px 0 13px;
+}
+#auth-modal .ak-auth-divider span{
+  height:1px;
+  flex:1;
+  background:rgba(255,255,255,.13);
+}
+#auth-modal .ak-auth-divider b{
+  color:#777;
+  font-size:11px;
+  font-weight:600;
+  white-space:nowrap;
+}
+#auth-modal .ak-google-login{
+  width:100%;
+  min-height:46px;
+  border:1px solid #d9d9d9 !important;
+  border-radius:10px;
+  background:#fff !important;
+  color:#171717 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  padding:0 16px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .15s ease, background .15s ease, border-color .15s ease;
+  box-shadow:none !important;
+}
+#auth-modal .ak-google-login:hover{
+  background:#f7f7f7 !important;
+  border-color:#bdbdbd !important;
+}
+#auth-modal .ak-google-login:active{
+  transform:scale(.985);
+}
+#auth-modal .ak-google-g{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Arial,sans-serif;
+  font-size:17px;
+  line-height:1;
+  font-weight:800;
+  color:#4285F4;
+  background:#fff;
+}
+@media(max-width:600px){
+  #auth-modal .ak-google-login{
+    min-height:48px;
+    border-radius:11px;
+    font-size:14px;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -3900,6 +3968,15 @@ document.addEventListener("DOMContentLoaded", function(){
     <input type="password" id="auth-password" placeholder="Password">
 
     <button id="auth-submit">LOGIN</button>
+
+    <div class="ak-auth-divider" aria-hidden="true">
+      <span></span><b>또는</b><span></span>
+    </div>
+
+    <button id="auth-google" type="button" class="ak-google-login">
+      <span class="ak-google-g">G</span>
+      <span>Google로 계속하기</span>
+    </button>
     <button id="auth-forgot" type="button" style="margin-top:10px;background:none;border:0;color:#a3ff68;font-size:13px;font-weight:700;cursor:pointer;">비밀번호를 잊으셨나요?</button>
 
     <p class="auth-switch">
@@ -15224,6 +15301,96 @@ document.addEventListener('change',async function(e){
     }, { passive: true });
 
     updateMetadata();
+  });
+})();
+</script>
+
+
+<script id="amkina-google-oauth-v1">
+(function(){
+  const GOOGLE_REDIRECT_URL = "https://amkinamusic.com/";
+
+  function startGoogleLogin(){
+    try{
+      localStorage.setItem("amkina_oauth_pending", "google");
+    }catch(e){}
+
+    const url =
+      SUPABASE_URL +
+      "/auth/v1/authorize?provider=google&redirect_to=" +
+      encodeURIComponent(GOOGLE_REDIRECT_URL);
+
+    window.location.assign(url);
+  }
+
+  async function finishGoogleLogin(){
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token") || "";
+    const type = hash.get("type") || "";
+    const error = hash.get("error_description") || hash.get("error");
+
+    // 비밀번호 재설정 링크는 기존 AMKINA recovery 코드가 처리하도록 둔다.
+    if(type === "recovery") return;
+
+    let pending = false;
+    try{
+      pending = localStorage.getItem("amkina_oauth_pending") === "google";
+    }catch(e){}
+
+    if(error && pending){
+      try{ localStorage.removeItem("amkina_oauth_pending"); }catch(e){}
+      history.replaceState(null, "", location.pathname + location.search);
+      alert("Google 로그인에 실패했습니다.\n" + decodeURIComponent(error));
+      return;
+    }
+
+    if(!accessToken) return;
+
+    let user = null;
+    try{
+      const response = await fetch(SUPABASE_URL + "/auth/v1/user", {
+        headers:{
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: "Bearer " + accessToken
+        }
+      });
+      if(response.ok) user = await response.json();
+    }catch(e){
+      console.error("Google 사용자 정보 확인 실패:", e);
+    }
+
+    const expiresIn = Number(hash.get("expires_in") || 3600);
+    const session = {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      token_type: hash.get("token_type") || "bearer",
+      expires_in: expiresIn,
+      expires_at: Math.floor(Date.now()/1000) + expiresIn,
+      user: user
+    };
+
+    if(typeof amkinaAuthSaveSession === "function"){
+      amkinaAuthSaveSession(session);
+    }else{
+      localStorage.setItem("amkina_session", JSON.stringify(session));
+    }
+
+    try{ localStorage.removeItem("amkina_oauth_pending"); }catch(e){}
+    history.replaceState(null, "", location.pathname + location.search);
+
+    if(typeof amkinaAuthUpdateUI === "function") amkinaAuthUpdateUI();
+
+    const modal = document.getElementById("auth-modal");
+    if(modal) modal.style.display = "none";
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const googleButton = document.getElementById("auth-google");
+    if(googleButton){
+      googleButton.addEventListener("click", startGoogleLogin);
+    }
+    finishGoogleLogin();
   });
 })();
 </script>
