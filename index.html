@@ -3040,6 +3040,153 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
+
+<!-- ===== AMKINA PREMIUM TRACK STATS 2026-09-02 ===== -->
+<style id="amkina-premium-track-stats-20260902">
+/* 카드 하단 통계를 하단 플레이어와 같은 미니멀 블랙/화이트 UI로 통일 */
+#music-list .track-stats,
+.music-grid .track-stats{
+  display:flex !important;
+  align-items:center !important;
+  gap:15px !important;
+  min-height:30px !important;
+  margin-top:auto !important;
+  padding-top:11px !important;
+  border-top:1px solid #eeeeec !important;
+  color:#8a8d8b !important;
+  font-size:11px !important;
+}
+
+#music-list .track-stat,
+.music-grid .track-stat{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  min-width:0 !important;
+  padding:4px 0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#858987 !important;
+  font:inherit !important;
+  line-height:1 !important;
+  cursor:default !important;
+  transition:color .18s ease, transform .18s ease !important;
+}
+
+#music-list button.track-stat,
+.music-grid button.track-stat{
+  cursor:pointer !important;
+}
+
+#music-list button.track-stat:hover,
+.music-grid button.track-stat:hover{
+  color:#111 !important;
+  transform:translateY(-1px) !important;
+}
+
+#music-list .track-stat svg,
+.music-grid .track-stat svg{
+  width:16px !important;
+  height:16px !important;
+  flex:0 0 16px !important;
+  display:block !important;
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.65 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+}
+
+#music-list .track-stat.stat-like.liked,
+.music-grid .track-stat.stat-like.liked,
+#music-list .track-stat.liked,
+.music-grid .track-stat.liked{
+  color:#111 !important;
+}
+
+#music-list .track-stat.stat-like.liked svg,
+.music-grid .track-stat.stat-like.liked svg,
+#music-list .track-stat.liked svg,
+.music-grid .track-stat.liked svg{
+  fill:#111 !important;
+  stroke:#111 !important;
+}
+
+/* 기존 문자 아이콘은 SVG 교체 후 숨김 */
+#music-list .track-stat .stat-play,
+#music-list .track-stat .stat-heart,
+#music-list .track-stat .stat-comment,
+.music-grid .track-stat .stat-play,
+.music-grid .track-stat .stat-heart,
+.music-grid .track-stat .stat-comment{
+  font-size:0 !important;
+  width:16px !important;
+  height:16px !important;
+  border:0 !important;
+  background:none !important;
+}
+
+/* 모바일에서는 더 촘촘하게 */
+@media(max-width:768px){
+  #music-list .track-stats,
+  .music-grid .track-stats{
+    gap:11px !important;
+    padding-top:9px !important;
+    min-height:28px !important;
+    font-size:10.5px !important;
+  }
+  #music-list .track-stat svg,
+  .music-grid .track-stat svg{
+    width:15px !important;
+    height:15px !important;
+    flex-basis:15px !important;
+  }
+}
+</style>
+
+<script id="amkina-premium-track-stats-js-20260902">
+(function(){
+  const ICONS = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.3 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+    comment: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-4-.9L3 20l1.3-4.2A8.2 8.2 0 0 1 3 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 9 8.4z"/></svg>'
+  };
+
+  function iconFor(el){
+    const cls = el.className || "";
+    const txt = (el.textContent || "").trim();
+    if(/heart|like/i.test(cls) || /♡|♥/.test(txt)) return "heart";
+    if(/comment/i.test(cls) || /💬|◯/.test(txt)) return "comment";
+    if(/play/i.test(cls) || /▶|▷/.test(txt)) return "play";
+    return null;
+  }
+
+  function upgrade(){
+    document.querySelectorAll(".track-stats .track-stat").forEach(el=>{
+      if(el.dataset.akPremiumStat === "1") return;
+      const type = iconFor(el);
+      if(!type) return;
+
+      let number = (el.textContent || "").replace(/[^0-9,]/g,"").trim();
+      if(number === "") number = "0";
+
+      el.innerHTML = ICONS[type] + '<span class="ak-stat-number">'+number+'</span>';
+      el.dataset.akPremiumStat = "1";
+      if(type === "heart") el.classList.add("stat-like");
+      el.setAttribute("aria-label",
+        type === "play" ? "재생수 "+number :
+        type === "heart" ? "좋아요 "+number : "댓글 "+number
+      );
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", upgrade);
+  const observer = new MutationObserver(upgrade);
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </head>
 
 <body>
