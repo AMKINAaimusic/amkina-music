@@ -2979,9 +2979,9 @@ body.track-full-open{overflow:hidden}
           <input
             type="file"
             id="studio-audio"
-            accept=".mp3,.wav,.flac,.m4a,.aac,.ogg,audio/*"
+            accept=".mp3,audio/mpeg"
           >
-          <span>MP3 · WAV · FLAC · M4A · AAC · OGG</span>
+          <span>MP3만 업로드 가능</span>
         </div>
       </div>
 
@@ -4096,7 +4096,28 @@ authSubmit.addEventListener("click", async () => {
     authSubmit.textContent = signupMode ? "SIGN UP" : "LOGIN";
   }
 });
+async function amkinaValidateMp3(file){
+  if(!file || !/\.mp3$/i.test(file.name||'')) return 'MP3 파일만 업로드할 수 있습니다. 음원을 MP3로 변환한 뒤 선택해주세요.';
+  if(!file.size) return '빈 파일은 업로드할 수 없습니다.';
+  const mime=(file.type||'').toLowerCase().split(';')[0];
+  if(mime && !['audio/mpeg','audio/mp3','audio/x-mp3','audio/mpeg3','audio/x-mpeg-3','application/octet-stream'].includes(mime)) return 'MP3 형식이 아닌 파일입니다. 확장자만 바꾸지 말고 MP3로 변환해주세요.';
+  try{
+    const bytes=new Uint8Array(await file.slice(0,4096).arrayBuffer());
+    // Recognize an ID3v2 tag or a valid MPEG Layer III frame header.
+    const id3=bytes.length>=10&&bytes[0]===73&&bytes[1]===68&&bytes[2]===51&&bytes[3]>=2&&bytes[3]<=4&&[6,7,8,9].every(i=>bytes[i]<128);
+    let frame=false;
+    for(let i=0;i+3<bytes.length;i++){
+      const b=bytes[i+1],c=bytes[i+2];
+      if(bytes[i]===255&&(b&224)===224&&((b>>3)&3)!==1&&((b>>1)&3)===1&&(c>>4)>0&&(c>>4)<15&&((c>>2)&3)!==3){frame=true;break;}
+    }
+    if(!id3&&!frame)return 'MP3 파일 형식을 확인할 수 없습니다. MP3로 다시 변환한 뒤 올려주세요.';
+  }catch(e){return '파일을 읽지 못했습니다. 파일을 다시 선택해주세요.';}
+  return '';
+}
+
   async function uploadMusic(file) {
+  const mp3Error=await amkinaValidateMp3(file);
+  if(mp3Error){alert(mp3Error);return;}
   const session = JSON.parse(localStorage.getItem("amkina_session"));
 
   if (!session?.access_token || !session?.user?.id) {
@@ -4113,7 +4134,7 @@ authSubmit.addEventListener("click", async () => {
       headers: {
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": `Bearer ${session.access_token}`,
-        "Content-Type": file.type
+        "Content-Type": "audio/mpeg"
       },
       body: file
     }
@@ -4176,6 +4197,9 @@ async function uploadStudioMusic(){
         return;
     }
 
+    const mp3Error=await amkinaValidateMp3(audioFile);
+    if(mp3Error){alert(mp3Error);audioInput.value='';return;}
+
     /* 로그인 확인 */
     const session = JSON.parse(
         localStorage.getItem('amkina_session')
@@ -4207,7 +4231,7 @@ const audioPath = `${userId}/${timestamp}-audio.${audioExt}`;
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization':
                         `Bearer ${session.access_token}`,
-                    'Content-Type': audioFile.type
+                    'Content-Type': 'audio/mpeg'
                 },
 
                 body:audioFile
@@ -14342,6 +14366,16 @@ body.akh-active #ak-guide-float{display:none!important}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+</script>
+<script id="amkina-mp3-selection-guard">
+document.addEventListener('change',async function(e){
+ const input=e.target;
+ if(!input.matches('#studio-audio,#music-file'))return;
+ const file=input.files?.[0];if(!file)return;
+ const message=await amkinaValidateMp3(file);
+ if(input.files?.[0]!==file)return;
+ if(message){input.value='';alert(message);}
+},true);
 </script>
 </body>
 </html>
