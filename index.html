@@ -3187,6 +3187,174 @@ document.addEventListener("DOMContentLoaded", function(){
 })();
 </script>
 
+
+<!-- ===== AMKINA CARD ACTIONS — PLAYER STYLE V4 ===== -->
+<style id="amkina-card-actions-player-style-v4">
+/* 음악 카드 하단 액션을 실제 하단 플레이어와 같은 블랙/화이트 라인 아이콘으로 */
+#music-list .track-stats,
+.music-grid .track-stats{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:18px !important;
+  min-height:38px !important;
+  margin-top:auto !important;
+  padding:10px 2px 2px !important;
+  border-top:1px solid #ededeb !important;
+  color:#111 !important;
+}
+
+#music-list .track-stat,
+.music-grid .track-stat{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  min-width:28px !important;
+  height:28px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:transparent !important;
+  color:#111 !important;
+  cursor:pointer !important;
+  transition:background .16s ease, transform .16s ease !important;
+}
+
+#music-list .track-stat:hover,
+.music-grid .track-stat:hover{
+  background:#f1f1ef !important;
+  transform:translateY(-1px) !important;
+}
+
+#music-list .track-stat svg,
+.music-grid .track-stat svg{
+  width:19px !important;
+  height:19px !important;
+  flex:0 0 19px !important;
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.8 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+}
+
+/* 숫자는 아이콘 오른쪽에 작게 */
+#music-list .ak-stat-number,
+.music-grid .ak-stat-number{
+  color:#777 !important;
+  font-size:10px !important;
+  font-weight:600 !important;
+  line-height:1 !important;
+}
+
+/* 좋아요 선택 상태 */
+#music-list .track-stat.stat-like.liked,
+.music-grid .track-stat.stat-like.liked,
+#music-list .track-stat.liked,
+.music-grid .track-stat.liked{
+  color:#111 !important;
+}
+
+#music-list .track-stat.stat-like.liked svg,
+.music-grid .track-stat.stat-like.liked svg,
+#music-list .track-stat.liked svg,
+.music-grid .track-stat.liked svg{
+  fill:#111 !important;
+  stroke:#111 !important;
+}
+
+@media(max-width:768px){
+  #music-list .track-stats,
+  .music-grid .track-stats{
+    gap:13px !important;
+    min-height:34px !important;
+    padding-top:8px !important;
+  }
+  #music-list .track-stat svg,
+  .music-grid .track-stat svg{
+    width:18px !important;
+    height:18px !important;
+    flex-basis:18px !important;
+  }
+}
+</style>
+
+<script id="amkina-card-actions-player-style-js-v4">
+(function(){
+  const SVG = {
+    play:`<svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 5.5v13l10-6.5z"></path>
+    </svg>`,
+    heart:`<svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.3 1-1a5.5 5.5 0 0 0 0-7.8z"></path>
+    </svg>`,
+    comment:`<svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.4 9.4 0 0 1-4-.9L3 20l1.3-4.2A8.2 8.2 0 0 1 3 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 9 8.4z"></path>
+    </svg>`,
+    share:`<svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22 2 11 13"></path>
+      <path d="m22 2-7 20-4-9-9-4z"></path>
+    </svg>`
+  };
+
+  function classify(el){
+    const cls=(el.className||"").toString().toLowerCase();
+    const label=(el.getAttribute("aria-label")||"").toLowerCase();
+    const txt=(el.textContent||"").trim();
+    if(cls.includes("like")||cls.includes("heart")||label.includes("좋아요")||/[♡♥]/.test(txt)) return "heart";
+    if(cls.includes("comment")||label.includes("댓글")||txt.includes("💬")) return "comment";
+    if(cls.includes("share")||label.includes("공유")) return "share";
+    return "play";
+  }
+
+  function upgrade(){
+    document.querySelectorAll("#music-list .track-stats, .music-grid .track-stats").forEach(stats=>{
+      let items=[...stats.querySelectorAll(".track-stat")];
+
+      items.forEach(el=>{
+        const type=classify(el);
+        let n=(el.querySelector(".ak-stat-number")?.textContent || el.textContent || "")
+          .replace(/[^0-9,]/g,"").trim();
+        if(n==="") n="0";
+        el.innerHTML=SVG[type]+`<span class="ak-stat-number">${n}</span>`;
+        el.dataset.akActionType=type;
+        if(type==="heart") el.classList.add("stat-like");
+      });
+
+      /* 공유 아이콘이 없는 카드에는 플레이어와 같은 종이비행기 공유 버튼 추가 */
+      if(!items.some(el=>el.dataset.akActionType==="share") && !stats.querySelector(".ak-card-share")){
+        const share=document.createElement("button");
+        share.type="button";
+        share.className="track-stat ak-card-share";
+        share.dataset.akActionType="share";
+        share.setAttribute("aria-label","공유");
+        share.innerHTML=SVG.share;
+        share.addEventListener("click",function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          const card=share.closest(".track");
+          const title=card?.querySelector(".title")?.textContent?.trim() || "AMKINA MUSIC";
+          if(navigator.share){
+            navigator.share({title:title,url:location.href}).catch(()=>{});
+          }else if(navigator.clipboard){
+            navigator.clipboard.writeText(location.href).then(()=>{
+              const old=share.style.opacity;
+              share.style.opacity=".45";
+              setTimeout(()=>share.style.opacity=old||"1",500);
+            }).catch(()=>{});
+          }
+        });
+        stats.appendChild(share);
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded",upgrade);
+  new MutationObserver(upgrade).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </head>
 
 <body>
