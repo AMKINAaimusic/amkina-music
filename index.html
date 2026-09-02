@@ -3156,6 +3156,174 @@ document.addEventListener("DOMContentLoaded", function(){
 }
 </style>
 
+
+<!-- ===== AMKINA SOUND LAB V5 — SAFE / PLAYER ONLY ===== -->
+<style id="amkina-sound-lab-v5-style">
+.ak-sound-btn{
+  border:1px solid rgba(255,255,255,.18);
+  background:transparent;
+  color:#d7d7d7;
+  border-radius:999px;
+  height:30px;
+  padding:0 10px;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.8px;
+  cursor:pointer;
+}
+.ak-sound-btn:hover,.ak-sound-btn.active{
+  background:#fff;color:#111;border-color:#fff;
+}
+.ak-sound-panel{
+  position:fixed;
+  right:18px;
+  bottom:112px;
+  z-index:3000002;
+  width:min(360px,calc(100vw - 24px));
+  padding:16px;
+  background:rgba(10,10,10,.98);
+  color:#fff;
+  border:1px solid #2b2b2b;
+  border-radius:16px;
+  box-shadow:0 18px 55px rgba(0,0,0,.35);
+  display:none;
+}
+.ak-sound-panel.open{display:block}
+.ak-sound-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ak-sound-head b{font-size:13px;letter-spacing:.4px}
+.ak-sound-close{border:0;background:transparent;color:#aaa;font-size:20px;cursor:pointer}
+.ak-sound-label{font-size:9px;color:#777;font-weight:800;letter-spacing:1.4px;margin:12px 0 7px}
+.ak-sound-modes{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.ak-sound-mode,.ak-eq-preset{
+  border:1px solid #2f2f2f;background:#151515;color:#aaa;
+  border-radius:9px;min-height:34px;padding:5px;font-size:9px;font-weight:750;cursor:pointer
+}
+.ak-sound-mode.active,.ak-eq-preset.active{background:#fff;color:#111;border-color:#fff}
+.ak-eq-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ak-sound-note{margin-top:12px;color:#686868;font-size:9px;line-height:1.5}
+@media(max-width:768px){
+ .ak-sound-panel{left:12px;right:12px;bottom:94px;width:auto}
+ .ak-sound-modes{grid-template-columns:repeat(3,1fr)}
+ .ak-sound-btn{height:28px;padding:0 8px}
+}
+</style>
+
+<script id="amkina-sound-lab-v5-script">
+(function(){
+  // SAFE RULE: no MutationObserver, no Supabase changes, no track-render changes.
+  document.addEventListener("DOMContentLoaded", function(){
+    const audio = document.getElementById("audio") || document.querySelector("audio");
+    const player = document.querySelector(".player");
+    if(!audio || !player || document.getElementById("ak-sound-toggle")) return;
+
+    const host = player.querySelector(".volume") || player.querySelector(".now") || player;
+    const toggle = document.createElement("button");
+    toggle.id="ak-sound-toggle";
+    toggle.type="button";
+    toggle.className="ak-sound-btn";
+    toggle.textContent="SOUND";
+    toggle.title="AMKINA SOUND";
+    host.appendChild(toggle);
+
+    const panel=document.createElement("div");
+    panel.className="ak-sound-panel";
+    panel.innerHTML=`
+      <div class="ak-sound-head"><b>AMKINA SOUND</b><button class="ak-sound-close" type="button">×</button></div>
+      <div class="ak-sound-label">LISTENING MODE</div>
+      <div class="ak-sound-modes">
+        <button class="ak-sound-mode active" data-mode="original">ORIGINAL</button>
+        <button class="ak-sound-mode" data-mode="deep">DEEP</button>
+        <button class="ak-sound-mode" data-mode="wide">WIDE</button>
+        <button class="ak-sound-mode" data-mode="vocal">VOCAL</button>
+        <button class="ak-sound-mode" data-mode="night">NIGHT</button>
+      </div>
+      <div class="ak-sound-label">EQ PRESET</div>
+      <div class="ak-eq-presets">
+        <button class="ak-eq-preset active" data-eq="flat">FLAT</button>
+        <button class="ak-eq-preset" data-eq="bass">BASS</button>
+        <button class="ak-eq-preset" data-eq="vocal">VOCAL</button>
+        <button class="ak-eq-preset" data-eq="bright">BRIGHT</button>
+        <button class="ak-eq-preset" data-eq="warm">WARM</button>
+        <button class="ak-eq-preset" data-eq="club">CLUB</button>
+      </div>
+      <div class="ak-sound-note">플레이어에만 적용됩니다. 로그인·좋아요·차트·Supabase 로직은 변경하지 않습니다.</div>`;
+    document.body.appendChild(panel);
+
+    let ctx=null, source=null, low=null, mid=null, high=null, comp=null, panner=null;
+    let initialized=false;
+
+    function initAudio(){
+      if(initialized) { if(ctx && ctx.state==="suspended") ctx.resume(); return true; }
+      try{
+        const AC=window.AudioContext||window.webkitAudioContext;
+        if(!AC) return false;
+        ctx=new AC();
+        source=ctx.createMediaElementSource(audio);
+        low=ctx.createBiquadFilter(); low.type="lowshelf"; low.frequency.value=180;
+        mid=ctx.createBiquadFilter(); mid.type="peaking"; mid.frequency.value=1800; mid.Q.value=.8;
+        high=ctx.createBiquadFilter(); high.type="highshelf"; high.frequency.value=6000;
+        comp=ctx.createDynamicsCompressor();
+        panner=ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+        source.connect(low); low.connect(mid); mid.connect(high); high.connect(comp);
+        if(panner){ comp.connect(panner); panner.connect(ctx.destination); }
+        else comp.connect(ctx.destination);
+        initialized=true;
+        return true;
+      }catch(e){
+        console.warn("AMKINA SOUND unavailable:",e);
+        return false;
+      }
+    }
+
+    function setEQ(a,b,c){
+      if(!initAudio()) return;
+      low.gain.value=a; mid.gain.value=b; high.gain.value=c;
+    }
+    const eqs={
+      flat:[0,0,0], bass:[6,-1,0], vocal:[-2,4,2],
+      bright:[-1,1,5], warm:[3,1,-2], club:[5,-1,3]
+    };
+    const modes={
+      original:{eq:[0,0,0],pan:0,threshold:-24,ratio:3},
+      deep:{eq:[7,-1,-2],pan:0,threshold:-24,ratio:3},
+      wide:{eq:[1,0,2],pan:0,threshold:-24,ratio:2.5},
+      vocal:{eq:[-2,5,2],pan:0,threshold:-24,ratio:3},
+      night:{eq:[2,1,-5],pan:0,threshold:-32,ratio:5}
+    };
+
+    function select(group,button){
+      panel.querySelectorAll(group).forEach(x=>x.classList.remove("active"));
+      button.classList.add("active");
+    }
+
+    panel.addEventListener("click",function(e){
+      const mode=e.target.closest(".ak-sound-mode");
+      const eq=e.target.closest(".ak-eq-preset");
+      if(mode){
+        const m=modes[mode.dataset.mode];
+        setEQ(...m.eq);
+        if(comp){comp.threshold.value=m.threshold;comp.ratio.value=m.ratio}
+        if(panner) panner.pan.value=m.pan;
+        select(".ak-sound-mode",mode);
+      }
+      if(eq){
+        setEQ(...eqs[eq.dataset.eq]);
+        select(".ak-eq-preset",eq);
+      }
+      if(e.target.closest(".ak-sound-close")){
+        panel.classList.remove("open"); toggle.classList.remove("active");
+      }
+    });
+
+    toggle.addEventListener("click",function(){
+      initAudio();
+      panel.classList.toggle("open");
+      toggle.classList.toggle("active",panel.classList.contains("open"));
+    });
+  });
+})();
+</script>
+
 </head>
 
 <body>
