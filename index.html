@@ -15078,6 +15078,156 @@ document.addEventListener('change',async function(e){
  if(message){input.value='';alert(message);}
 },true);
 </script>
+
+<!-- ===== AMKINA V6 — iPhone Background / Lock Screen SAFE PATCH ===== -->
+<script id="amkina-ios-background-v6">
+(function () {
+  "use strict";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const audio = document.getElementById("audio") || document.querySelector("audio");
+    if (!audio) return;
+
+    /*
+      iOS / Safari:
+      Keep the native HTMLAudioElement as the playback owner.
+      This patch does NOT replace audio.play(), src handling, Supabase,
+      EQ nodes, track rendering, or existing next/prev handlers.
+    */
+    try {
+      if ("audioSession" in navigator) {
+        navigator.audioSession.type = "playback";
+      }
+    } catch (e) {
+      console.warn("AMKINA: audioSession playback hint unavailable", e);
+    }
+
+    if (!("mediaSession" in navigator)) return;
+
+    function txt(selectors) {
+      for (const s of selectors) {
+        const el = document.querySelector(s);
+        const value = el && (el.textContent || el.getAttribute("content") || "").trim();
+        if (value) return value;
+      }
+      return "";
+    }
+
+    function imageUrl() {
+      const selectors = [
+        ".player-cover img", ".now-playing-cover img", ".player img",
+        "#player-cover", ".track-cover img", ".cover img"
+      ];
+      for (const s of selectors) {
+        const el = document.querySelector(s);
+        if (!el) continue;
+        const u = el.currentSrc || el.src || el.getAttribute("src");
+        if (u) {
+          try { return new URL(u, location.href).href; } catch (_) { return u; }
+        }
+      }
+      return "";
+    }
+
+    function updateMetadata() {
+      try {
+        const title = txt([
+          ".player-title", ".now-playing-title", "#player-title",
+          ".track-title", "[data-now-title]"
+        ]) || document.title || "AMKINA MUSIC";
+
+        const artist = txt([
+          ".player-artist", ".now-playing-artist", "#player-artist",
+          ".track-artist", "[data-now-artist]"
+        ]) || "AMKINA MUSIC";
+
+        const cover = imageUrl();
+        const data = { title, artist, album: "AMKINA MUSIC" };
+        if (cover) {
+          data.artwork = [
+            { src: cover, sizes: "96x96" },
+            { src: cover, sizes: "256x256" },
+            { src: cover, sizes: "512x512" }
+          ];
+        }
+        navigator.mediaSession.metadata = new MediaMetadata(data);
+      } catch (e) {
+        console.warn("AMKINA: Media Session metadata unavailable", e);
+      }
+    }
+
+    // Only universal actions are bound directly.
+    // Previous/next are deliberately left to the existing player unless
+    // a matching existing control is found.
+    const safeAction = (name, fn) => {
+      try { navigator.mediaSession.setActionHandler(name, fn); } catch (_) {}
+    };
+
+    safeAction("play", async () => {
+      try { await audio.play(); } catch (_) {}
+    });
+
+    safeAction("pause", () => {
+      try { audio.pause(); } catch (_) {}
+    });
+
+    safeAction("seekbackward", (d) => {
+      try {
+        const step = d.seekOffset || 10;
+        audio.currentTime = Math.max(0, audio.currentTime - step);
+      } catch (_) {}
+    });
+
+    safeAction("seekforward", (d) => {
+      try {
+        const step = d.seekOffset || 10;
+        audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + step);
+      } catch (_) {}
+    });
+
+    safeAction("seekto", (d) => {
+      try {
+        if (typeof d.seekTime === "number") audio.currentTime = d.seekTime;
+      } catch (_) {}
+    });
+
+    const prev = document.querySelector(
+      "#prev-btn, .prev-btn, [data-action='prev'], [aria-label*='이전'], [aria-label*='Previous']"
+    );
+    const next = document.querySelector(
+      "#next-btn, .next-btn, [data-action='next'], [aria-label*='다음'], [aria-label*='Next']"
+    );
+    if (prev) safeAction("previoustrack", () => prev.click());
+    if (next) safeAction("nexttrack", () => next.click());
+
+    audio.addEventListener("play", function () {
+      try {
+        if ("audioSession" in navigator) navigator.audioSession.type = "playback";
+        navigator.mediaSession.playbackState = "playing";
+      } catch (_) {}
+      updateMetadata();
+    });
+
+    audio.addEventListener("pause", function () {
+      try { navigator.mediaSession.playbackState = "paused"; } catch (_) {}
+    });
+
+    audio.addEventListener("loadedmetadata", updateMetadata);
+    audio.addEventListener("durationchange", updateMetadata);
+
+    // Metadata refresh only on explicit player interaction; no observer,
+    // no timer, and therefore no mutation/render loop.
+    document.addEventListener("click", function (e) {
+      if (e.target.closest(".track-card, .music-card, .play-btn, [data-track-id]")) {
+        setTimeout(updateMetadata, 150);
+      }
+    }, { passive: true });
+
+    updateMetadata();
+  });
+})();
+</script>
+
 </body>
 </html>
 ```
