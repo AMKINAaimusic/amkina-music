@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2623,6 +2624,203 @@ body.track-full-open{overflow:hidden}
 #mp-avatar-file-name{max-width:300px;color:#888;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:600px){.mp-avatar-upload-box{align-items:flex-start}.mp-avatar-preview{width:64px;height:64px;flex-basis:64px}.mp-avatar-file-btn{padding:9px 12px}}
 </style>
+
+<!-- ===== AMKINA CHART 100 MOBILE LAYOUT FIX 2026-09-02 ===== -->
+<style id="amkina-chart100-mobile-layout-fix-20260902">
+@media (max-width:768px){
+
+  /* CHART 100 전체 폭 안정화 */
+  #chart100-page{
+    width:100% !important;
+    max-width:100% !important;
+    padding:12px 12px 170px !important;
+    overflow-x:hidden !important;
+  }
+
+  .chart100-wrap{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+  }
+
+  /* 상단 소개 영역 */
+  .chart100-head{
+    width:100% !important;
+    margin:0 0 12px !important;
+    padding:20px 18px !important;
+    box-sizing:border-box !important;
+  }
+
+  .chart100-title{
+    font-size:30px !important;
+    line-height:1 !important;
+  }
+
+  .chart100-sub{
+    max-width:none !important;
+    font-size:12px !important;
+    line-height:1.55 !important;
+  }
+
+  .chart100-tabs{
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+    gap:4px !important;
+    padding:4px !important;
+    margin-top:18px !important;
+    border-radius:999px !important;
+    background:#f2f2ef !important;
+  }
+
+  .chart100-tab{
+    width:100% !important;
+    min-width:0 !important;
+    padding:10px 4px !important;
+    text-align:center !important;
+  }
+
+  /* 핵심 수정:
+     기존 DOM 순서가 2위 → 1위 → 3위라 모바일에서 빈 공간이 발생했음.
+     모바일에서는 CSS order로 1위를 먼저, 2·3위를 같은 줄에 배치. */
+  .chart100-podium{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:10px !important;
+    align-items:stretch !important;
+    width:100% !important;
+    margin:0 0 22px !important;
+  }
+
+  .chart100-podium-card{
+    width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:8px !important;
+    border-radius:14px !important;
+    box-sizing:border-box !important;
+  }
+
+  .chart100-podium-card.rank1{
+    order:1 !important;
+    grid-column:1 / -1 !important;
+    padding:10px !important;
+  }
+
+  .chart100-podium-card.rank2{
+    order:2 !important;
+    grid-column:1 !important;
+  }
+
+  .chart100-podium-card.rank3{
+    order:3 !important;
+    grid-column:2 !important;
+  }
+
+  .chart100-podium-card.rank1 .chart100-podium-cover{
+    aspect-ratio:16/9 !important;
+  }
+
+  .chart100-podium-card.rank2 .chart100-podium-cover,
+  .chart100-podium-card.rank3 .chart100-podium-cover{
+    aspect-ratio:1/1 !important;
+  }
+
+  .chart100-podium-cover{
+    width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  .chart100-podium-cover img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+  }
+
+  .chart100-podium-info{
+    min-width:0 !important;
+  }
+
+  .chart100-podium-info b,
+  .chart100-podium-artist{
+    display:block !important;
+    max-width:100% !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .chart100-podium-bottom{
+    min-width:0 !important;
+    gap:6px !important;
+  }
+
+  .chart100-podium-stats{
+    min-width:0 !important;
+    gap:7px !important;
+    white-space:nowrap !important;
+  }
+
+  /* 4~100위는 한 줄 리스트로 고정 */
+  .chart100-row{
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:32px 34px 46px minmax(0,1fr) 34px !important;
+    gap:7px !important;
+    align-items:center !important;
+    margin:0 !important;
+    padding:10px 3px !important;
+    box-sizing:border-box !important;
+    border:0 !important;
+    border-bottom:1px solid #e8e8e5 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+  }
+
+  .chart100-row.top1,
+  .chart100-row.top2,
+  .chart100-row.top3{
+    display:none !important;
+  }
+
+  .chart100-cover{
+    width:44px !important;
+    height:44px !important;
+    min-width:44px !important;
+  }
+
+  .chart100-song{
+    min-width:0 !important;
+  }
+
+  .chart100-song b,
+  .chart100-song span{
+    max-width:100% !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .chart100-genre,
+  .chart100-stat{
+    display:none !important;
+  }
+
+  .chart100-play-mini{
+    width:31px !important;
+    height:31px !important;
+    min-width:31px !important;
+    margin:0 !important;
+  }
+
+  /* 고정 플레이어 때문에 마지막 순위가 가려지지 않도록 */
+  #chart100-list{
+    padding-bottom:70px !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -14379,3 +14577,4 @@ document.addEventListener('change',async function(e){
 </script>
 </body>
 </html>
+```
