@@ -10086,7 +10086,7 @@ async function saveTrackEdit(){
     if(coverFile){
       const ext=(coverFile.name.split(".").pop()||"jpg").toLowerCase();
       const path=`${s.user.id}/${Date.now()}-edit-cover.${ext}`;
-      const up=await fetch(`${SUPABASE_URL}/storage/v1/object/covers/${path}`,{
+      const up=await fetch(`${SUPABASE_URL}/storage/v1/object/profile-images/${path}`,{
         method:"POST",
         headers:{
           "apikey":SUPABASE_ANON_KEY,
@@ -10096,7 +10096,7 @@ async function saveTrackEdit(){
         body:coverFile
       });
       if(!up.ok)throw new Error("새 커버 업로드 실패");
-      coverUrl=`${SUPABASE_URL}/storage/v1/object/public/covers/${path}`;
+      coverUrl=`${SUPABASE_URL}/storage/v1/object/public/profile-images/${path}`;
     }
 
     const editFilter=isAdmin
@@ -10918,9 +10918,9 @@ async function uploadMyProfileAvatar(file,s){
  if(!file)return (mpData.profile||{}).avatar_url||"";
  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
  const path=`${s.user.id}/profile-${Date.now()}.${ext}`;
- const r=await fetch(`${SUPABASE_URL}/storage/v1/object/covers/${path}`,{method:"POST",headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${s.access_token}`,"Content-Type":file.type,"x-upsert":"true"},body:file});
+ const r=await fetch(`${SUPABASE_URL}/storage/v1/object/profile-images/${path}`,{method:"POST",headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${s.access_token}`,"Content-Type":file.type,"x-upsert":"false"},body:file});
  if(!r.ok)throw new Error("프로필 사진 업로드 실패: "+await r.text());
- return `${SUPABASE_URL}/storage/v1/object/public/covers/${path}`;
+ return `${SUPABASE_URL}/storage/v1/object/public/profile-images/${path}`;
 }
 async function saveMyProfile(){
  const s=mpSession();if(!s?.user?.id||!s?.access_token)return;
