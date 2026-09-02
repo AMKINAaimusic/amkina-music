@@ -14240,6 +14240,35 @@ body.akh-active #ak-guide-float{display:none!important}
 }
 @media(max-width:768px) and (max-height:550px){.akh-kicker,.akh-genre{display:none!important}.akh-actions{gap:4px!important}.akh-info{bottom:8px!important}.akh-title{-webkit-line-clamp:2}.akh-coverbox{padding:8px 90px!important}}
 </style>
+
+<style id="amkina-mobile-compact-v2">
+@media(max-width:768px){
+ body>header .mobile-menu-btn::before,body>header .mobile-menu-btn::after{content:none!important;display:none!important}
+ body>header .mobile-menu-btn{font-size:25px!important;line-height:1!important;padding:0!important;min-width:44px!important;min-height:44px!important}
+ body>header nav.mobile-open{inset:64px auto calc(var(--ak-player-height) + var(--ak-bottom-nav)) 0!important;width:min(84vw,320px)!important;max-width:100%!important;height:auto!important;min-height:0!important;max-height:calc(100dvh - 64px - var(--ak-player-height) - var(--ak-bottom-nav))!important;padding:10px 12px 16px!important;margin:0!important;gap:2px!important;justify-content:flex-start!important;align-items:stretch!important;overflow-y:auto!important;overscroll-behavior:contain!important;scroll-padding:8px!important}
+ body>header nav.mobile-open a,body>header nav.mobile-open a#login-btn{flex:0 0 auto!important;height:44px!important;min-height:44px!important;max-height:none!important;padding:0 12px!important;margin:0!important;gap:10px!important;font-size:13px!important;line-height:1.3!important;border-radius:9px!important}
+ body>header nav.mobile-open a .nav-icon{width:20px!important;min-width:20px!important;font-size:19px!important}
+ body>header nav.mobile-open a .nav-text{font-size:13px!important;line-height:1.3!important}
+ body>header nav.mobile-open .nav-section-label{flex:0 0 auto!important;height:auto!important;min-height:0!important;margin:12px 12px 4px!important;padding:0!important;background:transparent!important;font-size:9px!important;line-height:14px!important}
+ body>header nav.mobile-open .nav-section-label:first-child{margin-top:0!important}
+ body>header nav.mobile-open .nav-divider{flex:0 0 1px!important;height:1px!important;min-height:1px!important;margin:7px 10px!important}
+ #player{padding:5px 12px calc(3px + env(safe-area-inset-bottom))!important;gap:0!important}
+ #player .now{height:32px!important;min-height:32px!important;gap:8px!important}
+ #player .now img{width:30px!important;height:30px!important}
+ #player #now-title{font-size:12px!important;line-height:16px!important}
+ #player #now-artist{font-size:10px!important;line-height:14px!important;margin:0!important}
+ #player .controls{gap:0!important;padding:0!important;margin:0!important}
+ #player .buttons{gap:0 8px!important;min-height:44px!important;margin:0!important;padding:0!important}
+ #player .buttons>button{width:44px!important;height:44px!important;max-width:44px!important;max-height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;font-size:20px!important}
+ #player .buttons>button svg{width:23px!important;height:23px!important}
+ #player #main-play{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;flex-basis:40px!important;font-size:18px!important}
+ #player #ak-eq-btn,#player #lyrics-player-btn{font-size:12px!important}
+ #player .progress-row{height:20px!important;min-height:20px!important;gap:6px!important}
+ #player .time{font-size:9px!important;line-height:12px!important}
+ #player.ak-tools-open .buttons{row-gap:4px!important}
+}
+</style>
+
 <script id="amkina-mobile-layout-audit-script">
 (function(){
  function init(){
@@ -14267,7 +14296,16 @@ body.akh-active #ak-guide-float{display:none!important}
   new ResizeObserver(measure).observe(p);
   window.addEventListener('resize',measure,{passive:true});window.visualViewport?.addEventListener('resize',measure,{passive:true});measure();
   const nav=document.querySelector('body>header nav'),button=document.querySelector('.mobile-menu-btn');
-  function close(){if(typeof closeMobileMenu==='function')closeMobileMenu();button?.setAttribute('aria-expanded','false');}
+  function syncMenuButton(){
+   if(!nav||!button)return;
+   const open=nav.classList.contains('mobile-open');
+   button.textContent=open?'×':'☰';
+   button.setAttribute('aria-expanded',String(open));
+   button.setAttribute('aria-label',open?'메뉴 닫기':'메뉴 열기');
+  }
+  if(nav)new MutationObserver(syncMenuButton).observe(nav,{attributes:true,attributeFilter:['class']});
+  syncMenuButton();
+  function close(){if(typeof closeMobileMenu==='function')closeMobileMenu();syncMenuButton();}
   document.addEventListener('click',e=>{
    if(e.target.closest('.mobile-menu-btn')&&innerWidth<=768){e.preventDefault();e.stopImmediatePropagation();const open=!nav.classList.contains('mobile-open');nav.classList.toggle('mobile-open',open);nav.style.removeProperty('display');button.textContent=open?'×':'☰';button.setAttribute('aria-expanded',String(open));return;}
    if(innerWidth<=768&&nav?.classList.contains('mobile-open')&&!nav.contains(e.target))close();
