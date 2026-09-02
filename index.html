@@ -1,3 +1,4 @@
+```````
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2177,6 +2178,24 @@ body.compact-lyrics-open{padding-bottom:214px!important}
  </div>
 </section>
 
+<script id="amkina-artists-profile-link-v1">
+/* ARTISTS cards use profiles.nickname/avatar_url when uploader_id exists. */
+window.amkinaArtistProfiles = window.amkinaArtistProfiles || new Map();
+async function amkinaLoadArtistProfiles(){
+  const ids=[...new Set(amkinaArtistTracks().map(t=>t.uploader_id).filter(Boolean).map(String))];
+  window.amkinaArtistProfiles=new Map();
+  if(!ids.length)return;
+  try{
+    const filter="("+ids.map(encodeURIComponent).join(",")+")";
+    const r=await fetch(SUPABASE_URL+"/rest/v1/profiles?id=in."+filter+"&select=id,nickname,avatar_url,bio,genres,social_url,updated_at",{headers:mpHeaders(false)});
+    if(!r.ok)throw new Error(await r.text());
+    const rows=await r.json();
+    rows.forEach(p=>window.amkinaArtistProfiles.set(String(p.id),p));
+  }catch(e){console.warn("ARTISTS 프로필 연동 실패",e);}
+}
+function amkinaArtistProfile(uid){return uid?window.amkinaArtistProfiles.get(String(uid))||null:null;}
+</script>
+
 <script id="amkina-artists-script">
 function amkinaArtistEscape(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 function amkinaArtistTracks(){
@@ -2194,6 +2213,14 @@ function amkinaArtistGroups(){
    a.likes=a.tracks.reduce((n,t)=>n+(Number(t._live_like_count ?? t.like_count ?? t.likes)||0),0);
    a.top=a.tracks.slice().sort((x,y)=>(Number(y.play_count)||0)-(Number(x.play_count)||0))[0]||null;
    a.cover=(a.top&&(a.top.cover_url||a.top.cover))||"";
+   const profile=amkinaArtistProfile(a.uploader_id);
+   if(profile){
+     a.profile=profile;
+     a.name=String(profile.nickname||a.name||"Unknown Artist").trim();
+     a.avatar=profile.avatar_url||a.cover||"";
+     a.bio=profile.bio||"";
+     a.genres=profile.genres||"";
+   }else{a.avatar=a.cover||"";}
    return a;
  }).sort((a,b)=>b.plays-a.plays||a.name.localeCompare(b.name,"ko"));
 }
@@ -2204,7 +2231,7 @@ function renderArtistsPage(q=""){
  if(!groups.length){grid.innerHTML='<div class="artist-empty" style="grid-column:1/-1">표시할 아티스트가 없습니다.</div>';return;}
  grid.innerHTML=groups.map(a=>{
    const initial=amkinaArtistEscape(a.name.slice(0,1).toUpperCase());
-   const avatar=a.cover?'<img src="'+amkinaArtistEscape(a.cover)+'" alt="">':initial;
+   const avatar=a.avatar?'<img src="'+amkinaArtistEscape(a.avatar)+'" alt="">':initial;
    return '<article class="artist-card" onclick="openArtistDetail('+JSON.stringify(a.key).replace(/"/g,"&quot;")+')">'+
     '<div class="artist-avatar">'+avatar+'</div>'+
     '<div class="artist-name">'+amkinaArtistEscape(a.name)+'</div>'+
@@ -2218,7 +2245,7 @@ function openArtistDetail(key){
  document.getElementById("artist-list-view")?.classList.add("hidden");
  const d=document.getElementById("artist-detail");d.classList.add("active");
  const initial=amkinaArtistEscape(a.name.slice(0,1).toUpperCase());
- const avatar=a.cover?'<img src="'+amkinaArtistEscape(a.cover)+'" alt="">':initial;
+ const avatar=a.avatar?'<img src="'+amkinaArtistEscape(a.avatar)+'" alt="">':initial;
  const rows=a.tracks.slice().sort((x,y)=>(Number(y.play_count)||0)-(Number(x.play_count)||0)).map((t,i)=>
   '<div class="artist-track-row" onclick="amkinaPlayChartTrack('+JSON.stringify(String(t.id)).replace(/"/g,"&quot;")+')"><div>'+(i+1)+'</div><img class="artist-track-cover" src="'+amkinaArtistEscape(t.cover_url||t.cover||"")+'"><div><div class="artist-track-title">'+amkinaArtistEscape(t.title||"Untitled")+'</div><div class="artist-track-genre">'+amkinaArtistEscape(t.genre||"ORIGINAL")+'</div></div><div class="artist-track-stat">▷ '+(Number(t.play_count)||0).toLocaleString()+'</div><div class="artist-track-stat likes-stat">♡ '+(Number(t._live_like_count ?? t.like_count ?? t.likes)||0).toLocaleString()+'</div></div>'
  ).join("");
@@ -2237,6 +2264,7 @@ async function showArtistsPage(e){
  if((typeof tracks==="undefined" || !Array.isArray(tracks) || tracks.length===0) && typeof loadMusic==="function"){
    try{ await loadMusic(); }catch(err){ console.warn("아티스트용 음원 로딩 실패",err); }
  }
+ await amkinaLoadArtistProfiles();
  renderArtistsPage(document.getElementById("artist-search")?.value||"");
  window.scrollTo({top:0,behavior:"smooth"});return false;
 }
@@ -10931,6 +10959,10 @@ async function saveMyProfile(){
   const r=await fetch(SUPABASE_URL+"/rest/v1/profiles",{method:"POST",headers:{...mpHeaders(true),"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(body)});
   if(!r.ok)throw new Error(await r.text());
   closeMyProfileEdit();await loadMyPage();
+  if(typeof amkinaLoadArtistProfiles==="function"){
+    await amkinaLoadArtistProfiles();
+    if(document.getElementById("artists-page")?.classList.contains("active")) renderArtistsPage(document.getElementById("artist-search")?.value||"");
+  }
  }catch(e){console.error(e);alert("프로필 저장에 실패했습니다. 이미지 업로드 권한과 profiles 설정을 확인해주세요.")}
  finally{if(saveBtn){saveBtn.disabled=false;saveBtn.textContent="저장하기"}}
 }
@@ -14305,3 +14337,4 @@ async function renderChart100(){
  window.amkinaEQ={open(){document.getElementById('ak-eq-panel')?.classList.add('open')},reset(){state={on:false,preset:'Flat',gains:[0,0,0,0,0]};apply()}};
 })();
 </script>
+```````
