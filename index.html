@@ -3392,6 +3392,38 @@ document.addEventListener("DOMContentLoaded", function(){
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style id="amkina-account-link-style">
+#ak-account-link-panel{
+  position:fixed;
+  right:18px;
+  top:78px;
+  z-index:9000;
+  width:min(330px,calc(100vw - 28px));
+}
+#ak-account-link-panel .ak-link-card{
+  background:#111;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 16px 45px rgba(0,0,0,.28);
+}
+#ak-account-link-panel strong{display:block;font-size:13px;margin-bottom:4px}
+#ak-account-link-panel small{display:block;color:#999;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ak-link-google-btn{
+  margin-top:13px;width:100%;min-height:44px;border:1px solid #ddd;border-radius:10px;
+  background:#fff;color:#151515;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+}
+.ak-link-google-g{font-family:Arial,sans-serif;font-size:17px;font-weight:900;color:#4285F4}
+#ak-link-google-status{display:none;margin:10px 0 0;color:#9cff57;font-size:11px;line-height:1.5}
+@media(max-width:700px){
+  #ak-account-link-panel{right:14px;top:68px}
+}
+</style>
+
 </head>
 
 <body>
@@ -3983,6 +4015,21 @@ document.addEventListener("DOMContentLoaded", function(){
       <span id="auth-message">계정이 없으신가요?</span>
       <button id="auth-mode">SIGN UP</button>
     </p>
+  </div>
+</div>
+
+
+<div id="ak-account-link-panel" style="display:none;" aria-live="polite">
+  <div class="ak-link-card">
+    <div>
+      <strong>로그인 계정</strong>
+      <small id="ak-link-current-email">현재 계정 확인 중...</small>
+    </div>
+    <button id="ak-link-google-btn" type="button">
+      <span class="ak-link-google-g">G</span>
+      Google 계정 연결
+    </button>
+    <p id="ak-link-google-status"></p>
   </div>
 </div>
 
@@ -15392,6 +15439,168 @@ document.addEventListener('change',async function(e){
     }
     finishGoogleLogin();
   });
+})();
+</script>
+
+
+<script id="amkina-manual-google-link-v1">
+(function(){
+  let linkClient = null;
+
+  function getStoredSession(){
+    try { return JSON.parse(localStorage.getItem("amkina_session") || "null"); }
+    catch(e){ return null; }
+  }
+
+  function getLinkClient(){
+    if(linkClient) return linkClient;
+    if(!window.supabase || !window.supabase.createClient) return null;
+
+    linkClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{
+        persistSession:false,
+        autoRefreshToken:false,
+        detectSessionInUrl:false
+      }
+    });
+    return linkClient;
+  }
+
+  async function syncClientToAmkinaSession(){
+    const s = getStoredSession();
+    const client = getLinkClient();
+    if(!client || !s?.access_token || !s?.refresh_token) return false;
+
+    const result = await client.auth.setSession({
+      access_token:s.access_token,
+      refresh_token:s.refresh_token
+    });
+    if(result.error) throw result.error;
+    return true;
+  }
+
+  function currentUser(){
+    return getStoredSession()?.user || null;
+  }
+
+  async function refreshLinkUI(){
+    const panel = document.getElementById("ak-account-link-panel");
+    const email = document.getElementById("ak-link-current-email");
+    const btn = document.getElementById("ak-link-google-btn");
+    const status = document.getElementById("ak-link-google-status");
+    if(!panel || !btn) return;
+
+    const user = currentUser();
+    if(!user?.id){
+      panel.style.display = "none";
+      return;
+    }
+
+    panel.style.display = "block";
+    if(email) email.textContent = user.email || "로그인된 AMKINA 계정";
+
+    try{
+      await syncClientToAmkinaSession();
+      const client = getLinkClient();
+      const result = await client.auth.getUserIdentities();
+      if(result.error) throw result.error;
+
+      const identities = result.data?.identities || [];
+      const googleLinked = identities.some(x => x.provider === "google");
+
+      if(googleLinked){
+        btn.disabled = true;
+        btn.innerHTML = '<span class="ak-link-google-g">G</span> Google 연결됨';
+        btn.style.opacity = ".7";
+        if(status){
+          status.style.display = "block";
+          status.textContent = "기존 AMKINA 회원 ID에 Google 로그인이 연결되어 있습니다.";
+        }
+      }else{
+        btn.disabled = false;
+        btn.innerHTML = '<span class="ak-link-google-g">G</span> Google 계정 연결';
+        btn.style.opacity = "1";
+        if(status){
+          status.style.display = "block";
+          status.textContent = "기존 음악·프로필·좋아요를 유지한 채 Google 로그인을 추가합니다.";
+        }
+      }
+    }catch(e){
+      console.warn("Google 연결 상태 확인 실패:", e);
+      if(status){
+        status.style.display = "block";
+        status.textContent = "Google 연결 상태를 확인하지 못했습니다.";
+      }
+    }
+  }
+
+  async function linkGoogleIdentity(){
+    const s = getStoredSession();
+    if(!s?.access_token || !s?.user?.id){
+      alert("먼저 기존 AMKINA 계정으로 로그인해주세요.");
+      return;
+    }
+
+    const ok = confirm(
+      "현재 로그인된 AMKINA 계정에 Google 계정을 연결합니다.\n\n" +
+      "기존 음악, 프로필, 좋아요 등의 회원 ID는 그대로 유지됩니다.\n" +
+      "계속할까요?"
+    );
+    if(!ok) return;
+
+    const btn = document.getElementById("ak-link-google-btn");
+    const old = btn ? btn.innerHTML : "";
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Google 연결 중...";
+    }
+
+    try{
+      await syncClientToAmkinaSession();
+      const client = getLinkClient();
+
+      // Supabase 공식 Manual Identity Linking.
+      // Dashboard에서 Enable Manual Linking이 켜져 있어야 한다.
+      const { data, error } = await client.auth.linkIdentity({
+        provider:"google",
+        options:{
+          redirectTo:"https://amkinamusic.com/"
+        }
+      });
+
+      if(error) throw error;
+
+      // 일반적으로 OAuth 페이지로 이동한다.
+      if(data?.url) window.location.assign(data.url);
+    }catch(e){
+      console.error("Google 계정 연결 실패:", e);
+      if(btn){
+        btn.disabled = false;
+        btn.innerHTML = old;
+      }
+      alert(
+        "Google 계정 연결을 시작하지 못했습니다.\n\n" +
+        (e?.message || "Supabase 설정을 확인해주세요.") +
+        "\n\nSupabase에서 Manual Identity Linking이 활성화되어 있는지도 확인해주세요."
+      );
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    const btn = document.getElementById("ak-link-google-btn");
+    if(btn) btn.addEventListener("click", linkGoogleIdentity);
+
+    setTimeout(refreshLinkUI, 500);
+
+    // 기존 로그인/로그아웃 후 UI 갱신
+    const loginBtn = document.getElementById("login-btn");
+    if(loginBtn) loginBtn.addEventListener("click", () => setTimeout(refreshLinkUI, 700));
+
+    window.addEventListener("storage", refreshLinkUI);
+    window.addEventListener("focus", () => setTimeout(refreshLinkUI, 300));
+  });
+
+  window.amkinaRefreshGoogleLinkUI = refreshLinkUI;
 })();
 </script>
 
