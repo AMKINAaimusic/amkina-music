@@ -12336,7 +12336,12 @@ function actionMenuComment(){const id=amkinaActionTrackId;closeTrackActionMenu()
 function actionMenuPlaylist(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openLibraryAddModal==="function")openLibraryAddModal(id)}
 function actionMenuOpenPage(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackFullPage==="function")openTrackFullPage(id)}
 function actionMenuEdit(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackEdit==="function")openTrackEdit(id)}
-async function copyTrackShareLink(){const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;const u=new URL(location.href);u.hash="";u.searchParams.set("track",id);const link=u.toString();try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}}
+async function copyTrackShareLink(){
+ const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;
+ const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(id);
+ try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
+ const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
+}
 document.addEventListener("click",e=>{const m=document.getElementById("track-action-menu");if(m&&m.style.display==="block"&&!e.target.closest("#track-action-menu")&&!e.target.closest(".track-edit-btn"))closeTrackActionMenu()});
 window.addEventListener("scroll",closeTrackActionMenu,true);window.addEventListener("resize",closeTrackActionMenu);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackActionMenu()});
 </script>
@@ -12399,7 +12404,12 @@ function tfTogglePlay(){
 function tfLike(){const t=tfCurrent();if(t&&typeof toggleTrackLike==="function"){toggleTrackLike(t.id).then(()=>renderTrackFullPage(t))}}
 function tfComment(){const t=tfCurrent();if(t&&typeof openTrackComments==="function")openTrackComments(t.id)}
 function tfPlaylist(){const t=tfCurrent();if(t&&typeof openLibraryAddModal==="function")openLibraryAddModal(t.id)}
-async function tfCopy(){const t=tfCurrent();if(!t)return;const u=new URL(location.href);u.searchParams.set("track",t.id);try{await navigator.clipboard.writeText(u.toString())}catch(e){}const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}}
+async function tfCopy(){
+ const t=tfCurrent();if(!t)return;
+ const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+ try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
+ const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
+}
 function syncTfPlayButton(){const b=document.getElementById("tf-main-play");if(b)b.textContent=audio&&!audio.paused?"❚❚":"▶"}
 if(typeof audio!=="undefined"){audio.addEventListener("play",syncTfPlayButton);audio.addEventListener("pause",syncTfPlayButton)}
 function openCurrentTrackFull(){const t=tfCurrent();if(t)openTrackFullPage(t.id)}
@@ -15904,6 +15914,49 @@ document.addEventListener('change',async function(e){
     }
     return shareTrack(track);
   };
+})();
+</script>
+
+
+<!-- ===== AMKINA SHARE URL MASTER FIX v3 ===== -->
+<script id="amkina-share-master-fix-v3">
+(function(){
+ "use strict";
+ const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+ const make=id=>BASE+"?id="+encodeURIComponent(String(id));
+
+ window.amkinaShareUrl=function(t){return t&&t.id!=null?make(t.id):location.href};
+ window.amkinaShareTrack=async function(t){
+   if(!t||t.id==null)return alert("공유할 곡을 찾을 수 없습니다.");
+   const u=make(t.id);
+   try{
+     if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC")+" - "+(t.artist||"AMKINA MUSIC"),url:u});return;}
+   }catch(e){if(e&&e.name==="AbortError")return;}
+   try{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
+   catch(e){prompt("공유 링크를 복사해주세요.",u)}
+ };
+
+ // 카드 ⋮ 메뉴의 '링크 복사'
+ window.copyTrackShareLink=async function(){
+   const id=window.amkinaActionTrackId;
+   const t=(typeof actionMenuTrack==="function")?actionMenuTrack(id):null;
+   if(typeof closeTrackActionMenu==="function")closeTrackActionMenu();
+   if(id==null)return;
+   const u=make(id);
+   try{await navigator.clipboard.writeText(u)}catch(e){prompt("공유 링크를 복사해주세요.",u)}
+   const toast=document.getElementById("track-link-toast");
+   if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
+ };
+
+ // 곡 상세 페이지 '링크 복사'
+ window.tfCopy=async function(){
+   const t=(typeof tfCurrent==="function")?tfCurrent():null;
+   if(!t||t.id==null)return;
+   const u=make(t.id);
+   try{await navigator.clipboard.writeText(u)}catch(e){prompt("공유 링크를 복사해주세요.",u)}
+   const toast=document.getElementById("track-link-toast");
+   if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
+ };
 })();
 </script>
 
