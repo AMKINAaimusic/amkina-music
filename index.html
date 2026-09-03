@@ -1,3 +1,4 @@
+````
 ```
 <!DOCTYPE html>
 <html lang="ko">
@@ -14683,6 +14684,23 @@ body.akh-active #track-full-page{display:none!important}
 .aa-field{margin:14px 0}.aa-field label{display:block;font-size:11px;font-weight:800;margin-bottom:7px}.aa-field input,.aa-field textarea{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:10px;padding:12px;font:inherit}.aa-field textarea{min-height:90px;resize:vertical}
 .aa-preview{display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;margin-top:10px;background:#eee}
 .aa-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.aa-actions button{border:1px solid #ddd;background:#fff;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer}.aa-actions .primary{background:#111;color:#fff;border-color:#111}
+
+.aa-social{display:flex;align-items:center;gap:14px;margin-top:12px;color:#777;font-size:11px}
+.aa-social span{display:inline-flex;align-items:center;gap:4px}
+.aa-like-btn{margin-top:16px;border:1px solid #dedede;background:#fff;color:#222;border-radius:999px;padding:10px 15px;font-weight:850;cursor:pointer}
+.aa-like-btn.liked{background:#111;color:#fff;border-color:#111}
+.aa-comments{margin-top:20px;padding-top:18px;border-top:1px solid #ececec}
+.aa-comments-title{font-size:13px;font-weight:900;margin-bottom:12px}
+.aa-comment-list{display:flex;flex-direction:column;gap:10px;max-height:260px;overflow:auto}
+.aa-comment{padding:10px 12px;background:#f7f7f7;border-radius:10px}
+.aa-comment-top{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#888;margin-bottom:5px}
+.aa-comment-name{font-weight:850;color:#444}
+.aa-comment-text{font-size:12px;line-height:1.55;color:#222;white-space:pre-wrap;word-break:break-word}
+.aa-comment-form{display:flex;gap:8px;margin-top:12px}
+.aa-comment-form input{flex:1;min-width:0;border:1px solid #ddd;border-radius:10px;padding:11px 12px;font:inherit}
+.aa-comment-form button{border:0;border-radius:10px;background:#111;color:#fff;padding:0 15px;font-weight:850;cursor:pointer}
+.aa-comment-empty{font-size:11px;color:#999;padding:10px 2px}
+
 .aa-view-img{width:100%;max-height:65vh;object-fit:contain;background:#111;border-radius:12px}.aa-view-title{font-size:18px;font-weight:900;margin-top:15px}.aa-view-desc{font-size:12px;line-height:1.7;color:#666;margin-top:6px;white-space:pre-wrap}.aa-delete{display:none;margin-top:15px;border:1px solid #ddd;background:#fff;border-radius:9px;padding:9px 12px;color:#d22;font-weight:800;cursor:pointer}
 @media(max-width:1000px){.aa-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:768px){
@@ -14718,13 +14736,20 @@ body.akh-active #track-full-page{display:none!important}
   <div class="aa-box-head"><b>AMKINA ALBUM</b><button class="aa-x" data-aa-close>×</button></div>
   <img id="aa-view-img" class="aa-view-img">
   <div id="aa-view-title" class="aa-view-title"></div><div id="aa-view-author" class="aa-author"></div><div id="aa-view-desc" class="aa-view-desc"></div>
+  <div class="aa-social"><span>♡ <b id="aa-view-like-count">0</b></span><span>💬 <b id="aa-view-comment-count">0</b></span></div>
+  <button id="aa-like-btn" class="aa-like-btn">♡ 좋아요</button>
+  <div class="aa-comments">
+    <div class="aa-comments-title">댓글 <span id="aa-comment-title-count">0</span></div>
+    <div id="aa-comment-list" class="aa-comment-list"><div class="aa-comment-empty">댓글을 불러오는 중...</div></div>
+    <div class="aa-comment-form"><input id="aa-comment-input" maxlength="300" placeholder="댓글을 남겨주세요."><button id="aa-comment-submit">등록</button></div>
+  </div>
   <button id="aa-delete" class="aa-delete">사진 삭제</button>
  </div>
 </div>
 
 <script id="amkina-album-v1-script">
 (function(){
- let albumRows=[], selected=null;
+ let albumRows=[], selected=null, albumSocial={};
  const $=q=>document.querySelector(q);
  function session(){try{return JSON.parse(localStorage.getItem("amkina_session")||"null")}catch(e){return null}}
  function token(){return session()?.access_token||SUPABASE_ANON_KEY}
@@ -14732,6 +14757,8 @@ body.akh-active #track-full-page{display:none!important}
  function userName(){const s=session();return s?.user?.user_metadata?.display_name||s?.user?.user_metadata?.name||s?.user?.email?.split("@")[0]||"AMKINA USER"}
  function h(json=false){const x={apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+token()};if(json)x["Content-Type"]="application/json";return x}
  function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+ function dateText(v){try{return new Date(v).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}catch(e){return ""}}
+ function sid(v){return encodeURIComponent(String(v??""))}
 
  window.showAmkinaAlbum=function(e){
    if(e){e.preventDefault();e.stopPropagation()}
@@ -14748,6 +14775,28 @@ body.akh-active #track-full-page{display:none!important}
    const old=window[n];if(typeof old==="function")window[n]=function(){hideAlbum();return old.apply(this,arguments)}
  });
 
+ async function loadSocialCounts(){
+   albumSocial={};
+   try{
+     const [lr,cr]=await Promise.all([
+       fetch(SUPABASE_URL+"/rest/v1/album_likes?select=post_id,user_id",{headers:h()}),
+       fetch(SUPABASE_URL+"/rest/v1/album_comments?select=post_id,id",{headers:h()})
+     ]);
+     if(lr.ok){
+       (await lr.json()).forEach(x=>{
+         const k=String(x.post_id); albumSocial[k]??={likes:0,comments:0,liked:false};
+         albumSocial[k].likes++; if(userId()&&x.user_id===userId())albumSocial[k].liked=true;
+       });
+     }
+     if(cr.ok){
+       (await cr.json()).forEach(x=>{
+         const k=String(x.post_id); albumSocial[k]??={likes:0,comments:0,liked:false};
+         albumSocial[k].comments++;
+       });
+     }
+   }catch(e){console.warn("앨범 소셜 카운트 로드 실패",e)}
+ }
+
  async function loadAlbum(){
    const grid=$("#aa-grid"); if(!grid)return;
    grid.innerHTML='<div class="aa-empty">사진을 불러오는 중...</div>';
@@ -14755,22 +14804,97 @@ body.akh-active #track-full-page{display:none!important}
      const r=await fetch(SUPABASE_URL+"/rest/v1/album_posts?select=*&order=created_at.desc&limit=100",{headers:h()});
      if(!r.ok)throw new Error(await r.text());
      albumRows=await r.json();
+     await loadSocialCounts();
      if(!albumRows.length){grid.innerHTML='<div class="aa-empty">아직 등록된 사진이 없습니다.<br>첫 번째 사진을 올려보세요.</div>';return}
-     grid.innerHTML=albumRows.map(x=>`<article class="aa-card" data-id="${x.id}"><div class="aa-photo"><img loading="lazy" src="${esc(x.image_url)}" alt=""></div><div class="aa-meta"><div class="aa-name">${esc(x.title||"Untitled")}</div><div class="aa-author">${esc(x.author_name||"AMKINA USER")}</div></div></article>`).join("");
+     grid.innerHTML=albumRows.map(x=>{
+       const s=albumSocial[String(x.id)]||{likes:0,comments:0,liked:false};
+       return `<article class="aa-card" data-id="${x.id}">
+         <div class="aa-photo"><img loading="lazy" src="${esc(x.image_url)}" alt=""></div>
+         <div class="aa-meta">
+           <div class="aa-name">${esc(x.title||"Untitled")}</div>
+           <div class="aa-author">${esc(x.author_name||"AMKINA USER")}</div>
+           <div class="aa-social"><span>${s.liked?"♥":"♡"} ${s.likes}</span><span>💬 ${s.comments}</span></div>
+         </div>
+       </article>`;
+     }).join("");
      grid.querySelectorAll(".aa-card").forEach(c=>c.onclick=()=>openView(c.dataset.id));
    }catch(err){console.error(err);grid.innerHTML='<div class="aa-empty">앨범을 불러오지 못했습니다.<br>Supabase 앨범 설정을 먼저 적용해주세요.</div>'}
  }
 
- function openView(id){
+ async function openView(id){
    selected=albumRows.find(x=>String(x.id)===String(id));if(!selected)return;
    $("#aa-view-img").src=selected.image_url;$("#aa-view-title").textContent=selected.title||"";
    $("#aa-view-author").textContent=selected.author_name||"AMKINA USER";$("#aa-view-desc").textContent=selected.description||"";
    $("#aa-delete").style.display=(userId()&&selected.user_id===userId())?"inline-block":"none";
    $("#aa-view-modal").classList.add("open");
+   $("#aa-comment-input").value="";
+   await loadSelectedSocial();
  }
+
+ async function loadSelectedSocial(){
+   if(!selected)return;
+   const pid=sid(selected.id);
+   try{
+     const [lr,cr]=await Promise.all([
+       fetch(SUPABASE_URL+"/rest/v1/album_likes?post_id=eq."+pid+"&select=user_id",{headers:h()}),
+       fetch(SUPABASE_URL+"/rest/v1/album_comments?post_id=eq."+pid+"&select=*&order=created_at.asc",{headers:h()})
+     ]);
+     const likes=lr.ok?await lr.json():[];
+     const comments=cr.ok?await cr.json():[];
+     const liked=!!userId()&&likes.some(x=>x.user_id===userId());
+     $("#aa-view-like-count").textContent=likes.length;
+     $("#aa-view-comment-count").textContent=comments.length;
+     $("#aa-comment-title-count").textContent=comments.length;
+     $("#aa-like-btn").classList.toggle("liked",liked);
+     $("#aa-like-btn").textContent=liked?"♥ 좋아요 취소":"♡ 좋아요";
+     $("#aa-comment-list").innerHTML=comments.length?comments.map(c=>`
+       <div class="aa-comment">
+         <div class="aa-comment-top"><span class="aa-comment-name">${esc(c.author_name||"AMKINA USER")}</span><span>${esc(dateText(c.created_at))}</span></div>
+         <div class="aa-comment-text">${esc(c.content||"")}</div>
+       </div>`).join(""):'<div class="aa-comment-empty">첫 댓글을 남겨보세요.</div>';
+     albumSocial[String(selected.id)]={likes:likes.length,comments:comments.length,liked};
+   }catch(e){console.error(e);$("#aa-comment-list").innerHTML='<div class="aa-comment-empty">댓글을 불러오지 못했습니다.</div>'}
+ }
+
+ async function toggleLike(){
+   if(!selected)return;
+   if(!userId()){alert("좋아요는 로그인 후 사용할 수 있습니다.");return}
+   const pid=sid(selected.id), uid=sid(userId());
+   const check=await fetch(SUPABASE_URL+"/rest/v1/album_likes?post_id=eq."+pid+"&user_id=eq."+uid+"&select=id",{headers:h()});
+   const rows=check.ok?await check.json():[];
+   if(rows.length){
+     const r=await fetch(SUPABASE_URL+"/rest/v1/album_likes?post_id=eq."+pid+"&user_id=eq."+uid,{method:"DELETE",headers:h()});
+     if(!r.ok)throw new Error(await r.text());
+   }else{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/album_likes",{method:"POST",headers:{...h(true),Prefer:"return=minimal"},body:JSON.stringify({post_id:String(selected.id),user_id:userId()})});
+     if(!r.ok)throw new Error(await r.text());
+   }
+   await loadSelectedSocial(); await loadAlbum();
+ }
+
+ async function submitComment(){
+   if(!selected)return;
+   if(!userId()){alert("댓글은 로그인 후 작성할 수 있습니다.");return}
+   const input=$("#aa-comment-input"), content=input.value.trim();
+   if(!content)return alert("댓글을 입력해주세요.");
+   const btn=$("#aa-comment-submit");btn.disabled=true;btn.textContent="등록 중...";
+   try{
+     const r=await fetch(SUPABASE_URL+"/rest/v1/album_comments",{method:"POST",headers:{...h(true),Prefer:"return=minimal"},body:JSON.stringify({
+       post_id:String(selected.id),user_id:userId(),author_name:userName(),content
+     })});
+     if(!r.ok)throw new Error(await r.text());
+     input.value=""; await loadSelectedSocial(); await loadAlbum();
+   }catch(e){console.error(e);alert("댓글을 등록하지 못했습니다.")}
+   finally{btn.disabled=false;btn.textContent="등록"}
+ }
+
  function closeModals(){document.querySelectorAll(".aa-modal.open").forEach(m=>m.classList.remove("open"))}
  document.querySelectorAll("[data-aa-close]").forEach(b=>b.onclick=closeModals);
  document.querySelectorAll(".aa-modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModals()}));
+
+ $("#aa-like-btn").onclick=()=>toggleLike().catch(e=>{console.error(e);alert("좋아요 처리에 실패했습니다.")});
+ $("#aa-comment-submit").onclick=submitComment;
+ $("#aa-comment-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();submitComment()}});
 
  $("#aa-open-upload").onclick=()=>{
    if(!userId()){alert("로그인 후 사진을 올릴 수 있습니다.");return}
@@ -14799,6 +14923,8 @@ body.akh-active #track-full-page{display:none!important}
  $("#aa-delete").onclick=async function(){
    if(!selected||selected.user_id!==userId())return;if(!confirm("이 사진을 삭제할까요?"))return;
    try{
+     await fetch(SUPABASE_URL+"/rest/v1/album_likes?post_id=eq."+sid(selected.id),{method:"DELETE",headers:h()});
+     await fetch(SUPABASE_URL+"/rest/v1/album_comments?post_id=eq."+sid(selected.id),{method:"DELETE",headers:h()});
      const del=await fetch(SUPABASE_URL+"/rest/v1/album_posts?id=eq."+encodeURIComponent(selected.id),{method:"DELETE",headers:h()});
      if(!del.ok)throw new Error(await del.text());
      if(selected.storage_path)await fetch(SUPABASE_URL+"/storage/v1/object/album-images/"+selected.storage_path,{method:"DELETE",headers:h()});
@@ -15670,3 +15796,4 @@ document.addEventListener('change',async function(e){
 </body>
 </html>
 ```
+````
