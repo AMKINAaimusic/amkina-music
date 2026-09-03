@@ -4579,6 +4579,17 @@ fetch(SUPABASE_URL + "/rest/v1/rpc/increment_play_count", {
 }).then(() => {
   track.play_count = (track.play_count || 0) + 1;
 });
+// 기간별 차트용 재생 이벤트 기록 (일간/주간)
+fetch(SUPABASE_URL + "/rest/v1/play_events", {
+  method:"POST",
+  headers:{
+    "apikey":SUPABASE_ANON_KEY,
+    "Authorization":"Bearer "+SUPABASE_ANON_KEY,
+    "Content-Type":"application/json",
+    "Prefer":"return=minimal"
+  },
+  body:JSON.stringify({track_id:track.id})
+}).catch(e=>console.warn("재생 이벤트 기록 실패",e));
 }
 
 
@@ -11272,12 +11283,12 @@ document.addEventListener("DOMContentLoaded",()=>{
    <div>
     <div class="chart100-kicker">AMKINA MUSIC CHART</div>
     <h1 class="chart100-title">CHART 100</h1>
-    <div class="chart100-sub">AMKINA MUSIC 누적 재생수를 기준으로 집계한 인기 음원 차트입니다.</div>
+    <div class="chart100-sub" id="chart100-subtitle">AMKINA MUSIC 누적 재생수를 기준으로 집계한 인기 음원 차트입니다.</div>
    </div>
    <div class="chart100-tabs">
-    <button class="chart100-tab active" type="button">누적</button>
-    <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">일간</button>
-    <button class="chart100-tab" type="button" title="기간별 재생 기록 기능 추가 후 제공">주간</button>
+    <button class="chart100-tab active" type="button" data-period="all">누적</button>
+    <button class="chart100-tab" type="button" data-period="daily">일간</button>
+    <button class="chart100-tab" type="button" data-period="weekly">주간</button>
    </div>
   </div>
   <div class="chart100-refresh">◷ 2시간마다 갱신 · 다음 갱신 <b id="chart100-countdown">--:--:--</b></div>
@@ -11294,6 +11305,45 @@ function amkinaChartLikeCount(t){
 }
 
 let amkinaChartSnapshotMeta={latest:null,previous:null,moves:{}};
+let amkinaChartPeriod="all";
+let amkinaPeriodPlayCounts={};
+
+async function amkinaLoadPeriodPlays(period){
+  if(period==="all"){amkinaPeriodPlayCounts={};return {}}
+  const hours=period==="daily"?24:168;
+  const since=new Date(Date.now()-hours*60*60*1000).toISOString();
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/play_events?select=track_id,played_at&played_at=gte."+encodeURIComponent(since)+"&limit=10000",
+      {headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}}
+    );
+    if(!r.ok) throw new Error(await r.text());
+    const rows=await r.json(), counts={};
+    rows.forEach(x=>{const id=String(x.track_id);counts[id]=(counts[id]||0)+1});
+    amkinaPeriodPlayCounts=counts;
+    return counts;
+  }catch(e){
+    console.warn("기간별 재생 집계 실패",e);
+    amkinaPeriodPlayCounts={};
+    return {};
+  }
+}
+function amkinaChartDisplayPlays(t){
+  return amkinaChartPeriod==="all"?amkinaTrackPlays(t):Number(amkinaPeriodPlayCounts[String(t.id)]||0);
+}
+function amkinaInitChartTabs(){
+  document.querySelectorAll(".chart100-tab[data-period]").forEach(btn=>{
+    if(btn.dataset.bound)return; btn.dataset.bound="1";
+    btn.addEventListener("click",async()=>{
+      amkinaChartPeriod=btn.dataset.period||"all";
+      document.querySelectorAll(".chart100-tab[data-period]").forEach(b=>b.classList.toggle("active",b===btn));
+      const sub=document.getElementById("chart100-subtitle");
+      if(sub) sub.textContent=amkinaChartPeriod==="daily"?"최근 24시간 재생수를 기준으로 집계한 인기 음원 차트입니다.":amkinaChartPeriod==="weekly"?"최근 7일 재생수를 기준으로 집계한 인기 음원 차트입니다.":"AMKINA MUSIC 누적 재생수를 기준으로 집계한 인기 음원 차트입니다.";
+      await renderChart100();
+    });
+  });
+}
+
 
 async function amkinaLoadChartSnapshots(){
   try{
@@ -11371,15 +11421,18 @@ async function renderChart100(){
     }
   }catch(e){console.warn("CHART 100 좋아요 집계 실패",e);}
 
-  await amkinaLoadChartSnapshots();
+  await amkinaLoadPeriodPlays(amkinaChartPeriod);
+  if(amkinaChartPeriod==="all") await amkinaLoadChartSnapshots();
   amkinaStartChartCountdown();
 
   const source=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]);
   source.forEach(t=>{t._live_like_count=likeCounts[String(t.id)]||0});
 
   let list=source.slice();
-  const lm=amkinaChartSnapshotMeta.latestMap||{};
-  if(amkinaChartSnapshotMeta.latest && Object.keys(lm).length){
+  const lm=amkinaChartPeriod==="all"?(amkinaChartSnapshotMeta.latestMap||{}):{};
+  if(amkinaChartPeriod!=="all"){
+    list=list.filter(t=>amkinaChartDisplayPlays(t)>0).sort((a,b)=>amkinaChartDisplayPlays(b)-amkinaChartDisplayPlays(a) || amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
+  }else if(amkinaChartSnapshotMeta.latest && Object.keys(lm).length){
     list=list.filter(t=>lm[String(t.id)]!=null).sort((a,b)=>lm[String(a.id)]-lm[String(b.id)]).slice(0,100);
   }else{
     list=list.sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
@@ -11388,16 +11441,16 @@ async function renderChart100(){
   if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return;}
 
   el.innerHTML=list.map((t,i)=>{
-    const rank=lm[String(t.id)]||i+1;
+    const rank=amkinaChartPeriod==="all"?(lm[String(t.id)]||i+1):(i+1);
     const topClass=rank<=3?" top"+rank:"";
     return `
     <div class="chart100-row${topClass}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')">
       <div class="chart100-rank">${amkinaRankHtml(rank)}</div>
-      <div class="chart100-move">${amkinaChartMoveHtml(t.id)}</div>
+      <div class="chart100-move">${amkinaChartPeriod==="all"?amkinaChartMoveHtml(t.id):"―"}</div>
       <img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt="">
       <div class="chart100-song"><b>${escapeHtmlChart(t.title||"Untitled")}</b><span>${escapeHtmlChart(t.artist||"AMKINA")}</span></div>
       <div class="chart100-genre">${escapeHtmlChart(t.genre||"ORIGINAL")}</div>
-      <div class="chart100-stat">▷ ${amkinaTrackPlays(t).toLocaleString()}</div>
+      <div class="chart100-stat">▷ ${amkinaChartDisplayPlays(t).toLocaleString()}</div>
       <div class="chart100-stat chart100-like">♡ ${amkinaChartLikeCount(t).toLocaleString()}</div>
     </div>`;
   }).join("");
@@ -11412,6 +11465,8 @@ function amkinaPlayChartTrack(id){
  if(typeof playTrack==="function"){playTrack(idx);return}
  if(typeof selectTrack==="function"){selectTrack(idx);return}
 }
+document.addEventListener("DOMContentLoaded",amkinaInitChartTabs);
+
 function openChart100(event){
  if(event){
    event.preventDefault();
@@ -14820,22 +14875,24 @@ body.akh-active #track-full-page{display:none!important}
 </style>
 <script id="amkina-chart100-premium-script-v2">
 function amkinaChartPodiumCard(t,rank){
- const plays=amkinaTrackPlays(t).toLocaleString(),likes=amkinaChartLikeCount(t).toLocaleString();
- return `<article class="chart100-podium-card rank${rank}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-podium-cover"><img src="${t.cover_url||t.cover||''}" alt=""><span class="chart100-podium-no">${String(rank).padStart(2,'0')}</span><button class="chart100-podium-play" type="button" aria-label="재생">▶</button></div><div class="chart100-podium-info"><b>${escapeHtmlChart(t.title||'Untitled')}</b><div class="chart100-podium-artist">${escapeHtmlChart(t.artist||'AMKINA')}</div><div class="chart100-podium-bottom"><span class="chart100-podium-move">${amkinaChartMoveHtml(t.id)}</span><span class="chart100-podium-stats"><span>▶ ${plays}</span><span>♡ ${likes}</span></span></div></div></article>`;
+ const plays=amkinaChartDisplayPlays(t).toLocaleString(),likes=amkinaChartLikeCount(t).toLocaleString();
+ return `<article class="chart100-podium-card rank${rank}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-podium-cover"><img src="${t.cover_url||t.cover||''}" alt=""><span class="chart100-podium-no">${String(rank).padStart(2,'0')}</span><button class="chart100-podium-play" type="button" aria-label="재생">▶</button></div><div class="chart100-podium-info"><b>${escapeHtmlChart(t.title||'Untitled')}</b><div class="chart100-podium-artist">${escapeHtmlChart(t.artist||'AMKINA')}</div><div class="chart100-podium-bottom"><span class="chart100-podium-move">${amkinaChartPeriod==="all"?amkinaChartMoveHtml(t.id):"―"}</span><span class="chart100-podium-stats"><span>▶ ${plays}</span><span>♡ ${likes}</span></span></div></div></article>`;
 }
 async function renderChart100(){
  const el=document.getElementById('chart100-list'); if(!el)return;
  const likeCounts={};
  try{const r=await fetch(SUPABASE_URL+'/rest/v1/track_likes?select=track_id',{headers:{apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY}});if(r.ok)(await r.json()).forEach(x=>{const id=String(x.track_id);likeCounts[id]=(likeCounts[id]||0)+1})}catch(e){console.warn('CHART 100 좋아요 집계 실패',e)}
- await amkinaLoadChartSnapshots(); amkinaStartChartCountdown();
+ await amkinaLoadPeriodPlays(amkinaChartPeriod);
+ if(amkinaChartPeriod==="all") await amkinaLoadChartSnapshots(); amkinaStartChartCountdown();
  const source=(typeof tracks!=='undefined'&&Array.isArray(tracks)?tracks:[]);source.forEach(t=>t._live_like_count=likeCounts[String(t.id)]||0);
- let list=source.slice(),lm=amkinaChartSnapshotMeta.latestMap||{};
- if(amkinaChartSnapshotMeta.latest&&Object.keys(lm).length)list=list.filter(t=>lm[String(t.id)]!=null).sort((a,b)=>lm[String(a.id)]-lm[String(b.id)]).slice(0,100);else list=list.sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
+ let list=source.slice(),lm=amkinaChartPeriod==="all"?(amkinaChartSnapshotMeta.latestMap||{}):{};
+ if(amkinaChartPeriod!=="all") list=list.filter(t=>amkinaChartDisplayPlays(t)>0).sort((a,b)=>amkinaChartDisplayPlays(b)-amkinaChartDisplayPlays(a)||amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
+ else if(amkinaChartSnapshotMeta.latest&&Object.keys(lm).length)list=list.filter(t=>lm[String(t.id)]!=null).sort((a,b)=>lm[String(a.id)]-lm[String(b.id)]).slice(0,100);else list=list.sort((a,b)=>amkinaTrackPlays(b)-amkinaTrackPlays(a)).slice(0,100);
  if(!list.length){el.innerHTML='<div class="chart100-empty">등록된 음원이 없습니다.</div>';return}
  const top=list.slice(0,3); const ordered=top.length>=3?[top[1],top[0],top[2]]:top;
- const podium=`<div class="chart100-podium">${ordered.map(t=>amkinaChartPodiumCard(t,lm[String(t.id)]||list.indexOf(t)+1)).join('')}</div>`;
+ const podium=`<div class="chart100-podium">${ordered.map(t=>amkinaChartPodiumCard(t,amkinaChartPeriod==="all"?(lm[String(t.id)]||list.indexOf(t)+1):(list.indexOf(t)+1))).join('')}</div>`;
  const head=`<div class="chart100-list-head"><span>RANK</span><span>MOVE</span><span></span><span>TRACK</span><span>PLAYS</span><span>LIKES</span><span></span></div>`;
- const rows=list.map((t,i)=>{const rank=lm[String(t.id)]||i+1,topClass=rank<=3?' top'+rank:'';return `<div class="chart100-row${topClass}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-rank">${String(rank).padStart(2,'0')}</div><div class="chart100-move">${amkinaChartMoveHtml(t.id)}</div><img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt=""><div class="chart100-song"><b>${escapeHtmlChart(t.title||'Untitled')}</b><span>${escapeHtmlChart(t.artist||'AMKINA')}</span></div><div class="chart100-stat">${amkinaTrackPlays(t).toLocaleString()}</div><div class="chart100-stat chart100-like">${amkinaChartLikeCount(t).toLocaleString()}</div><div class="chart100-play-mini">▶</div></div>`}).join('');
+ const rows=list.map((t,i)=>{const rank=amkinaChartPeriod==="all"?(lm[String(t.id)]||i+1):(i+1),topClass=rank<=3?' top'+rank:'';return `<div class="chart100-row${topClass}" onclick="amkinaPlayChartTrack('${String(t.id).replace(/'/g,"\\'")}')"><div class="chart100-rank">${String(rank).padStart(2,'0')}</div><div class="chart100-move">${amkinaChartPeriod==="all"?amkinaChartMoveHtml(t.id):"―"}</div><img class="chart100-cover" src="${t.cover_url||t.cover||''}" alt=""><div class="chart100-song"><b>${escapeHtmlChart(t.title||'Untitled')}</b><span>${escapeHtmlChart(t.artist||'AMKINA')}</span></div><div class="chart100-stat">${amkinaChartDisplayPlays(t).toLocaleString()}</div><div class="chart100-stat chart100-like">${amkinaChartLikeCount(t).toLocaleString()}</div><div class="chart100-play-mini">▶</div></div>`}).join('');
  el.innerHTML=podium+head+rows;
 }
 </script>
