@@ -16049,6 +16049,98 @@ document.addEventListener('change',async function(e){
 })();
 </script>
 
+
+<!-- ===== AMKINA TRACK ACTION MENU ID PRESERVE FIX v5 ===== -->
+<script id="amkina-track-action-menu-id-preserve-fix-v5">
+(function(){
+  "use strict";
+
+  // 기존 closeTrackActionMenu()가 곡 ID를 null로 지우기 전에 ID를 보존한다.
+  function closeMenuOnly(){
+    const m=document.getElementById("track-action-menu");
+    if(m)m.style.display="none";
+  }
+
+  window.actionMenuPlay=function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    const list=(typeof tracks!=="undefined"&&Array.isArray(tracks))?tracks:[];
+    const idx=list.findIndex(x=>String(x.id)===String(id));
+    amkinaActionTrackId=null;
+    if(idx>=0&&typeof playTrack==="function")playTrack(idx);
+  };
+
+  window.actionMenuLike=async function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id!=null&&typeof toggleTrackLike==="function")await toggleTrackLike(id);
+  };
+
+  window.actionMenuComment=function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id!=null&&typeof openTrackComments==="function")openTrackComments(id);
+  };
+
+  window.actionMenuPlaylist=function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id!=null&&typeof openLibraryAddModal==="function")openLibraryAddModal(id);
+  };
+
+  window.actionMenuOpenPage=function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id!=null&&typeof openTrackFullPage==="function")openTrackFullPage(id);
+  };
+
+  window.actionMenuEdit=function(){
+    const id=amkinaActionTrackId;
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id!=null&&typeof openTrackEdit==="function")openTrackEdit(id);
+  };
+
+  // 링크 복사도 같은 문제를 피하고, 현재는 사이트 내부 곡 링크를 복사한다.
+  window.copyTrackShareLink=async function(){
+    const id=amkinaActionTrackId;
+    let t=null;
+    try{if(typeof actionMenuTrack==="function")t=actionMenuTrack(id)}catch(e){}
+    closeMenuOnly();
+    amkinaActionTrackId=null;
+    if(id==null)return alert("공유할 곡을 찾을 수 없습니다.");
+
+    const url="https://amkinamusic.com/?track="+encodeURIComponent(String(id));
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=url;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed";
+      ta.style.left="-99999px";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0,ta.value.length);
+      const ok=document.execCommand("copy");
+      ta.remove();
+      if(!ok&&navigator.clipboard?.writeText)await navigator.clipboard.writeText(url);
+
+      const toast=document.getElementById("track-link-toast");
+      if(toast){
+        toast.textContent="🔗 "+(t?.title||"음원")+" 링크가 복사되었습니다.";
+        toast.classList.add("show");
+        setTimeout(()=>toast.classList.remove("show"),1800);
+      }
+    }catch(e){
+      prompt("공유 링크를 복사해주세요.",url);
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
 ```
