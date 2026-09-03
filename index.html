@@ -1,3 +1,5 @@
+````
+```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12336,7 +12338,7 @@ function actionMenuOpenPage(){const id=amkinaActionTrackId;closeTrackActionMenu(
 function actionMenuEdit(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackEdit==="function")openTrackEdit(id)}
 async function copyTrackShareLink(){
  const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;
- const link="https://amkinamusic.com/share/"+encodeURIComponent(id);
+ const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(id);
  try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
  const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
 }
@@ -12404,7 +12406,7 @@ function tfComment(){const t=tfCurrent();if(t&&typeof openTrackComments==="funct
 function tfPlaylist(){const t=tfCurrent();if(t&&typeof openLibraryAddModal==="function")openLibraryAddModal(t.id)}
 async function tfCopy(){
  const t=tfCurrent();if(!t)return;
- const link="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
+ const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
  try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
  const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
 }
@@ -13426,7 +13428,7 @@ window.openCurrentPlayerComments=function(){
  window.shareCurrentPlayerTrack=async function(){
     const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
     if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
-    const u="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
+    const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
     try{
       if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC"),text:(t.artist||"")+" · AMKINA MUSIC",url:u});}
       else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
@@ -14448,7 +14450,7 @@ body.akh-active #track-full-page{display:none!important}
    card.querySelector(".akh-comment").onclick=()=>{audio.pause();try{openTrackComments(t.id)}catch(e){}};
    card.querySelector(".akh-share").onclick=async()=>{
       if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
-      const u="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
+      const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
       try{
         if(navigator.share) await navigator.share({title:t.title||"AMKINA MUSIC",text:(t.artist||"")+" · AMKINA MUSIC",url:u});
         else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
@@ -14986,8 +14988,8 @@ body.akh-active #track-full-page{display:none!important}
 </script>
 <script id="amkina-dynamic-og-share-v2">
 (function(){
- const BASE="https://amkinamusic.com/share";
- function url(t){return t&&t.id!=null?BASE+"/"+encodeURIComponent(t.id):location.href}
+ const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+ function url(t){return t&&t.id!=null?BASE+"?id="+encodeURIComponent(t.id):location.href}
  async function share(t){
    if(!t)return;
    const u=url(t), title=t.title||"AMKINA MUSIC", artist=t.artist||"AMKINA MUSIC";
@@ -15859,11 +15861,11 @@ document.addEventListener('change',async function(e){
 (function () {
   "use strict";
 
-  const SHARE_BASE = "https://amkinamusic.com/share";
+  const SHARE_BASE = "https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
 
   function getShareUrl(track) {
     if (!track || track.id == null) return null;
-    return SHARE_BASE + "/" + encodeURIComponent(String(track.id));
+    return SHARE_BASE + "?id=" + encodeURIComponent(String(track.id));
   }
 
   async function shareTrack(track) {
@@ -15920,8 +15922,8 @@ document.addEventListener('change',async function(e){
 <script id="amkina-share-master-fix-v3">
 (function(){
  "use strict";
- const BASE="https://amkinamusic.com/share";
- const make=id=>BASE+"/"+encodeURIComponent(String(id));
+ const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+ const make=id=>BASE+"?id="+encodeURIComponent(String(id));
 
  window.amkinaShareUrl=function(t){return t&&t.id!=null?make(t.id):location.href};
  window.amkinaShareTrack=async function(t){
@@ -15963,8 +15965,8 @@ document.addEventListener('change',async function(e){
 <script id="amkina-text-link-copy-hard-fix-v4">
 (function(){
   "use strict";
-  const BASE="https://amkinamusic.com/share";
-  const makeUrl=id=>BASE+"/"+encodeURIComponent(String(id));
+  const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+  const makeUrl=id=>BASE+"?id="+encodeURIComponent(String(id));
 
   function copyPlainText(text){
     return new Promise((resolve,reject)=>{
@@ -16139,363 +16141,7 @@ document.addEventListener('change',async function(e){
 })();
 </script>
 
-
-<!-- ===== AMKINA SHARE LINK FINAL OVERRIDE v6 ===== -->
-<script id="amkina-share-link-final-override-v6">
-(function(){
-  "use strict";
-
-  const SHARE_BASE = "https://amkinamusic.com/share";
-  const makeShareUrl = id => SHARE_BASE + "/" + encodeURIComponent(String(id));
-
-  function currentPlayerTrack(){
-    try{
-      if(typeof tracks !== "undefined" && Array.isArray(tracks)){
-        if(typeof currentIndex === "number" && currentIndex >= 0 && tracks[currentIndex]) return tracks[currentIndex];
-        if(typeof currentTrackIndex === "number" && currentTrackIndex >= 0 && tracks[currentTrackIndex]) return tracks[currentTrackIndex];
-      }
-      if(typeof currentTrack !== "undefined" && currentTrack) return currentTrack;
-    }catch(e){}
-    return null;
-  }
-
-  function copyText(text){
-    return new Promise(async (resolve,reject)=>{
-      try{
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          await navigator.clipboard.writeText(text);
-          return resolve(true);
-        }
-      }catch(e){}
-      try{
-        const ta=document.createElement("textarea");
-        ta.value=text;
-        ta.setAttribute("readonly","");
-        ta.style.position="fixed";
-        ta.style.left="-99999px";
-        ta.style.top="0";
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        ta.setSelectionRange(0,ta.value.length);
-        const ok=document.execCommand("copy");
-        ta.remove();
-        if(ok) return resolve(true);
-      }catch(e){}
-      reject(new Error("copy failed"));
-    });
-  }
-
-  function showToast(msg){
-    const toast=document.getElementById("track-link-toast");
-    if(toast){
-      toast.textContent=msg;
-      toast.classList.add("show");
-      setTimeout(()=>toast.classList.remove("show"),1900);
-    }else{
-      alert(msg);
-    }
-  }
-
-  window.amkinaShareUrl=function(track){
-    return track && track.id != null ? makeShareUrl(track.id) : location.href;
-  };
-
-  window.amkinaShareTrack=async function(track){
-    if(!track || track.id == null){
-      alert("공유할 곡을 찾을 수 없습니다.");
-      return;
-    }
-    const url=makeShareUrl(track.id);
-    const title=(track.title || "AMKINA MUSIC") + " - " + (track.artist || "AMKINA MUSIC");
-
-    try{
-      if(navigator.share){
-        await navigator.share({
-          title:title,
-          text:(track.title || "AMKINA MUSIC") + " · " + (track.artist || "AMKINA MUSIC"),
-          url:url
-        });
-        return;
-      }
-    }catch(e){
-      if(e && e.name==="AbortError") return;
-    }
-
-    try{
-      await copyText(url);
-      showToast("🔗 "+(track.title||"음원")+" 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("아래 공유 링크를 복사해주세요.",url);
-    }
-  };
-
-  window.shareCurrentPlayerTrack=async function(){
-    const track=currentPlayerTrack();
-    if(!track){
-      alert("곡을 먼저 선택해주세요.");
-      return;
-    }
-    return window.amkinaShareTrack(track);
-  };
-
-  window.copyTrackShareLink=async function(){
-    const id=window.amkinaActionTrackId;
-    let track=null;
-    try{
-      if(typeof actionMenuTrack==="function") track=actionMenuTrack(id);
-    }catch(e){}
-
-    // ID가 사라지기 전에 먼저 보존
-    const savedId=id;
-
-    try{
-      const menu=document.getElementById("track-action-menu");
-      if(menu) menu.style.display="none";
-    }catch(e){}
-
-    window.amkinaActionTrackId=null;
-
-    if(savedId==null){
-      alert("공유할 곡을 찾을 수 없습니다.");
-      return;
-    }
-
-    const url=makeShareUrl(savedId);
-    try{
-      await copyText(url);
-      showToast("🔗 "+(track?.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("공유 링크를 복사해주세요.",url);
-    }
-  };
-
-  window.tfCopy=async function(){
-    let track=null;
-    try{
-      if(typeof tfCurrent==="function") track=tfCurrent();
-    }catch(e){}
-    if(!track || track.id==null){
-      alert("공유할 곡을 찾을 수 없습니다.");
-      return;
-    }
-    const url=makeShareUrl(track.id);
-    try{
-      await copyText(url);
-      showToast("🔗 "+(track.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("공유 링크를 복사해주세요.",url);
-    }
-  };
-})();
-</script>
-
-
-<!-- ===== AMKINA TRACK MENU SHARE ID FIX v7 ===== -->
-<script id="amkina-track-menu-share-id-fix-v7">
-(function(){
-  "use strict";
-
-  const SHARE_BASE="https://amkinamusic.com/share";
-
-  function copyFallback(value){
-    const ta=document.createElement("textarea");
-    ta.value=value;
-    ta.setAttribute("readonly","");
-    ta.style.position="fixed";
-    ta.style.left="-99999px";
-    ta.style.top="0";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    ta.setSelectionRange(0,ta.value.length);
-    const ok=document.execCommand("copy");
-    ta.remove();
-    return ok;
-  }
-
-  // 중요: amkinaActionTrackId는 let으로 선언되어 window 속성이 아니므로
-  // window.amkinaActionTrackId가 아니라 같은 스크립트 전역의 변수를 직접 읽는다.
-  window.copyTrackShareLink=async function(){
-    let id=null, track=null;
-
-    try{
-      id=(typeof amkinaActionTrackId!=="undefined") ? amkinaActionTrackId : null;
-      if(id!=null && typeof actionMenuTrack==="function") track=actionMenuTrack(id);
-    }catch(e){}
-
-    if(id==null){
-      alert("공유할 곡을 찾을 수 없습니다.");
-      return;
-    }
-
-    // 메뉴를 닫기 전에 ID를 별도 보존
-    const savedId=String(id);
-    const url=SHARE_BASE+"?id="+encodeURIComponent(savedId);
-
-    try{
-      const menu=document.getElementById("track-action-menu");
-      if(menu) menu.style.display="none";
-      if(typeof amkinaActionTrackId!=="undefined") amkinaActionTrackId=null;
-    }catch(e){}
-
-    try{
-      let copied=false;
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        try{
-          await navigator.clipboard.writeText(url);
-          copied=true;
-        }catch(e){}
-      }
-      if(!copied) copied=copyFallback(url);
-      if(!copied) throw new Error("copy failed");
-
-      const toast=document.getElementById("track-link-toast");
-      if(toast){
-        toast.textContent="🔗 "+(track?.title||"음원")+" 공유 링크가 복사되었습니다.";
-        toast.classList.add("show");
-        setTimeout(()=>toast.classList.remove("show"),1900);
-      }else{
-        alert("공유 링크가 복사되었습니다.");
-      }
-    }catch(e){
-      prompt("아래 공유 링크를 복사해주세요.",url);
-    }
-  };
-})();
-</script>
-
-\n\n<!-- ===== AMKINA EXTERNAL COVER NETWORK PROMPT FIX v1 ===== -->\n<script id="amkina-external-cover-network-fix-v1">\n(function(){\n  "use strict";\n  const FALLBACK = "./icon-512.png";\n  const BLOCKED_HOSTS = new Set(["cdn1.suno.ai","cdn2.suno.ai","cdn3.suno.ai","suno.ai","www.suno.ai"]);\n\n  function safeCoverUrl(value){\n    const raw=String(value||"").trim();\n    if(!raw)return FALLBACK;\n    if(raw.startsWith("data:")||raw.startsWith("blob:")||raw.startsWith("./")||raw.startsWith("/"))return raw;\n    try{\n      const u=new URL(raw,location.href);\n      const h=u.hostname.toLowerCase();\n      if(BLOCKED_HOSTS.has(h)||h.endsWith(".suno.ai"))return FALLBACK;\n      return u.href;\n    }catch(e){return FALLBACK;}\n  }\n  window.amkinaSafeCoverUrl=safeCoverUrl;\n\n  function sanitizeTrack(t){\n    if(!t||typeof t!=="object")return t;\n    for(const k of ["cover_url","cover","image_url"]){\n      if(t[k])t[k]=safeCoverUrl(t[k]);\n    }\n    return t;\n  }\n  function sanitizeAll(){\n    try{if(Array.isArray(window.tracks))window.tracks.forEach(sanitizeTrack)}catch(e){}\n    document.querySelectorAll("img[src]").forEach(img=>{\n      const safe=safeCoverUrl(img.getAttribute("src"));\n      if(safe!==img.getAttribute("src"))img.setAttribute("src",safe);\n    });\n  }\n\n  const observer=new MutationObserver(records=>{\n    for(const r of records){\n      if(r.type==="attributes"&&r.target?.tagName==="IMG"){\n        const img=r.target,old=img.getAttribute("src")||"",safe=safeCoverUrl(old);\n        if(safe!==old)img.setAttribute("src",safe);\n      }\n      r.addedNodes?.forEach(n=>{\n        if(n.nodeType!==1)return;\n        const imgs=n.tagName==="IMG"?[n]:[...n.querySelectorAll?.("img[src]")||[]];\n        imgs.forEach(img=>{const old=img.getAttribute("src")||"",safe=safeCoverUrl(old);if(safe!==old)img.setAttribute("src",safe)});\n      });\n    }\n  });\n\n  function start(){\n    sanitizeAll();\n    observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});\n    setInterval(sanitizeAll,1500);\n  }\n  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();\n})();\n</script>\n<!-- ===== /AMKINA EXTERNAL COVER NETWORK PROMPT FIX v1 ===== -->\n
-
-<!-- ===== AMKINA SHARE DOMAIN FINAL OVERRIDE v1 ===== -->
-<script id="amkina-share-domain-final-override-v1">
-(function(){
-  "use strict";
-
-  const SITE = "https://amkinamusic.com";
-
-  function makeShareUrl(id){
-    return SITE + "/share/" + encodeURIComponent(String(id));
-  }
-
-  function copyText(value){
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      return navigator.clipboard.writeText(value);
-    }
-    return new Promise((resolve,reject)=>{
-      try{
-        const ta=document.createElement("textarea");
-        ta.value=value;
-        ta.setAttribute("readonly","");
-        ta.style.position="fixed";
-        ta.style.left="-99999px";
-        document.body.appendChild(ta);
-        ta.select();
-        const ok=document.execCommand("copy");
-        ta.remove();
-        ok ? resolve() : reject(new Error("copy failed"));
-      }catch(e){ reject(e); }
-    });
-  }
-
-  function toast(msg){
-    const el=document.getElementById("track-link-toast");
-    if(el){
-      el.textContent=msg;
-      el.classList.add("show");
-      setTimeout(()=>el.classList.remove("show"),1900);
-    }else{
-      alert(msg);
-    }
-  }
-
-  window.amkinaShareUrl=function(track){
-    return track && track.id!=null ? makeShareUrl(track.id) : SITE;
-  };
-
-  window.amkinaShareTrack=async function(track){
-    if(!track || track.id==null){
-      alert("공유할 곡을 찾을 수 없습니다.");
-      return;
-    }
-
-    const url=makeShareUrl(track.id);
-    const title=(track.title||"AMKINA MUSIC")+" - "+(track.artist||"AMKINA MUSIC");
-
-    try{
-      if(navigator.share){
-        await navigator.share({
-          title:title,
-          text:(track.title||"AMKINA MUSIC")+" · "+(track.artist||"AMKINA MUSIC"),
-          url:url
-        });
-        return;
-      }
-    }catch(e){
-      if(e && e.name==="AbortError") return;
-    }
-
-    try{
-      await copyText(url);
-      toast("🔗 "+(track.title||"음원")+" 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("아래 공유 링크를 복사해주세요.",url);
-    }
-  };
-
-  window.shareCurrentPlayerTrack=async function(){
-    let track=null;
-    try{
-      if(typeof tracks!=="undefined" && Array.isArray(tracks)){
-        if(typeof currentIndex==="number" && currentIndex>=0) track=tracks[currentIndex];
-        if(!track && typeof currentTrackIndex==="number" && currentTrackIndex>=0) track=tracks[currentTrackIndex];
-      }
-      if(!track && typeof currentTrack!=="undefined") track=currentTrack;
-    }catch(e){}
-    if(!track){ alert("곡을 먼저 선택해주세요."); return; }
-    return window.amkinaShareTrack(track);
-  };
-
-  window.copyTrackShareLink=async function(){
-    let id=null, track=null;
-    try{
-      id=(typeof amkinaActionTrackId!=="undefined") ? amkinaActionTrackId : window.amkinaActionTrackId;
-      if(id!=null && typeof actionMenuTrack==="function") track=actionMenuTrack(id);
-    }catch(e){}
-
-    if(id==null){ alert("공유할 곡을 찾을 수 없습니다."); return; }
-
-    const savedId=id;
-    try{
-      const menu=document.getElementById("track-action-menu");
-      if(menu) menu.style.display="none";
-      if(typeof amkinaActionTrackId!=="undefined") amkinaActionTrackId=null;
-      window.amkinaActionTrackId=null;
-    }catch(e){}
-
-    const url=makeShareUrl(savedId);
-    try{
-      await copyText(url);
-      toast("🔗 "+(track?.title||"음원")+" 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("아래 공유 링크를 복사해주세요.",url);
-    }
-  };
-
-  window.tfCopy=async function(){
-    let track=null;
-    try{ if(typeof tfCurrent==="function") track=tfCurrent(); }catch(e){}
-    if(!track || track.id==null){ alert("공유할 곡을 찾을 수 없습니다."); return; }
-    const url=makeShareUrl(track.id);
-    try{
-      await copyText(url);
-      toast("🔗 "+(track.title||"음원")+" 공유 링크가 복사되었습니다.");
-    }catch(e){
-      prompt("아래 공유 링크를 복사해주세요.",url);
-    }
-  };
-})();
-</script>
-
 </body>
 </html>
+```
+````
