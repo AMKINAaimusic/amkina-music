@@ -12336,7 +12336,7 @@ function actionMenuOpenPage(){const id=amkinaActionTrackId;closeTrackActionMenu(
 function actionMenuEdit(){const id=amkinaActionTrackId;closeTrackActionMenu();if(id&&typeof openTrackEdit==="function")openTrackEdit(id)}
 async function copyTrackShareLink(){
  const id=amkinaActionTrackId,t=actionMenuTrack(id);closeTrackActionMenu();if(!id)return;
- const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(id);
+ const link="https://amkinamusic.com/share/"+encodeURIComponent(id);
  try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
  const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t?.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
 }
@@ -12404,7 +12404,7 @@ function tfComment(){const t=tfCurrent();if(t&&typeof openTrackComments==="funct
 function tfPlaylist(){const t=tfCurrent();if(t&&typeof openLibraryAddModal==="function")openLibraryAddModal(t.id)}
 async function tfCopy(){
  const t=tfCurrent();if(!t)return;
- const link="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+ const link="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
  try{await navigator.clipboard.writeText(link)}catch(e){const ta=document.createElement("textarea");ta.value=link;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
  const toast=document.getElementById("track-link-toast");if(toast){toast.textContent="🔗 "+(t.title||"음원")+" 앨범커버 공유 링크가 복사되었습니다.";toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)}
 }
@@ -13426,7 +13426,7 @@ window.openCurrentPlayerComments=function(){
  window.shareCurrentPlayerTrack=async function(){
     const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
     if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
-    const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+    const u="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
     try{
       if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC"),text:(t.artist||"")+" · AMKINA MUSIC",url:u});}
       else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
@@ -14448,7 +14448,7 @@ body.akh-active #track-full-page{display:none!important}
    card.querySelector(".akh-comment").onclick=()=>{audio.pause();try{openTrackComments(t.id)}catch(e){}};
    card.querySelector(".akh-share").onclick=async()=>{
       if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
-      const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+      const u="https://amkinamusic.com/share/"+encodeURIComponent(t.id);
       try{
         if(navigator.share) await navigator.share({title:t.title||"AMKINA MUSIC",text:(t.artist||"")+" · AMKINA MUSIC",url:u});
         else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
@@ -14986,8 +14986,8 @@ body.akh-active #track-full-page{display:none!important}
 </script>
 <script id="amkina-dynamic-og-share-v2">
 (function(){
- const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
- function url(t){return t&&t.id!=null?BASE+"?id="+encodeURIComponent(t.id):location.href}
+ const BASE="https://amkinamusic.com/share";
+ function url(t){return t&&t.id!=null?BASE+"/"+encodeURIComponent(t.id):location.href}
  async function share(t){
    if(!t)return;
    const u=url(t), title=t.title||"AMKINA MUSIC", artist=t.artist||"AMKINA MUSIC";
@@ -15859,11 +15859,11 @@ document.addEventListener('change',async function(e){
 (function () {
   "use strict";
 
-  const SHARE_BASE = "https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+  const SHARE_BASE = "https://amkinamusic.com/share";
 
   function getShareUrl(track) {
     if (!track || track.id == null) return null;
-    return SHARE_BASE + "?id=" + encodeURIComponent(String(track.id));
+    return SHARE_BASE + "/" + encodeURIComponent(String(track.id));
   }
 
   async function shareTrack(track) {
@@ -15920,8 +15920,8 @@ document.addEventListener('change',async function(e){
 <script id="amkina-share-master-fix-v3">
 (function(){
  "use strict";
- const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
- const make=id=>BASE+"?id="+encodeURIComponent(String(id));
+ const BASE="https://amkinamusic.com/share";
+ const make=id=>BASE+"/"+encodeURIComponent(String(id));
 
  window.amkinaShareUrl=function(t){return t&&t.id!=null?make(t.id):location.href};
  window.amkinaShareTrack=async function(t){
@@ -15963,8 +15963,8 @@ document.addEventListener('change',async function(e){
 <script id="amkina-text-link-copy-hard-fix-v4">
 (function(){
   "use strict";
-  const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
-  const makeUrl=id=>BASE+"?id="+encodeURIComponent(String(id));
+  const BASE="https://amkinamusic.com/share";
+  const makeUrl=id=>BASE+"/"+encodeURIComponent(String(id));
 
   function copyPlainText(text){
     return new Promise((resolve,reject)=>{
@@ -16145,8 +16145,8 @@ document.addEventListener('change',async function(e){
 (function(){
   "use strict";
 
-  const SHARE_BASE = "https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
-  const makeShareUrl = id => SHARE_BASE + "?id=" + encodeURIComponent(String(id));
+  const SHARE_BASE = "https://amkinamusic.com/share";
+  const makeShareUrl = id => SHARE_BASE + "/" + encodeURIComponent(String(id));
 
   function currentPlayerTrack(){
     try{
@@ -16296,7 +16296,7 @@ document.addEventListener('change',async function(e){
 (function(){
   "use strict";
 
-  const SHARE_BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+  const SHARE_BASE="https://amkinamusic.com/share";
 
   function copyFallback(value){
     const ta=document.createElement("textarea");
