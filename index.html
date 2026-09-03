@@ -15960,6 +15960,95 @@ document.addEventListener('change',async function(e){
 })();
 </script>
 
+
+<!-- ===== AMKINA TEXT LINK COPY HARD FIX v4 ===== -->
+<script id="amkina-text-link-copy-hard-fix-v4">
+(function(){
+  "use strict";
+  const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+  const makeUrl=id=>BASE+"?id="+encodeURIComponent(String(id));
+
+  function copyPlainText(text){
+    return new Promise((resolve,reject)=>{
+      const ta=document.createElement("textarea");
+      ta.value=text;
+      ta.setAttribute("readonly","");
+      ta.style.position="fixed";
+      ta.style.left="-99999px";
+      ta.style.top="0";
+      ta.style.opacity="0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0,ta.value.length);
+      let ok=false;
+      try{ ok=document.execCommand("copy"); }catch(e){}
+      ta.remove();
+      if(ok) return resolve(true);
+
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(()=>resolve(true)).catch(reject);
+      } else reject(new Error("clipboard unavailable"));
+    });
+  }
+
+  function toast(msg){
+    const el=document.getElementById("track-link-toast");
+    if(el){
+      el.textContent=msg;
+      el.classList.add("show");
+      setTimeout(()=>el.classList.remove("show"),2200);
+    } else alert(msg);
+  }
+
+  window.copyTrackShareLink=async function(){
+    const id=window.amkinaActionTrackId;
+    let t=null;
+    try{ if(typeof actionMenuTrack==="function") t=actionMenuTrack(id); }catch(e){}
+    try{ if(typeof closeTrackActionMenu==="function") closeTrackActionMenu(); }catch(e){}
+    if(id==null) return alert("공유할 곡을 찾을 수 없습니다.");
+    const url=makeUrl(id);
+    try{
+      await copyPlainText(url);
+      toast("🔗 "+(t?.title||"음원")+" 링크가 텍스트로 복사되었습니다.");
+    }catch(e){
+      prompt("아래 링크를 Ctrl+C로 복사해주세요.",url);
+    }
+  };
+
+  window.tfCopy=async function(){
+    let t=null;
+    try{ if(typeof tfCurrent==="function") t=tfCurrent(); }catch(e){}
+    if(!t||t.id==null) return alert("공유할 곡을 찾을 수 없습니다.");
+    const url=makeUrl(t.id);
+    try{
+      await copyPlainText(url);
+      toast("🔗 "+(t.title||"음원")+" 링크가 텍스트로 복사되었습니다.");
+    }catch(e){
+      prompt("아래 링크를 Ctrl+C로 복사해주세요.",url);
+    }
+  };
+
+  window.amkinaShareTrack=async function(t){
+    if(!t||t.id==null) return alert("공유할 곡을 찾을 수 없습니다.");
+    const url=makeUrl(t.id);
+    try{
+      if(navigator.share){
+        await navigator.share({title:(t.title||"AMKINA MUSIC")+" - "+(t.artist||"AMKINA MUSIC"),url:url});
+        return;
+      }
+    }catch(e){ if(e && e.name==="AbortError") return; }
+    try{
+      await copyPlainText(url);
+      toast("🔗 공유 링크가 텍스트로 복사되었습니다.");
+    }catch(e){
+      prompt("아래 링크를 Ctrl+C로 복사해주세요.",url);
+    }
+  };
+  window.amkinaShareUrl=t=>t&&t.id!=null?makeUrl(t.id):location.href;
+})();
+</script>
+
 </body>
 </html>
 ```
