@@ -13416,13 +13416,14 @@ window.openCurrentPlayerComments=function(){
    if(typeof openTrackComments==="function")openTrackComments(t.id);
  };
  window.shareCurrentPlayerTrack=async function(){
-   const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
-   const u=new URL(location.href);u.searchParams.set("track",t.id);
-   try{
-     if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC"),text:(t.artist||"")+" · AMKINA MUSIC",url:u.toString()});}
-     else{await navigator.clipboard.writeText(u.toString());alert("곡 링크를 복사했습니다.");}
-   }catch(e){}
- };
+    const t=cur();if(!t){alert("곡을 먼저 선택해주세요.");return}
+    if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
+    const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+    try{
+      if(navigator.share){await navigator.share({title:(t.title||"AMKINA MUSIC"),text:(t.artist||"")+" · AMKINA MUSIC",url:u});}
+      else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
+    }catch(e){}
+  };
  function paint(){
    const b=document.getElementById("player-like-btn"),t=cur();if(!b)return;
    const liked=!!(t&&typeof amkinaTrackLikes!=="undefined"&&amkinaTrackLikes?.has(String(t.id)));
@@ -14437,7 +14438,14 @@ body.akh-active #track-full-page{display:none!important}
    card.querySelector(".akh-sound").onclick=()=>{audio.muted=!audio.muted;document.querySelectorAll(".akh-sound").forEach(b=>b.textContent=(audio.muted?"🔇":"🔊")+" SOUND")};
    card.querySelector(".akh-full").onclick=()=>playFull(t.id);
    card.querySelector(".akh-comment").onclick=()=>{audio.pause();try{openTrackComments(t.id)}catch(e){}};
-   card.querySelector(".akh-share").onclick=async()=>{const u=new URL(location.href);u.hash="";u.searchParams.set("track",t.id);try{if(navigator.share)await navigator.share({title:t.title,url:u.href});else{await navigator.clipboard.writeText(u.href);alert("링크를 복사했습니다.")}}catch(e){}};
+   card.querySelector(".akh-share").onclick=async()=>{
+      if(typeof window.amkinaShareTrack==="function") return window.amkinaShareTrack(t);
+      const u="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share?id="+encodeURIComponent(t.id);
+      try{
+        if(navigator.share) await navigator.share({title:t.title||"AMKINA MUSIC",text:(t.artist||"")+" · AMKINA MUSIC",url:u});
+        else{await navigator.clipboard.writeText(u);alert("앨범 표지가 표시되는 공유 링크를 복사했습니다.");}
+      }catch(e){}
+    };
    const lb=card.querySelector(".akh-like");paintLike(lb,t.id);lb.onclick=()=>toggleLike(lb,t.id);
  }
  async function paintLike(b,id){const ss=session();if(!ss?.user?.id)return;try{const r=await fetch(SUPABASE_URL+"/rest/v1/track_likes?select=track_id&track_id=eq."+id+"&user_id=eq."+ss.user.id,{headers:headers()});const liked=r.ok&&(await r.json()).length>0;b.classList.toggle("liked",liked);b.querySelector(".ico").textContent=liked?"♥":"♡"}catch(e){}}
@@ -14968,7 +14976,7 @@ body.akh-active #track-full-page{display:none!important}
  };
 })();
 </script>
-<script id="amkina-dynamic-og-share-v1">
+<script id="amkina-dynamic-og-share-v2">
 (function(){
  const BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
  function url(t){return t&&t.id!=null?BASE+"?id="+encodeURIComponent(t.id):location.href}
@@ -14980,7 +14988,7 @@ body.akh-active #track-full-page{display:none!important}
  }
  window.amkinaShareUrl=url; window.amkinaShareTrack=share;
  document.addEventListener("click",e=>{
-   const b=e.target.closest('[data-action="share"],[data-share-track],.share-btn,.track-share-btn,#share-btn,#player-share');
+   const b=e.target.closest('[data-action="share"],[data-share-track],.share-btn,.track-share-btn,#share-btn,#player-share,#player-share-btn,.akh-share');
    if(!b)return;
    let t=null,id=b.dataset?.trackId||b.closest("[data-track-id]")?.dataset?.trackId;
    if(typeof tracks!=="undefined"&&Array.isArray(tracks)){
