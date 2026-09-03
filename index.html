@@ -3432,10 +3432,35 @@ document.addEventListener("DOMContentLoaded", function(){
 </style>
 
 
-<style id="amkina-desktop-floating-track-menu-remove-v1">
-/* PC: 화면 오른쪽 위로 잘못 떠버리는 곡 수정 ⋮ 버튼 제거 */
+<style id="amkina-desktop-floating-track-menu-remove-v2">
+/* PC: 곡 카드의 ⋮ 메뉴는 카드 안에서만 표시. 화면 우측 상단으로 이탈 방지 */
 @media (min-width:769px){
-  .track-edit-btn{
+  #music-list .track,
+  #music-list .track-card{
+    position:relative !important;
+  }
+
+  #music-list .track-edit-btn{
+    display:none !important;
+    position:absolute !important;
+    top:10px !important;
+    right:10px !important;
+    left:auto !important;
+    bottom:auto !important;
+    margin:0 !important;
+    z-index:30 !important;
+  }
+
+  #music-list .track:hover .track-edit-btn,
+  #music-list .track-card:hover .track-edit-btn,
+  #music-list .track-edit-btn:focus-visible{
+    display:inline-flex !important;
+  }
+
+  /* 카드 밖에 잘못 생성된 ⋮ 버튼은 숨김 */
+  body > .track-edit-btn,
+  header .track-edit-btn,
+  body > header .track-edit-btn{
     display:none !important;
   }
 }
