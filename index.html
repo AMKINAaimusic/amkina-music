@@ -16290,5 +16290,80 @@ document.addEventListener('change',async function(e){
 })();
 </script>
 
+
+<!-- ===== AMKINA TRACK MENU SHARE ID FIX v7 ===== -->
+<script id="amkina-track-menu-share-id-fix-v7">
+(function(){
+  "use strict";
+
+  const SHARE_BASE="https://bbtzasddvodrprpnbeos.supabase.co/functions/v1/track-share";
+
+  function copyFallback(value){
+    const ta=document.createElement("textarea");
+    ta.value=value;
+    ta.setAttribute("readonly","");
+    ta.style.position="fixed";
+    ta.style.left="-99999px";
+    ta.style.top="0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0,ta.value.length);
+    const ok=document.execCommand("copy");
+    ta.remove();
+    return ok;
+  }
+
+  // 중요: amkinaActionTrackId는 let으로 선언되어 window 속성이 아니므로
+  // window.amkinaActionTrackId가 아니라 같은 스크립트 전역의 변수를 직접 읽는다.
+  window.copyTrackShareLink=async function(){
+    let id=null, track=null;
+
+    try{
+      id=(typeof amkinaActionTrackId!=="undefined") ? amkinaActionTrackId : null;
+      if(id!=null && typeof actionMenuTrack==="function") track=actionMenuTrack(id);
+    }catch(e){}
+
+    if(id==null){
+      alert("공유할 곡을 찾을 수 없습니다.");
+      return;
+    }
+
+    // 메뉴를 닫기 전에 ID를 별도 보존
+    const savedId=String(id);
+    const url=SHARE_BASE+"?id="+encodeURIComponent(savedId);
+
+    try{
+      const menu=document.getElementById("track-action-menu");
+      if(menu) menu.style.display="none";
+      if(typeof amkinaActionTrackId!=="undefined") amkinaActionTrackId=null;
+    }catch(e){}
+
+    try{
+      let copied=false;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        try{
+          await navigator.clipboard.writeText(url);
+          copied=true;
+        }catch(e){}
+      }
+      if(!copied) copied=copyFallback(url);
+      if(!copied) throw new Error("copy failed");
+
+      const toast=document.getElementById("track-link-toast");
+      if(toast){
+        toast.textContent="🔗 "+(track?.title||"음원")+" 공유 링크가 복사되었습니다.";
+        toast.classList.add("show");
+        setTimeout(()=>toast.classList.remove("show"),1900);
+      }else{
+        alert("공유 링크가 복사되었습니다.");
+      }
+    }catch(e){
+      prompt("아래 공유 링크를 복사해주세요.",url);
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
