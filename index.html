@@ -16890,6 +16890,94 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 })();
 </script>
 
+
+<!-- ===== AMKINA MOBILE MORE POPUP STORY FINAL v4 ===== -->
+<style id="amkina-mobile-more-popup-story-v4-style">
+@media(max-width:768px){
+  /* 하단 플레이어에는 곡 이야기 직접 버튼을 절대 표시하지 않음 */
+  #track-story-player-btn,
+  #ak-mobile-story-menu-item{display:none!important}
+
+  #ak-mobile-more-popup{
+    position:fixed;
+    z-index:5000000;
+    left:12px;right:12px;
+    bottom:calc(var(--ak-player-height,104px) + var(--ak-bottom-nav,0px) + 10px);
+    display:none;
+    background:#fff;
+    color:#111;
+    border:1px solid #e7e7e7;
+    border-radius:16px;
+    padding:7px;
+    box-shadow:0 18px 55px rgba(0,0,0,.22);
+  }
+  #ak-mobile-more-popup.open{display:block}
+  .ak-mobile-more-item{
+    width:100%;height:48px;border:0;background:transparent;color:#111;
+    border-radius:11px;padding:0 13px;
+    display:flex;align-items:center;gap:12px;
+    font-size:13px;font-weight:800;text-align:left;cursor:pointer;
+  }
+  .ak-mobile-more-item:active{background:#f3f3f3}
+  .ak-mobile-more-icon{
+    width:28px;height:28px;border:1px solid #ddd;border-radius:50%;
+    display:grid;place-items:center;font-size:12px;font-weight:900
+  }
+}
+@media(min-width:769px){
+  #ak-mobile-more-popup{display:none!important}
+}
+</style>
+
+<div id="ak-mobile-more-popup" aria-hidden="true">
+  <button type="button" class="ak-mobile-more-item" id="ak-more-story">
+    <span class="ak-mobile-more-icon">♪</span>
+    <span>곡 이야기</span>
+  </button>
+</div>
+
+<script id="amkina-mobile-more-popup-story-v4-script">
+(function(){
+ "use strict";
+ function mobile(){return window.matchMedia("(max-width:768px)").matches}
+ function popup(){return document.getElementById("ak-mobile-more-popup")}
+ function close(){
+   const p=popup();if(!p)return;
+   p.classList.remove("open");p.setAttribute("aria-hidden","true");
+   document.getElementById("ak-player-more")?.setAttribute("aria-expanded","false");
+ }
+ function toggle(){
+   const p=popup();if(!p)return;
+   const on=!p.classList.contains("open");
+   p.classList.toggle("open",on);p.setAttribute("aria-hidden",on?"false":"true");
+   document.getElementById("ak-player-more")?.setAttribute("aria-expanded",String(on));
+ }
+
+ document.addEventListener("DOMContentLoaded",()=>{
+   const story=document.getElementById("ak-more-story");
+   if(story)story.onclick=function(e){
+     e.preventDefault();e.stopPropagation();close();
+     if(typeof window.openTrackStory==="function")window.openTrackStory();
+   };
+ });
+
+ /* 캡처 단계에서 기존 ⋯ 동작보다 먼저 처리:
+    모바일에서는 ⋯을 눌러야만 팝업이 나타난다. */
+ document.addEventListener("click",function(e){
+   if(!mobile())return;
+   const more=e.target.closest("#ak-player-more");
+   if(more){
+     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+     toggle();return;
+   }
+   const p=popup();
+   if(p?.classList.contains("open") && !e.target.closest("#ak-mobile-more-popup")) close();
+ },true);
+
+ window.addEventListener("resize",()=>{if(!mobile())close()});
+})();
+</script>
+
 </body>
 </html>
 ```
