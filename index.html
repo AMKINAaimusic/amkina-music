@@ -14438,43 +14438,72 @@ body.akh-active #track-full-page{display:none!important}
 .akh-lyrics-overlay{
  position:absolute;
  z-index:2;
- left:0;right:0;bottom:0;
- height:44%;
- padding:28px 22px 18px;
+ left:14px;
+ right:14px;
+ bottom:14px;
+ height:auto;
+ max-height:42%;
+ padding:13px 15px 12px;
  display:flex;
  flex-direction:column;
- justify-content:flex-end;
+ justify-content:center;
  align-items:center;
  text-align:center;
  pointer-events:none;
  overflow:hidden;
- background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.08) 18%,rgba(0,0,0,.62) 100%);
+ border:1px solid rgba(255,255,255,.13);
+ border-radius:15px;
+ background:linear-gradient(180deg,rgba(10,10,14,.52),rgba(6,6,9,.78));
+ -webkit-backdrop-filter:blur(14px) saturate(125%);
+ backdrop-filter:blur(14px) saturate(125%);
+ box-shadow:0 10px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);
 }
 .akh-lyric-prev,.akh-lyric-next{
  width:100%;
- color:rgba(255,255,255,.48);
- font-size:12px;
- font-weight:650;
+ color:rgba(235,232,242,.48);
+ font-family:Arial,"Noto Sans KR",sans-serif;
+ font-size:10px;
+ font-weight:600;
+ letter-spacing:-.15px;
  line-height:1.35;
  white-space:nowrap;
  overflow:hidden;
  text-overflow:ellipsis;
 }
 .akh-lyric-current{
+ position:relative;
  width:100%;
- margin:8px 0;
+ margin:5px 0 6px;
  color:#fff;
- font-size:17px;
- font-weight:900;
- line-height:1.35;
- text-shadow:0 2px 12px rgba(0,0,0,.9);
+ font-family:Arial,"Noto Sans KR",sans-serif;
+ font-size:16px;
+ font-weight:850;
+ letter-spacing:-.45px;
+ line-height:1.38;
+ text-shadow:0 2px 12px rgba(0,0,0,.95);
  display:-webkit-box;
  -webkit-box-orient:vertical;
  -webkit-line-clamp:2;
  overflow:hidden;
  word-break:keep-all;
 }
-.akh-lyrics-overlay.no-sync .akh-lyric-current{font-size:13px;color:rgba(255,255,255,.72);font-weight:700}
+.akh-lyric-current::after{
+ content:"";
+ display:block;
+ width:26px;
+ height:2px;
+ margin:7px auto 0;
+ border-radius:999px;
+ background:linear-gradient(90deg,#ff75b5,#a98cff);
+ box-shadow:0 0 10px rgba(210,120,255,.34);
+}
+.akh-lyrics-overlay.no-sync .akh-lyric-current{
+ font-size:11px;
+ color:rgba(255,255,255,.72);
+ font-weight:650;
+ letter-spacing:-.2px;
+}
+.akh-lyrics-overlay.no-sync .akh-lyric-current::after{display:none}
 
 .akh-shade{position:absolute;inset:0;background:linear-gradient(transparent 48%,rgba(0,0,0,.14) 62%,rgba(0,0,0,.95))}
 .akh-info{position:absolute;z-index:3;left:18px;right:78px;bottom:20px}.akh-kicker{font-size:8px;letter-spacing:2px;color:#bbb;font-weight:900}.akh-title{font-size:23px;font-weight:900;margin-top:6px}.akh-artist{font-size:11px;color:#ddd;margin-top:5px}.akh-genre{font-size:9px;color:#999;margin-top:6px}
@@ -14483,7 +14512,7 @@ body.akh-active #track-full-page{display:none!important}
 .akh-actions{position:absolute;z-index:4;right:12px;bottom:24px;display:flex;flex-direction:column;gap:14px}.akh-action{border:0;background:none;color:#fff;width:52px;cursor:pointer}.akh-action .ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #ffffff33;background:#0006;font-size:19px}.akh-action small{display:block;font-size:8px;margin-top:4px}.akh-action.liked .ico{background:#e51b23;border-color:#e51b23}
 .akh-sound{position:absolute;right:16px;top:70px;z-index:5;border:1px solid #ffffff44;background:#0006;color:#fff;border-radius:999px;padding:8px 10px;font-size:9px;cursor:pointer}
 .akh-empty{padding:100px 20px;text-align:center;color:#aaa}
-@media(max-width:768px){body.akh-active #highlights-page{left:0!important;bottom:var(--akh-player-h,76px)!important}.akh-head{height:54px}.akh-feed{height:calc(100% - 54px)}.akh-coverbox{padding:40px 44px 148px}.akh-lyrics-overlay{height:46%;padding:24px 16px 15px}.akh-lyric-current{font-size:15px}.akh-lyric-prev,.akh-lyric-next{font-size:10px}}
+@media(max-width:768px){body.akh-active #highlights-page{left:0!important;bottom:var(--akh-player-h,76px)!important}.akh-head{height:54px}.akh-feed{height:calc(100% - 54px)}.akh-coverbox{padding:40px 44px 148px}.akh-lyrics-overlay{left:10px;right:10px;bottom:10px;height:auto;max-height:43%;padding:11px 12px 10px;border-radius:13px}.akh-lyric-current{font-size:14px;margin:4px 0 5px}.akh-lyric-prev,.akh-lyric-next{font-size:9.5px}}
 </style>
 
 <section id="highlights-page">
