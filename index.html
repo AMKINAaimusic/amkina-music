@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14415,96 +14416,7 @@ body.akh-active #track-full-page{display:none!important}
 .akh-card{height:100%;position:relative;overflow:hidden;scroll-snap-align:start;background:#111}
 .akh-bg{position:absolute;inset:-35px;background-size:cover;background-position:center;filter:blur(36px) brightness(.32);transform:scale(1.15)}
 .akh-coverbox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:44px 55px 155px}
-.akh-coverframe{
- position:relative;
- width:min(100%,390px);
- aspect-ratio:1;
- border-radius:18px;
- overflow:hidden;
- box-shadow:0 25px 65px #0009;
- background:#111;
-}
-.akh-cover{
- position:absolute;
- inset:0;
- width:100%;
- height:100%;
- aspect-ratio:auto;
- object-fit:cover;
- border-radius:0;
- box-shadow:none;
- cursor:pointer;
-}
-.akh-lyrics-overlay{
- position:absolute;
- z-index:2;
- left:14px;
- right:14px;
- bottom:14px;
- height:auto;
- max-height:42%;
- padding:13px 15px 12px;
- display:flex;
- flex-direction:column;
- justify-content:center;
- align-items:center;
- text-align:center;
- pointer-events:none;
- overflow:hidden;
- border:1px solid rgba(255,255,255,.13);
- border-radius:15px;
- background:linear-gradient(180deg,rgba(10,10,14,.52),rgba(6,6,9,.78));
- -webkit-backdrop-filter:blur(14px) saturate(125%);
- backdrop-filter:blur(14px) saturate(125%);
- box-shadow:0 10px 30px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);
-}
-.akh-lyric-prev,.akh-lyric-next{
- width:100%;
- color:rgba(235,232,242,.48);
- font-family:Arial,"Noto Sans KR",sans-serif;
- font-size:10px;
- font-weight:600;
- letter-spacing:-.15px;
- line-height:1.35;
- white-space:nowrap;
- overflow:hidden;
- text-overflow:ellipsis;
-}
-.akh-lyric-current{
- position:relative;
- width:100%;
- margin:5px 0 6px;
- color:#fff;
- font-family:Arial,"Noto Sans KR",sans-serif;
- font-size:16px;
- font-weight:850;
- letter-spacing:-.45px;
- line-height:1.38;
- text-shadow:0 2px 12px rgba(0,0,0,.95);
- display:-webkit-box;
- -webkit-box-orient:vertical;
- -webkit-line-clamp:2;
- overflow:hidden;
- word-break:keep-all;
-}
-.akh-lyric-current::after{
- content:"";
- display:block;
- width:26px;
- height:2px;
- margin:7px auto 0;
- border-radius:999px;
- background:linear-gradient(90deg,#ff75b5,#a98cff);
- box-shadow:0 0 10px rgba(210,120,255,.34);
-}
-.akh-lyrics-overlay.no-sync .akh-lyric-current{
- font-size:11px;
- color:rgba(255,255,255,.72);
- font-weight:650;
- letter-spacing:-.2px;
-}
-.akh-lyrics-overlay.no-sync .akh-lyric-current::after{display:none}
-
+.akh-cover{width:min(100%,390px);aspect-ratio:1;object-fit:cover;border-radius:18px;box-shadow:0 25px 65px #0009;cursor:pointer}
 .akh-shade{position:absolute;inset:0;background:linear-gradient(transparent 48%,rgba(0,0,0,.14) 62%,rgba(0,0,0,.95))}
 .akh-info{position:absolute;z-index:3;left:18px;right:78px;bottom:20px}.akh-kicker{font-size:8px;letter-spacing:2px;color:#bbb;font-weight:900}.akh-title{font-size:23px;font-weight:900;margin-top:6px}.akh-artist{font-size:11px;color:#ddd;margin-top:5px}.akh-genre{font-size:9px;color:#999;margin-top:6px}
 .akh-progress{height:2px;background:#ffffff33;margin:13px 0}.akh-progress i{display:block;width:0;height:100%;background:#fff}
@@ -14512,7 +14424,7 @@ body.akh-active #track-full-page{display:none!important}
 .akh-actions{position:absolute;z-index:4;right:12px;bottom:24px;display:flex;flex-direction:column;gap:14px}.akh-action{border:0;background:none;color:#fff;width:52px;cursor:pointer}.akh-action .ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #ffffff33;background:#0006;font-size:19px}.akh-action small{display:block;font-size:8px;margin-top:4px}.akh-action.liked .ico{background:#e51b23;border-color:#e51b23}
 .akh-sound{position:absolute;right:16px;top:70px;z-index:5;border:1px solid #ffffff44;background:#0006;color:#fff;border-radius:999px;padding:8px 10px;font-size:9px;cursor:pointer}
 .akh-empty{padding:100px 20px;text-align:center;color:#aaa}
-@media(max-width:768px){body.akh-active #highlights-page{left:0!important;bottom:var(--akh-player-h,76px)!important}.akh-head{height:54px}.akh-feed{height:calc(100% - 54px)}.akh-coverbox{padding:40px 44px 148px}.akh-lyrics-overlay{left:10px;right:10px;bottom:10px;height:auto;max-height:43%;padding:11px 12px 10px;border-radius:13px}.akh-lyric-current{font-size:14px;margin:4px 0 5px}.akh-lyric-prev,.akh-lyric-next{font-size:9.5px}}
+@media(max-width:768px){body.akh-active #highlights-page{left:0!important;bottom:var(--akh-player-h,76px)!important}.akh-head{height:54px}.akh-feed{height:calc(100% - 54px)}.akh-coverbox{padding:40px 44px 148px}}
 </style>
 
 <section id="highlights-page">
@@ -14552,7 +14464,7 @@ body.akh-active #track-full-page{display:none!important}
  async function load(){
    const feed=document.getElementById("akh-feed");feed.innerHTML='<div class="akh-empty">HIGHLIGHTS를 불러오는 중...</div>';
    try{
-     const u=SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,genre,cover_url,audio_url,lyrics,karaoke_lyrics,highlight_enabled,highlight_start,highlight_end&highlight_enabled=eq.true&order=id.desc&limit=100";
+     const u=SUPABASE_URL+"/rest/v1/tracks?select=id,title,artist,genre,cover_url,audio_url,highlight_enabled,highlight_start,highlight_end&highlight_enabled=eq.true&order=id.desc&limit=100";
      const r=await fetch(u,{headers:headers()});if(!r.ok)throw new Error(await r.text());
      S.rows=await r.json();render();
    }catch(e){console.error("HIGHLIGHTS",e);feed.innerHTML='<div class="akh-empty">HIGHLIGHTS를 불러오지 못했습니다.</div>'}
@@ -14562,56 +14474,14 @@ body.akh-active #track-full-page{display:none!important}
    const feed=document.getElementById("akh-feed");
    if(!S.view.length){feed.innerHTML='<div class="akh-empty">등록된 하이라이트가 없습니다.</div>';return}
    feed.innerHTML=S.view.map((t,i)=>{const st=Math.max(0,+t.highlight_start||0),en=Math.max(st+5,+t.highlight_end||25);return `<article class="akh-card" data-i="${i}" data-start="${st}" data-end="${en}">
-    <div class="akh-bg" style="background-image:url('${esc(t.cover_url||"")}')"></div><div class="akh-coverbox"><div class="akh-coverframe"><img class="akh-cover" src="${esc(t.cover_url||"")}"><div class="akh-lyrics-overlay"><div class="akh-lyric-prev"></div><div class="akh-lyric-current"></div><div class="akh-lyric-next"></div></div></div></div><div class="akh-shade"></div>
+    <div class="akh-bg" style="background-image:url('${esc(t.cover_url||"")}')"></div><div class="akh-coverbox"><img class="akh-cover" src="${esc(t.cover_url||"")}"></div><div class="akh-shade"></div>
     <button class="akh-sound">${audio.muted?"🔇":"🔊"} SOUND</button>
     <div class="akh-info"><div class="akh-kicker">AMKINA HIGHLIGHT</div><div class="akh-title">${esc(t.title||"Untitled")}</div><div class="akh-artist">${esc(t.artist||"AMKINA")}</div><div class="akh-genre">${esc(t.genre||"ORIGINAL")}</div><div class="akh-progress"><i></i></div><button class="akh-full">▶ 전체 곡 듣기</button></div>
     <div class="akh-actions"><button class="akh-action akh-like"><span class="ico">♡</span><small>LIKE</small></button><button class="akh-action akh-comment"><span class="ico">◯</span><small>COMMENT</small></button><button class="akh-action akh-share"><span class="ico">↗</span><small>SHARE</small></button></div>
    </article>`}).join("");
    feed.querySelectorAll(".akh-card").forEach(card=>bindCard(card,S.view[+card.dataset.i]));observe();
  }
- function parseHighlightSync(t){
-   let v=t?.karaoke_lyrics;
-   if(!v)return [];
-   if(typeof v==="string"){try{v=JSON.parse(v)}catch(e){return []}}
-   return Array.isArray(v)
-     ? v.filter(x=>x&&typeof x.text==="string"&&String(x.text).trim())
-        .map(x=>({time:Number(x.time)||0,text:String(x.text).trim()}))
-        .sort((a,b)=>a.time-b.time)
-     : [];
- }
- function renderCoverLyrics(card,t,now){
-   if(!card||!t)return;
-   const box=card.querySelector(".akh-lyrics-overlay");
-   const prev=card.querySelector(".akh-lyric-prev");
-   const cur=card.querySelector(".akh-lyric-current");
-   const next=card.querySelector(".akh-lyric-next");
-   if(!box||!prev||!cur||!next)return;
-
-   const sync=parseHighlightSync(t);
-   if(sync.length){
-     box.classList.remove("no-sync");
-     let i=0;
-     for(let k=0;k<sync.length;k++){if(sync[k].time<=now)i=k;else break}
-     prev.textContent=sync[i-1]?.text||"";
-     cur.textContent=sync[i]?.text||"";
-     next.textContent=sync[i+1]?.text||"";
-     box.style.display="flex";
-     return;
-   }
-
-   const plain=String(t.lyrics||"").replace(/\r/g,"").split("\n").map(x=>x.trim()).filter(Boolean);
-   if(plain.length){
-     box.classList.add("no-sync");
-     prev.textContent="";
-     cur.textContent="가사 싱크가 등록되면 재생 위치에 맞춰 표시됩니다.";
-     next.textContent="";
-     box.style.display="flex";
-   }else{
-     box.style.display="none";
-   }
- }
  function bindCard(card,t){
-   renderCoverLyrics(card,t,0);
    card.querySelector(".akh-cover").onclick=()=>audio.paused?playClip(card,t):audio.pause();
    card.querySelector(".akh-sound").onclick=()=>{audio.muted=!audio.muted;document.querySelectorAll(".akh-sound").forEach(b=>b.textContent=(audio.muted?"🔇":"🔊")+" SOUND")};
    card.querySelector(".akh-full").onclick=()=>playFull(t.id);
@@ -14648,7 +14518,7 @@ body.akh-active #track-full-page{display:none!important}
  audio.addEventListener("loadstart",()=>{if(S.clip&&S.card){const t=S.view[+S.card.dataset.i];if(t&&audio.src!==new URL(t.audio_url,location.href).href){S.clip=false;S.card=null;window.amkinaClipRange=null;}}});
  function observe(){S.io?.disconnect();const feed=document.getElementById("akh-feed");S.io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.72){const c=e.target,t=S.view[+c.dataset.i];if(document.body.classList.contains("akh-active")&&c!==S.card)playClip(c,t)}}),{root:feed,threshold:[.72]});feed.querySelectorAll(".akh-card").forEach(c=>S.io.observe(c))}
  function nextCard(){if(S.advancing)return;S.advancing=true;const cards=[...document.querySelectorAll(".akh-card")],i=cards.indexOf(S.card),n=cards[(i+1)%cards.length];if(n){n.scrollIntoView({behavior:"instant",block:"start"});playClip(n,S.view[+n.dataset.i]);}setTimeout(()=>S.advancing=false,800)}
- audio.addEventListener("timeupdate",()=>{if(!S.clip||!S.card||!document.body.classList.contains("akh-active"))return;const p=Math.max(0,Math.min(1,(audio.currentTime-S.start)/(S.end-S.start)));S.card.querySelector(".akh-progress i").style.width=(p*100)+"%";const t=S.view[+S.card.dataset.i];if(t)renderCoverLyrics(S.card,t,audio.currentTime);if(audio.currentTime>=S.end-.12)nextCard()});
+ audio.addEventListener("timeupdate",()=>{if(!S.clip||!S.card||!document.body.classList.contains("akh-active"))return;const p=Math.max(0,Math.min(1,(audio.currentTime-S.start)/(S.end-S.start)));S.card.querySelector(".akh-progress i").style.width=(p*100)+"%";if(audio.currentTime>=S.end-.12)nextCard()});
 
  async function openHighlights(e){e?.preventDefault?.();e?.stopPropagation?.();document.getElementById("highlights-page")?.style.removeProperty("display");document.body.classList.add("akh-active");layout();document.querySelectorAll("body > header nav a").forEach(a=>a.classList.remove("menu-active"));document.getElementById("highlights-nav")?.classList.add("menu-active");document.querySelector("body > header nav")?.classList.remove("mobile-open");await load()}
  function closeHighlights(){if(!document.body.classList.contains("akh-active"))return;document.body.classList.remove("akh-active");document.getElementById("highlights-nav")?.classList.remove("menu-active");if(S.clip){audio.pause();S.clip=false;S.card=null;window.amkinaClipRange=null}}
@@ -16987,5 +16857,74 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 })();
 </script>
 
+
+
+<!-- ===== AMKINA SIGNATURE BACKGROUND v1 ===== -->
+<style id="amkina-signature-background-v1">
+/* Background-only update: existing cards, player, menus and functions stay untouched. */
+@media (min-width:769px){
+  html,body{
+    background-color:#f4f4f1!important;
+  }
+  body{
+    background-image:
+      radial-gradient(circle at 82% 8%,rgba(17,17,17,.045) 0,transparent 25%),
+      radial-gradient(circle at 18% 62%,rgba(17,17,17,.028) 0,transparent 30%),
+      linear-gradient(rgba(17,17,17,.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(17,17,17,.018) 1px,transparent 1px)!important;
+    background-size:auto,auto,34px 34px,34px 34px!important;
+    background-attachment:fixed!important;
+  }
+
+  /* Main home canvas: faint sound-wave rings + editorial watermark. */
+  main#music{
+    position:relative!important;
+    isolation:isolate;
+    background-color:transparent!important;
+    background-image:
+      repeating-radial-gradient(ellipse at 86% 48%,transparent 0 34px,rgba(17,17,17,.018) 35px,transparent 36px 68px)!important;
+    overflow:hidden;
+  }
+  main#music::before{
+    content:"AMKINA  /  YOUR SOUND. YOUR IDENTITY.";
+    position:fixed;
+    right:2.2vw;
+    top:47%;
+    transform:translateY(-50%) rotate(-90deg);
+    transform-origin:center;
+    z-index:-1;
+    color:rgba(17,17,17,.035);
+    font-size:clamp(13px,1.05vw,18px);
+    font-weight:900;
+    letter-spacing:.42em;
+    white-space:nowrap;
+    pointer-events:none;
+    user-select:none;
+  }
+
+  /* Preserve the clean white content surfaces over the branded canvas. */
+  .music-page-head,
+  #amkina-home-community-latest .akhc-list{
+    position:relative;
+    z-index:1;
+  }
+}
+
+@media (max-width:768px){
+  body{
+    background-color:#f5f5f2!important;
+    background-image:
+      radial-gradient(circle at 92% 10%,rgba(17,17,17,.035),transparent 24%),
+      linear-gradient(rgba(17,17,17,.014) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(17,17,17,.014) 1px,transparent 1px)!important;
+    background-size:auto,28px 28px,28px 28px!important;
+  }
+  main#music{
+    background:transparent!important;
+  }
+}
+</style>
+<!-- ===== /AMKINA SIGNATURE BACKGROUND v1 ===== -->
 </body>
 </html>
+```
