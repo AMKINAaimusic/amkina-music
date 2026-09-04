@@ -3841,11 +3841,11 @@ document.addEventListener("DOMContentLoaded", function(){
       </div>
 
       <div class="studio-field">
-        <label>DESCRIPTION</label>
+        <label>곡 이야기 <span style="font-size:9px;color:#999;font-weight:600;letter-spacing:0;">· 곡 상세에 공개됩니다</span></label>
         <textarea
           id="studio-description"
           rows="5"
-          placeholder="음악에 대한 이야기를 들려주세요."
+          placeholder="이 곡의 주제, 배경, 의미 등을 자유롭게 들려주세요. 업로드 후 ‘곡 이야기’에서 볼 수 있습니다."
         ></textarea>
       </div>
 
@@ -5045,6 +5045,7 @@ async function uploadStudioMusic(){
     const artist = document.getElementById('studio-artist').value.trim() || 'AMKINA';
     const genre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
     const lyrics = document.getElementById('studio-lyrics').value.trim();
+    const description = document.getElementById('studio-description').value.trim();
     const contentWarnings = [
       document.getElementById('studio-warning-explicit')?.checked ? 'explicit' : null,
       document.getElementById('studio-warning-violence')?.checked ? 'violence' : null,
@@ -5181,6 +5182,7 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
                     title:title,
                     artist:artist,
                     genre:genre,
+                    description:description,
                     lyrics:lyrics,
                     content_warnings:contentWarnings,
                     is_adult:isAdult,
@@ -16138,6 +16140,110 @@ document.addEventListener('change',async function(e){
     }
   };
 })();
+</script>
+
+
+<style id="amkina-track-story-v1-style">
+#track-story-player-btn{
+  border:0;background:transparent;color:#d7d7d7;cursor:pointer;
+  min-width:38px;height:38px;border-radius:9px;font-size:11px;font-weight:800;
+  letter-spacing:-.2px;padding:0 9px;
+}
+#track-story-player-btn:hover,#track-story-player-btn.has-story{color:#fff;background:#202020}
+.track-story-modal{
+  position:fixed;inset:0;z-index:4000000;display:none;align-items:center;justify-content:center;
+  padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(8px)
+}
+.track-story-modal.open{display:flex}
+.track-story-card{
+  position:relative;width:min(620px,100%);max-height:min(78vh,720px);overflow:auto;
+  background:#fff;color:#111;border-radius:18px;padding:30px;
+  box-shadow:0 25px 80px rgba(0,0,0,.28)
+}
+.track-story-close{position:absolute;right:16px;top:13px;border:0;background:transparent;color:#777;font-size:27px;cursor:pointer}
+.track-story-kicker{font-size:9px;font-weight:900;letter-spacing:2.2px;color:#999;margin-bottom:8px}
+.track-story-title{font-size:26px;font-weight:900;letter-spacing:-1px;margin:0 38px 5px 0}
+.track-story-meta{font-size:11px;color:#999;padding-bottom:18px;border-bottom:1px solid #eee}
+.track-story-body{padding-top:22px;white-space:pre-wrap;font-size:14px;line-height:1.9;color:#333}
+.track-story-body.empty{color:#999}
+@media(max-width:768px){
+ .track-story-modal{padding:12px}
+ .track-story-card{max-height:82vh;border-radius:16px;padding:25px 19px}
+ .track-story-title{font-size:22px}
+ #track-story-player-btn{font-size:10px;padding:0 7px}
+}
+</style>
+
+<div id="track-story-modal" class="track-story-modal" aria-hidden="true">
+ <div class="track-story-card" role="dialog" aria-modal="true" aria-labelledby="track-story-title">
+  <button class="track-story-close" type="button" onclick="closeTrackStory()" aria-label="닫기">×</button>
+  <div class="track-story-kicker">ABOUT THIS TRACK</div>
+  <h2 id="track-story-title" class="track-story-title">곡 이야기</h2>
+  <div id="track-story-meta" class="track-story-meta">AMKINA MUSIC</div>
+  <div id="track-story-body" class="track-story-body"></div>
+ </div>
+</div>
+
+<script id="amkina-track-story-v1-script">
+function amkinaCurrentStoryTrack(){
+  try{
+    if(typeof currentIndex==="number" && currentIndex>=0 && Array.isArray(tracks) && tracks[currentIndex]) return tracks[currentIndex];
+  }catch(e){}
+  return null;
+}
+function refreshTrackStoryButton(){
+  const btn=document.getElementById("track-story-player-btn");
+  if(!btn)return;
+  const t=amkinaCurrentStoryTrack();
+  const has=!!String(t?.description||"").trim();
+  btn.classList.toggle("has-story",has);
+  btn.title=has?"곡 이야기 보기":"등록된 곡 이야기 없음";
+}
+function openTrackStory(){
+  const modal=document.getElementById("track-story-modal");
+  const title=document.getElementById("track-story-title");
+  const meta=document.getElementById("track-story-meta");
+  const body=document.getElementById("track-story-body");
+  const t=amkinaCurrentStoryTrack();
+  if(!t){
+    title.textContent="곡 이야기";
+    meta.textContent="AMKINA MUSIC";
+    body.textContent="곡을 먼저 선택해주세요.";
+    body.classList.add("empty");
+  }else{
+    title.textContent=t.title||"Untitled";
+    meta.textContent=(t.artist||"AMKINA")+" · 곡 이야기";
+    const story=String(t.description||"").trim();
+    body.textContent=story||"등록된 곡 이야기가 없습니다.";
+    body.classList.toggle("empty",!story);
+  }
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden","false");
+}
+function closeTrackStory(){
+  const modal=document.getElementById("track-story-modal");
+  if(!modal)return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden","true");
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  const lyricsBtn=document.getElementById("lyrics-player-btn");
+  if(lyricsBtn && !document.getElementById("track-story-player-btn")){
+    const btn=document.createElement("button");
+    btn.id="track-story-player-btn";
+    btn.type="button";
+    btn.textContent="곡 이야기";
+    btn.setAttribute("aria-label","곡 이야기 보기");
+    btn.onclick=openTrackStory;
+    lyricsBtn.insertAdjacentElement("afterend",btn);
+  }
+  refreshTrackStoryButton();
+});
+document.addEventListener("click",e=>{
+  const modal=document.getElementById("track-story-modal");
+  if(e.target===modal)closeTrackStory();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 </script>
 
 </body>
