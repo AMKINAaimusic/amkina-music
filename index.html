@@ -16925,6 +16925,76 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 }
 </style>
 <!-- ===== /AMKINA SIGNATURE BACKGROUND v1 ===== -->
+
+<!-- ===== AMKINA UPLOAD NOTICE POPUP 2026-09-05 ===== -->
+<div id="amkinaUploadNotice" class="amkina-upload-notice-overlay" aria-hidden="true">
+  <div class="amkina-upload-notice-modal" role="dialog" aria-modal="true" aria-labelledby="amkinaUploadNoticeTitle">
+    <div class="amkina-upload-notice-label">AMKINA NOTICE</div>
+    <h2 id="amkinaUploadNoticeTitle">업로드 전 잠깐! 🎵</h2>
+    <p>
+      AMKINA MUSIC은 단순히 음원을 많이 등록하기보다
+      <strong>한 곡 한 곡을 완성해서 공유하는 공간</strong>을 지향합니다.
+    </p>
+    <div class="amkina-upload-notice-checks">
+      <div>✓ 노래방 싱크 가사 등록</div>
+      <div>✓ 커버 이미지 및 곡 정보 확인</div>
+      <div>✓ 중복 음원 · 중복 커버 확인</div>
+    </div>
+    <p class="amkina-upload-notice-warning">
+      짧은 시간에 많은 음원을 연속으로 업로드하면 서버 저장공간과 데이터 사용량이 빠르게 증가할 수 있습니다.
+    </p>
+    <p>
+      여러 곡을 한꺼번에 올리기보다
+      <strong>업로드한 곡을 먼저 정리하고 천천히 등록해 주세요.</strong>
+    </p>
+    <button type="button" id="amkinaUploadNoticeConfirm">확인했습니다</button>
+  </div>
+</div>
+
+<style>
+.amkina-upload-notice-overlay{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.amkina-upload-notice-overlay.is-open{display:flex}
+.amkina-upload-notice-modal{box-sizing:border-box;width:min(460px,100%);max-height:88vh;overflow:auto;background:#fff;color:#111;border:1px solid rgba(0,0,0,.08);border-radius:22px;padding:28px;box-shadow:0 25px 80px rgba(0,0,0,.28);font-family:inherit}
+.amkina-upload-notice-label{display:inline-block;margin-bottom:12px;font-size:11px;font-weight:900;letter-spacing:1.5px}
+.amkina-upload-notice-modal h2{margin:0 0 16px;font-size:25px;line-height:1.25;font-weight:900}
+.amkina-upload-notice-modal p{margin:12px 0;font-size:14px;line-height:1.7}
+.amkina-upload-notice-checks{margin:18px 0;padding:15px 17px;background:#f5f5f5;border-radius:14px;font-size:14px;font-weight:750;line-height:2}
+.amkina-upload-notice-warning{padding:13px 14px;border-left:3px solid #111;background:#fafafa}
+#amkinaUploadNoticeConfirm{width:100%;margin-top:12px;padding:15px;border:0;border-radius:12px;background:#111;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+#amkinaUploadNoticeConfirm:hover{opacity:.88}
+@media(max-width:520px){.amkina-upload-notice-overlay{padding:14px}.amkina-upload-notice-modal{padding:22px 18px;border-radius:18px}.amkina-upload-notice-modal h2{font-size:22px}}
+</style>
+
+<script>
+(function(){
+  const NOTICE_VERSION = "amkina-upload-notice-20260905-v1";
+  function initAmkinaUploadNotice(){
+    const modal = document.getElementById("amkinaUploadNotice");
+    const button = document.getElementById("amkinaUploadNoticeConfirm");
+    if(!modal || !button) return;
+    let seen = false;
+    try { seen = localStorage.getItem(NOTICE_VERSION) === "seen"; } catch(e) {}
+    if(!seen){
+      setTimeout(function(){
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden","false");
+      },700);
+    }
+    button.addEventListener("click",function(){
+      try { localStorage.setItem(NOTICE_VERSION,"seen"); } catch(e) {}
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden","true");
+    });
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded",initAmkinaUploadNotice,{once:true});
+  }else{
+    initAmkinaUploadNotice();
+  }
+})();
+</script>
+<!-- ===== /AMKINA UPLOAD NOTICE POPUP ===== -->
+
 </body>
 </html>
 ```
