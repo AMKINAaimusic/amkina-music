@@ -1,3 +1,4 @@
+`````
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -13040,13 +13041,15 @@ body.compact-lyrics-open{padding-bottom:236px!important}
 .ak-sync-hit{height:32px;border:1px solid #ddd;border-radius:9px;background:#fff;font-size:10px;font-weight:900;cursor:pointer}
 .ak-sync-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}.ak-sync-actions button{height:42px;border-radius:11px;padding:0 16px;font-weight:900;cursor:pointer}
 #ak-sync-reset{background:#fff;border:1px solid #ddd}#ak-sync-save{background:#111;color:#fff;border:1px solid #111;margin-left:auto}
+.ak-sync-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:-8px 0 14px}.ak-sync-tools button{height:34px;padding:0 11px;border:1px solid #ddd;border-radius:9px;background:#fff;color:#222;font-size:10px;font-weight:900;cursor:pointer}.ak-sync-tools .ak-sync-undo{background:#111;color:#fff;border-color:#111}.ak-sync-shortcuts{font-size:10px;color:#888;margin-left:auto}@media(max-width:768px){.ak-sync-shortcuts{width:100%;margin-left:0}.ak-sync-tools button{flex:1;min-width:70px}}
 @media(max-width:768px){.ak-sync-box{padding:18px}.ak-sync-row{grid-template-columns:70px 1fr}.ak-sync-hit{grid-column:2}.ak-sync-line{font-size:12px}}
 </style>
 
 <div id="ak-sync-modal" aria-hidden="true">
  <div class="ak-sync-box">
   <div class="ak-sync-head"><div><div style="font-size:9px;font-weight:900;letter-spacing:2px;color:#999">KARAOKE SYNC</div><h2>🎤 노래방 가사 싱크</h2><p>음악을 들으면서 각 가사가 시작되는 순간에 ‘시간 찍기’를 누르세요.</p></div><button class="ak-sync-close" onclick="closeKaraokeSyncEditor()">×</button></div>
-  <div class="ak-sync-player"><button id="ak-sync-play">▶</button><span id="ak-sync-time">00:00.0</span><span class="ak-sync-help">Space: 재생/일시정지 · Enter: 다음 줄 시간 찍기</span></div>
+  <div class="ak-sync-player"><button id="ak-sync-play">▶</button><span id="ak-sync-time">00:00.0</span><span class="ak-sync-help">Space 재생/정지 · Enter 시간 찍기 · Backspace 직전 취소</span></div>
+  <div class="ak-sync-tools"><button onclick="karaokeSeek(-3)">⏪ 3초</button><button onclick="karaokeSeek(-0.5)">◀ 0.5초</button><button class="ak-sync-undo" onclick="undoKaraokeStamp()">↶ 직전 취소</button><button onclick="karaokeGoPrevious()">↑ 이전 줄</button><button onclick="karaokeSeek(0.5)">0.5초 ▶</button><button onclick="karaokeSeek(3)">3초 ⏩</button><span class="ak-sync-shortcuts">←/→ 3초 · Shift+←/→ 0.5초</span></div>
   <div id="ak-sync-list" class="ak-sync-list"></div>
   <div class="ak-sync-actions"><button id="ak-sync-reset" onclick="resetKaraokeSync()">시간 초기화</button><button id="ak-sync-save" onclick="saveKaraokeSync()">싱크 저장</button></div>
  </div>
@@ -13054,7 +13057,7 @@ body.compact-lyrics-open{padding-bottom:236px!important}
 
 <script id="amkina-karaoke-v1-script">
 (function(){
- let syncTrack=null,syncLines=[],syncIndex=0;
+ let syncTrack=null,syncLines=[],syncIndex=0,syncHistory=[];
  const audioEl=()=>document.getElementById("audio");
  const fmt=s=>{s=Math.max(0,Number(s)||0);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0")+"."+Math.floor((s%1)*10)};
  function currentTrack(){try{return (typeof currentIndex==="number"&&currentIndex>=0&&tracks[currentIndex])?tracks[currentIndex]:null}catch(e){return null}}
@@ -13101,7 +13104,7 @@ body.compact-lyrics-open{padding-bottom:236px!important}
    if(!lines.length){alert("먼저 일반 가사를 등록해주세요.");return}
    syncTrack=t;
    const old=parseSync(t);
-   syncLines=lines.map((text,i)=>({text,time:old.find(x=>x.text===text)?.time ?? null}));
+   syncLines=lines.map((text,i)=>({text,time:old.find(x=>x.text===text)?.time ?? null}));syncHistory=[];
    syncIndex=Math.max(0,syncLines.findIndex(x=>x.time==null));if(syncIndex<0)syncIndex=0;
    const modal=document.getElementById("ak-sync-modal");modal.classList.add("open");modal.setAttribute("aria-hidden","false");
    if(typeof closeTrackEdit==="function")closeTrackEdit();
@@ -13118,11 +13121,14 @@ body.compact-lyrics-open{padding-bottom:236px!important}
    box.querySelectorAll(".ak-sync-row").forEach((r,i)=>{r.querySelector(".ak-sync-line").textContent=syncLines[i].text;r.querySelector(".ak-sync-hit").onclick=()=>stamp(i);r.onclick=e=>{if(!e.target.closest("button")){syncIndex=i;renderEditor()}}});
    box.querySelector(".active")?.scrollIntoView({block:"nearest"});
  }
- function stamp(i){const a=audioEl();if(!a)return;syncLines[i].time=Number(a.currentTime.toFixed(2));syncIndex=Math.min(i+1,syncLines.length-1);renderEditor()}
- window.resetKaraokeSync=function(){syncLines.forEach(x=>x.time=null);syncIndex=0;renderEditor()};
+ function stamp(i){const a=audioEl();if(!a)return;syncHistory.push({i,old:syncLines[i].time});syncLines[i].time=Number(a.currentTime.toFixed(2));syncIndex=Math.min(i+1,syncLines.length-1);renderEditor()}
+ window.karaokeSeek=function(sec){const a=audioEl();if(!a)return;const max=Number.isFinite(a.duration)?a.duration:Infinity;a.currentTime=Math.max(0,Math.min(max,a.currentTime+Number(sec||0)))};
+ window.karaokeGoPrevious=function(){const a=audioEl();if(!a)return;syncIndex=Math.max(0,syncIndex-1);const t=syncLines[syncIndex]?.time;if(t!=null)a.currentTime=Math.max(0,t-2);renderEditor()};
+ window.undoKaraokeStamp=function(){const a=audioEl();if(!a)return;const h=syncHistory.pop();if(h){const back=h.old!=null?h.old:(syncLines[Math.max(0,h.i-1)]?.time??a.currentTime);syncLines[h.i].time=h.old;syncIndex=h.i;a.currentTime=Math.max(0,back-2)}else{const i=Math.max(0,syncIndex-1);if(syncLines[i]?.time!=null){const t=syncLines[i].time;syncLines[i].time=null;syncIndex=i;a.currentTime=Math.max(0,t-2)}}renderEditor()};
+ window.resetKaraokeSync=function(){syncLines.forEach(x=>x.time=null);syncIndex=0;syncHistory=[];renderEditor()};
  document.getElementById("ak-sync-play")?.addEventListener("click",()=>{const a=audioEl();if(!a)return;a.paused?a.play():a.pause()});
  audioEl()?.addEventListener("timeupdate",()=>{const el=document.getElementById("ak-sync-time");if(el)el.textContent=fmt(audioEl().currentTime)});
- document.addEventListener("keydown",e=>{if(!document.getElementById("ak-sync-modal")?.classList.contains("open"))return;if(e.code==="Space"){e.preventDefault();const a=audioEl();a.paused?a.play():a.pause()}if(e.key==="Enter"){e.preventDefault();stamp(syncIndex)}});
+ document.addEventListener("keydown",e=>{if(!document.getElementById("ak-sync-modal")?.classList.contains("open"))return;const tag=(e.target?.tagName||"").toLowerCase();if(["input","textarea","select"].includes(tag))return;if(e.code==="Space"){e.preventDefault();const a=audioEl();a.paused?a.play():a.pause();return}if(e.key==="Enter"){e.preventDefault();stamp(syncIndex);return}if(e.key==="Backspace"){e.preventDefault();undoKaraokeStamp();return}if(e.key==="ArrowLeft"){e.preventDefault();karaokeSeek(e.shiftKey?-0.5:-3);return}if(e.key==="ArrowRight"){e.preventDefault();karaokeSeek(e.shiftKey?0.5:3);return}if(e.key==="ArrowUp"){e.preventDefault();karaokeGoPrevious();return}});
 
  window.saveKaraokeSync=async function(){
    if(!syncTrack)return;
@@ -16822,5 +16828,3 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 
 </body>
 </html>
-```
-````
