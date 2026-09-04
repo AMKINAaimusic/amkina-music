@@ -16432,6 +16432,464 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 })();
 </script>
 
+
+<!-- ===== AMKINA ALBUM EDITORIAL REDESIGN v2 ===== -->
+<style id="amkina-album-editorial-v2-style">
+/* Album page only: premium editorial/music-community treatment */
+#album-page{
+  --album-ink:#0b0b0b;
+  --album-muted:#8a8a8a;
+  --album-line:#e8e8e8;
+  --album-soft:#f5f5f3;
+}
+#album-page .album-page-inner,
+#album-page .album-wrap,
+#album-page .album-container{
+  max-width:1180px!important;
+  margin:0 auto!important;
+}
+
+/* Header */
+#album-page .album-head,
+#album-page .album-header{
+  position:relative;
+  padding-top:22px!important;
+  padding-bottom:26px!important;
+  border-bottom:1px solid var(--album-line)!important;
+}
+#album-page .album-head h1,
+#album-page .album-header h1{
+  font-size:clamp(34px,5vw,66px)!important;
+  line-height:.92!important;
+  letter-spacing:-3px!important;
+  margin:7px 0 10px!important;
+}
+#album-page .album-head p,
+#album-page .album-header p{
+  font-size:12px!important;
+  color:#777!important;
+  letter-spacing:-.2px!important;
+}
+
+/* Injected editorial intro */
+.ak-album-editorial-intro{
+  display:grid;
+  grid-template-columns:1.3fr .7fr;
+  gap:28px;
+  align-items:end;
+  padding:28px 0 20px;
+}
+.ak-album-editorial-intro .eyebrow{
+  font-size:9px;font-weight:900;letter-spacing:2.8px;color:#999;margin-bottom:8px
+}
+.ak-album-editorial-intro h2{
+  margin:0;font-size:clamp(22px,3vw,38px);letter-spacing:-1.6px;line-height:1.05
+}
+.ak-album-editorial-intro p{
+  margin:10px 0 0;color:#777;font-size:12px;line-height:1.7
+}
+.ak-album-stats{
+  display:flex;justify-content:flex-end;gap:26px;text-align:right
+}
+.ak-album-stat b{display:block;font-size:24px;letter-spacing:-1px}
+.ak-album-stat span{font-size:8px;letter-spacing:1.6px;color:#999;font-weight:800}
+
+/* Filters */
+.ak-album-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:14px 0 22px
+}
+.ak-album-tabs{display:flex;gap:7px}
+.ak-album-tab{
+  appearance:none;border:1px solid #ddd;background:#fff;color:#777;
+  border-radius:999px;padding:8px 14px;font-size:10px;font-weight:800;cursor:pointer
+}
+.ak-album-tab.active{background:#111;color:#fff;border-color:#111}
+.ak-album-note{font-size:9px;color:#aaa;letter-spacing:.3px}
+
+/* Grid – target common existing album grid/card selectors */
+#album-page .album-grid,
+#album-page #album-grid,
+#album-page .album-posts,
+#album-page #album-posts{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:34px 14px!important;
+  align-items:start!important;
+}
+
+/* Cards */
+#album-page .album-card,
+#album-page .album-post,
+#album-page [data-album-id]{
+  min-width:0!important;
+  transition:transform .25s ease!important;
+}
+#album-page .album-card:hover,
+#album-page .album-post:hover,
+#album-page [data-album-id]:hover{transform:translateY(-4px)}
+#album-page .album-card img,
+#album-page .album-post img,
+#album-page [data-album-id] img{
+  width:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+  border-radius:14px!important;
+  display:block!important;
+  background:#eee!important;
+  transition:transform .35s ease,filter .35s ease!important;
+}
+#album-page .album-card:hover img,
+#album-page .album-post:hover img,
+#album-page [data-album-id]:hover img{
+  transform:scale(1.012);
+  filter:contrast(1.03)
+}
+#album-page .album-card h3,
+#album-page .album-post h3{
+  margin:10px 2px 3px!important;font-size:12px!important;
+  line-height:1.25!important;letter-spacing:-.25px!important
+}
+#album-page .album-card p,
+#album-page .album-post p{
+  margin:0 2px!important;font-size:9px!important;color:#888!important
+}
+
+/* Upload button */
+#album-page button[onclick*="Album"],
+#album-page button[onclick*="album"]{
+  transition:transform .2s ease,box-shadow .2s ease
+}
+#album-page button[onclick*="Album"]:hover,
+#album-page button[onclick*="album"]:hover{
+  transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.12)
+}
+
+/* Empty-space / responsive refinement */
+@media(max-width:980px){
+ #album-page .album-grid,#album-page #album-grid,#album-page .album-posts,#album-page #album-posts{
+   grid-template-columns:repeat(3,minmax(0,1fr))!important
+ }
+}
+@media(max-width:768px){
+ #album-page{padding-left:16px!important;padding-right:16px!important}
+ .ak-album-editorial-intro{grid-template-columns:1fr;gap:18px;padding-top:20px}
+ .ak-album-stats{justify-content:flex-start;text-align:left}
+ .ak-album-toolbar{align-items:flex-start;flex-direction:column;padding-top:8px}
+ #album-page .album-grid,#album-page #album-grid,#album-page .album-posts,#album-page #album-posts{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   gap:25px 10px!important
+ }
+ #album-page .album-card img,#album-page .album-post img,#album-page [data-album-id] img{
+   border-radius:10px!important
+ }
+}
+@media(max-width:390px){
+ .ak-album-note{display:none}
+}
+</style>
+
+<script id="amkina-album-editorial-v2-script">
+(function(){
+ "use strict";
+
+ function page(){
+   return document.getElementById("album-page");
+ }
+ function grid(root){
+   return root?.querySelector("#album-grid,.album-grid,#album-posts,.album-posts");
+ }
+ function cards(root){
+   const g=grid(root);
+   return g ? [...g.children].filter(x=>x.nodeType===1) : [];
+ }
+ function addIntro(){
+   const root=page(); if(!root || root.querySelector(".ak-album-editorial-intro"))return;
+   const header=root.querySelector(".album-head,.album-header");
+   const g=grid(root);
+   if(!g)return;
+
+   const intro=document.createElement("section");
+   intro.className="ak-album-editorial-intro";
+   intro.innerHTML=`
+    <div>
+      <div class="eyebrow">MUSIC · MOMENTS · PEOPLE</div>
+      <h2>음악과 함께한 순간을<br>하나의 장면으로.</h2>
+      <p>AMKINA 멤버들의 음악, 작업실, 커버 아트와 일상을 기록하는 커뮤니티 아카이브.</p>
+    </div>
+    <div class="ak-album-stats">
+      <div class="ak-album-stat"><b id="ak-album-photo-count">0</b><span>PHOTOS</span></div>
+      <div class="ak-album-stat"><b>AMKINA</b><span>COMMUNITY</span></div>
+    </div>`;
+   if(header)header.insertAdjacentElement("afterend",intro);
+   else g.parentElement.insertBefore(intro,g);
+
+   const toolbar=document.createElement("div");
+   toolbar.className="ak-album-toolbar";
+   toolbar.innerHTML=`
+    <div class="ak-album-tabs">
+      <button type="button" class="ak-album-tab active" data-sort="latest">LATEST</button>
+      <button type="button" class="ak-album-tab" data-sort="popular">POPULAR</button>
+    </div>
+    <div class="ak-album-note">AMKINA COMMUNITY ARCHIVE</div>`;
+   intro.insertAdjacentElement("afterend",toolbar);
+
+   toolbar.addEventListener("click",e=>{
+     const b=e.target.closest(".ak-album-tab"); if(!b)return;
+     toolbar.querySelectorAll(".ak-album-tab").forEach(x=>x.classList.toggle("active",x===b));
+     sortCards(b.dataset.sort);
+   });
+   updateCount();
+ }
+ function numberFromCard(c){
+   const txt=(c.textContent||"");
+   const m=txt.match(/[♥♡]\s*(\d+)/);
+   return m?Number(m[1]):0;
+ }
+ function sortCards(mode){
+   const root=page(),g=grid(root); if(!g)return;
+   const arr=cards(root);
+   if(mode==="popular"){
+     arr.sort((a,b)=>numberFromCard(b)-numberFromCard(a));
+   }else{
+     // Restore DOM/data order as closely as possible using ids; if absent,
+     // existing render order is preserved by stable sort.
+     arr.sort((a,b)=>{
+       const ai=Number(a.dataset?.albumId||a.dataset?.id||0);
+       const bi=Number(b.dataset?.albumId||b.dataset?.id||0);
+       return (bi||0)-(ai||0);
+     });
+   }
+   arr.forEach(c=>g.appendChild(c));
+ }
+ function updateCount(){
+   const n=document.getElementById("ak-album-photo-count");
+   if(n)n.textContent=String(cards(page()).length);
+ }
+ function enhance(){
+   addIntro(); updateCount();
+ }
+ document.addEventListener("DOMContentLoaded",()=>{
+   enhance();
+   const root=page();
+   if(root){
+     new MutationObserver(()=>{updateCount()}).observe(root,{childList:true,subtree:true});
+   }
+ });
+ window.amkinaEnhanceAlbum=enhance;
+})();
+</script>
+
+
+<!-- ===== AMKINA TRACK STORY DATA + MOBILE UI FINAL FIX v2 ===== -->
+<style id="amkina-track-story-mobile-final-v2">
+/* 플레이어의 곡 이야기 버튼: 모바일에서 두 줄 대형 글자 금지 */
+#track-story-player-btn{
+  width:auto!important;min-width:42px!important;max-width:58px!important;
+  height:36px!important;padding:0 7px!important;
+  font-size:9px!important;line-height:1!important;
+  font-weight:800!important;letter-spacing:-.35px!important;
+  white-space:nowrap!important;word-break:keep-all!important;
+  overflow:hidden!important;
+}
+@media(max-width:768px){
+ #track-story-player-btn{
+   width:44px!important;min-width:44px!important;max-width:44px!important;
+   height:34px!important;padding:0 3px!important;
+   font-size:8px!important;line-height:1!important;
+   border-radius:8px!important;
+   white-space:nowrap!important;word-break:keep-all!important;
+ }
+ .track-story-modal{padding:14px!important}
+ .track-story-card{
+   width:100%!important;max-width:520px!important;
+   padding:23px 18px 21px!important;border-radius:16px!important;
+ }
+ .track-story-kicker{font-size:7px!important;letter-spacing:1.8px!important}
+ .track-story-title{font-size:20px!important;line-height:1.15!important;letter-spacing:-.7px!important}
+ .track-story-meta{font-size:9px!important}
+ .track-story-body{font-size:13px!important;line-height:1.75!important;padding-top:17px!important}
+}
+</style>
+
+<script id="amkina-track-story-data-final-v2">
+(function(){
+ "use strict";
+
+ function currentStoryTrack(){
+   try{
+     if(typeof currentIndex==="number" && currentIndex>=0 && Array.isArray(tracks) && tracks[currentIndex]) return tracks[currentIndex];
+     if(typeof currentTrackIndex==="number" && currentTrackIndex>=0 && Array.isArray(tracks) && tracks[currentTrackIndex]) return tracks[currentTrackIndex];
+     if(typeof currentTrack!=="undefined" && currentTrack) return currentTrack;
+   }catch(e){}
+   return null;
+ }
+
+ async function ensureDescription(t){
+   if(!t || t.id==null) return "";
+   let story=String(t.description||"").trim();
+   if(story) return story;
+   try{
+     const r=await fetch(
+       SUPABASE_URL+"/rest/v1/tracks?id=eq."+encodeURIComponent(t.id)+"&select=description&limit=1",
+       {headers:{"apikey":SUPABASE_ANON_KEY}}
+     );
+     if(r.ok){
+       const rows=await r.json();
+       story=String(rows?.[0]?.description||"").trim();
+       if(story)t.description=story;
+     }
+   }catch(e){console.warn("곡 이야기 불러오기 실패",e)}
+   return story;
+ }
+
+ window.refreshTrackStoryButton=function(){
+   const btn=document.getElementById("track-story-player-btn");
+   if(!btn)return;
+   btn.textContent="곡 이야기";
+   btn.title="곡 이야기 보기";
+   btn.setAttribute("aria-label","곡 이야기 보기");
+   const t=currentStoryTrack();
+   btn.classList.toggle("has-story",!!String(t?.description||"").trim());
+ };
+
+ window.openTrackStory=async function(){
+   const modal=document.getElementById("track-story-modal");
+   const title=document.getElementById("track-story-title");
+   const meta=document.getElementById("track-story-meta");
+   const body=document.getElementById("track-story-body");
+   const t=currentStoryTrack();
+
+   if(!modal||!title||!meta||!body)return;
+   if(!t){
+     title.textContent="곡 이야기";
+     meta.textContent="AMKINA MUSIC";
+     body.textContent="곡을 먼저 선택해주세요.";
+     body.classList.add("empty");
+   }else{
+     title.textContent=t.title||"Untitled";
+     meta.textContent=(t.artist||"AMKINA")+" · 곡 이야기";
+     body.textContent="곡 이야기를 불러오는 중...";
+     body.classList.add("empty");
+     modal.classList.add("open");
+     modal.setAttribute("aria-hidden","false");
+
+     const story=await ensureDescription(t);
+     body.textContent=story||"등록된 곡 이야기가 없습니다.";
+     body.classList.toggle("empty",!story);
+     const btn=document.getElementById("track-story-player-btn");
+     if(btn)btn.classList.toggle("has-story",!!story);
+     return;
+   }
+   modal.classList.add("open");
+   modal.setAttribute("aria-hidden","false");
+ };
+
+ /* 재생곡이 바뀔 때 버튼 상태도 갱신 */
+ if(typeof audio!=="undefined" && audio){
+   audio.addEventListener("loadedmetadata",()=>setTimeout(window.refreshTrackStoryButton,0));
+   audio.addEventListener("play",()=>setTimeout(window.refreshTrackStoryButton,0));
+ }
+ document.addEventListener("DOMContentLoaded",()=>setTimeout(window.refreshTrackStoryButton,300));
+})();
+</script>
+
+
+<!-- ===== AMKINA MOBILE STORY IN MORE MENU v3 ===== -->
+<style id="amkina-mobile-story-more-menu-v3-style">
+/* PC/태블릿은 기존 곡 이야기 버튼 유지, 모바일에서는 플레이어에서 완전히 숨김 */
+@media(max-width:768px){
+  #track-story-player-btn{display:none!important}
+}
+
+/* 모바일 ⋯ 메뉴 안 곡 이야기 항목 */
+#ak-mobile-story-menu-item{
+  display:none;
+}
+@media(max-width:768px){
+  #ak-mobile-story-menu-item{
+    display:flex;
+    width:100%;
+    align-items:center;
+    gap:11px;
+    padding:12px 14px;
+    border:0;
+    background:transparent;
+    color:inherit;
+    font:inherit;
+    font-size:12px;
+    font-weight:800;
+    text-align:left;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #ak-mobile-story-menu-item .ak-story-menu-icon{
+    width:22px;height:22px;display:grid;place-items:center;
+    border:1px solid currentColor;border-radius:50%;
+    font-size:11px;line-height:1;opacity:.8
+  }
+}
+</style>
+
+<script id="amkina-mobile-story-more-menu-v3-script">
+(function(){
+ "use strict";
+
+ function install(){
+   if(!window.matchMedia("(max-width:768px)").matches)return;
+   if(document.getElementById("ak-mobile-story-menu-item"))return;
+
+   /* 현재 플레이어의 ⋯ 버튼이 여는 기존 도구 영역을 우선 사용 */
+   const player=document.getElementById("player")||document.querySelector(".player");
+   if(!player)return;
+
+   const more=document.getElementById("ak-player-more");
+   let menu=null;
+
+   /* 기존 플레이어 구조에서 ⋯ 클릭 시 노출되는 후보 영역 */
+   const candidates=[
+     player.querySelector(".ak-player-tools"),
+     player.querySelector(".player-tools"),
+     player.querySelector(".more-menu"),
+     player.querySelector(".player-more-menu"),
+     player.querySelector(".extra-tools"),
+     player.querySelector(".buttons")
+   ].filter(Boolean);
+
+   /* buttons는 최후 후보. 실제 별도 메뉴가 있으면 그것을 선택 */
+   menu=candidates.find(x=>x!==player.querySelector(".buttons")) || candidates[0];
+   if(!menu)return;
+
+   const btn=document.createElement("button");
+   btn.id="ak-mobile-story-menu-item";
+   btn.type="button";
+   btn.innerHTML='<span class="ak-story-menu-icon">♪</span><span>곡 이야기</span>';
+   btn.onclick=function(e){
+     e.preventDefault();
+     e.stopPropagation();
+     try{
+       player.classList.remove("ak-tools-open");
+       more?.setAttribute("aria-expanded","false");
+     }catch(err){}
+     if(typeof window.openTrackStory==="function")window.openTrackStory();
+   };
+
+   menu.appendChild(btn);
+ }
+
+ function sync(){
+   const direct=document.getElementById("track-story-player-btn");
+   if(direct){
+     direct.style.removeProperty("display");
+   }
+   install();
+ }
+
+ document.addEventListener("DOMContentLoaded",()=>setTimeout(sync,350));
+ window.addEventListener("resize",()=>setTimeout(sync,80));
+})();
+</script>
+
 </body>
 </html>
 ```
