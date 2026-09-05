@@ -3594,36 +3594,21 @@ document.addEventListener("DOMContentLoaded", function(){
 </style>
 
 
-<style id="amkina-home-banner-no-crop-final">
-@media (min-width:769px){
-  .hero-slider{
-    height:220px!important;
-    min-height:220px!important;
-    max-height:220px!important;
-    margin:10px 24px 16px!important;
-    padding:0!important;
-    overflow:hidden!important;
-    background:#030303!important;
-  }
-  .hero-slider .hero-slide,
-  .hero-slider .hero-slide.active{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    padding:0!important;
-  }
-  .hero-slider .hero-slide img{
-    display:block!important;
-    width:100%!important;
-    height:100%!important;
-    object-fit:fill!important;
-    object-position:center!important;
-    background:#030303!important;
-  }
-}
+<style id="amkina-six-banner-final">
+/* AMKINA 6-banner carousel — final override */
+.hero-slider{position:relative!important;background:#050505!important;overflow:hidden!important}
+.hero-slider .hero-slide{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .65s ease,visibility .65s ease!important}
+.hero-slider .hero-slide.active{display:block!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+.hero-slider .hero-slide img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#050505!important}
+.hero-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:30;width:40px;height:40px;border:1px solid rgba(255,255,255,.24);border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:28px;line-height:1;cursor:pointer;backdrop-filter:blur(8px);opacity:.75;transition:.2s}
+.hero-arrow:hover{opacity:1;background:rgba(0,0,0,.58)}
+.hero-prev{left:16px}.hero-next{right:16px}
+.hero-dots{display:flex!important;position:absolute!important;left:50%!important;bottom:12px!important;transform:translateX(-50%)!important;z-index:31!important;gap:7px!important}
+.hero-dot{width:7px!important;height:7px!important;border:0!important;border-radius:999px!important;padding:0!important;background:rgba(255,255,255,.48)!important;cursor:pointer!important;transition:.25s!important}
+.hero-dot.active{width:23px!important;background:#fff!important}
+@media(min-width:769px){.hero-slider{display:block!important;margin:16px 24px 28px!important;width:auto!important;height:auto!important;aspect-ratio:9.6/1!important;max-height:none!important;min-height:0!important;border-radius:16px!important}.hero-slider .hero-slide img{object-fit:cover!important}.hero-arrow{width:36px;height:36px;font-size:24px}.hero-dots{bottom:10px!important}}
+@media(max-width:768px){.hero-slider{display:block!important;margin:12px!important;width:auto!important;height:auto!important;aspect-ratio:16/5!important;min-height:0!important;border-radius:14px!important}.hero-slider .hero-slide img{object-fit:cover!important}.hero-arrow{width:32px;height:32px;font-size:22px}.hero-prev{left:8px}.hero-next{right:8px}.hero-dots{bottom:8px!important}}
 </style>
-
 </head>
 
 <body>
@@ -3855,21 +3840,23 @@ html body #amkinaGlobalNoticeBox{
 </div>
 </nav>
 </header>
-<section class="hero hero-slider">
-
-    <div class="hero-slide active">
-        <img src="amkina-home-banner-wide-2400x300.jpg" alt="AMKINA MUSIC 3.0 — YOUR SOUND, YOUR WAVE.">
+<section class="hero hero-slider" aria-label="AMKINA MUSIC 메인 배너">
+    <div class="hero-slide active"><img src="amkina-banner-1.jpg" alt="AMKINA MUSIC 배너 1"></div>
+    <div class="hero-slide"><img src="amkina-banner-2.jpg" alt="AMKINA MUSIC 배너 2"></div>
+    <div class="hero-slide"><img src="amkina-banner-3.jpg" alt="AMKINA MUSIC 배너 3"></div>
+    <div class="hero-slide"><img src="amkina-banner-4.jpg" alt="AMKINA MUSIC 배너 4"></div>
+    <div class="hero-slide"><img src="amkina-banner-5.jpg" alt="AMKINA MUSIC 배너 5"></div>
+    <div class="hero-slide"><img src="amkina-banner-6.jpg" alt="AMKINA MUSIC 배너 6"></div>
+    <button class="hero-arrow hero-prev" type="button" aria-label="이전 배너">‹</button>
+    <button class="hero-arrow hero-next" type="button" aria-label="다음 배너">›</button>
+    <div class="hero-dots" aria-label="배너 선택">
+        <button class="hero-dot active" type="button" aria-label="배너 1"></button>
+        <button class="hero-dot" type="button" aria-label="배너 2"></button>
+        <button class="hero-dot" type="button" aria-label="배너 3"></button>
+        <button class="hero-dot" type="button" aria-label="배너 4"></button>
+        <button class="hero-dot" type="button" aria-label="배너 5"></button>
+        <button class="hero-dot" type="button" aria-label="배너 6"></button>
     </div>
-
-    <div class="hero-slide">
-        <img src="AMKINA 로고 스몰.png" alt="AMKINA MUSIC BANNER 2">
-    </div>
-
-    <div class="hero-dots">
-        <button class="hero-dot active"></button>
-        <button class="hero-dot"></button>
-    </div>
-
 </section>
 
 
@@ -5555,7 +5542,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
   function startSlider(){
     clearInterval(sliderTimer);
-    sliderTimer = setInterval(nextSlide, 3000);
+    sliderTimer = setInterval(nextSlide, 7000);
   }
 
   dots.forEach(function(dot, index){
@@ -10594,7 +10581,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showHeroSlide(nextSlide);
 
-    }, 3000);
+    }, 7000);
 
 });
 </script>
@@ -17393,6 +17380,18 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 })();
 </script>
 
+
+<script id="amkina-six-banner-controls">
+document.addEventListener("DOMContentLoaded",function(){
+  const slider=document.querySelector(".hero-slider"); if(!slider)return;
+  const slides=[...slider.querySelectorAll(".hero-slide")],dots=[...slider.querySelectorAll(".hero-dot")];
+  const prev=slider.querySelector(".hero-prev"),next=slider.querySelector(".hero-next");
+  function current(){const i=slides.findIndex(s=>s.classList.contains("active"));return i<0?0:i}
+  function go(i){i=(i+slides.length)%slides.length;slides.forEach((s,n)=>s.classList.toggle("active",n===i));dots.forEach((d,n)=>d.classList.toggle("active",n===i))}
+  prev?.addEventListener("click",e=>{e.stopPropagation();go(current()-1)});
+  next?.addEventListener("click",e=>{e.stopPropagation();go(current()+1)});
+});
+</script>
 </body>
 </html>
 ```
