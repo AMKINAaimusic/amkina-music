@@ -2200,7 +2200,7 @@ function amkinaArtistProfile(uid){return uid?window.amkinaArtistProfiles.get(Str
 <script id="amkina-artists-script">
 function amkinaArtistEscape(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 function amkinaArtistTracks(){
- return (typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]).filter(t=>t&&t.artist);
+ return (typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]).filter(t=>t&&t.artist&&!window.amkinaIsKidsTrack?.(t));
 }
 function amkinaArtistGroups(){
  const map=new Map();
@@ -3606,6 +3606,13 @@ html body #amkinaGlobalNoticeBox{
     </a>
 
 
+    <div class="nav-divider ak-kids-divider"></div>
+    <div class="nav-section-label ak-kids-label">AMKINA KIDS ZONE</div>
+    <a href="#kids-zone" id="kids-zone-nav" onclick="return showKidsZone(event);">
+        <span class="nav-icon">♬</span>
+        <span class="nav-text">동요</span>
+    </a>
+
     <div class="nav-divider"></div>
 
     <div class="nav-section-label">CREATE</div>
@@ -3893,6 +3900,17 @@ html body #amkinaGlobalNoticeBox{
           value="AMKINA"
           placeholder="아티스트"
         >
+      </div>
+
+      <div class="studio-field">
+        <label>콘텐츠 구분</label>
+        <select id="studio-content-type" class="ak-content-type-select">
+          <option value="music" selected>일반 음악</option>
+          <option value="kids">KIDS · 동요 / 어린이 음악</option>
+        </select>
+        <small style="display:block;margin-top:7px;color:#999;font-size:10px;line-height:1.5">
+          KIDS로 등록한 곡은 일반 음악·Latest Releases·CHART 100에서 제외되고 KIDS ZONE에만 표시됩니다.
+        </small>
       </div>
 
       <div class="studio-field">
@@ -5133,7 +5151,11 @@ async function uploadStudioMusic(){
 
     const title = document.getElementById('studio-title').value.trim();
     const artist = document.getElementById('studio-artist').value.trim() || 'AMKINA';
-    const genre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
+    const rawGenre = document.getElementById('studio-genre').value.trim() || 'ORIGINAL';
+    const contentType = document.getElementById('studio-content-type')?.value || 'music';
+    const genre = contentType === 'kids'
+      ? ('KIDS · ' + rawGenre.replace(/^KIDS\s*[·|:\-]?\s*/i,''))
+      : rawGenre.replace(/^KIDS\s*[·|:\-]?\s*/i,'');
     const lyrics = document.getElementById('studio-lyrics').value.trim();
     const description = document.getElementById('studio-description').value.trim();
     const contentWarnings = [
@@ -5300,6 +5322,7 @@ const coverPath = `${userId}/${timestamp}-cover.${coverExt}`;
 
         document.getElementById('studio-title').value = '';
         document.getElementById('studio-genre').value = '';
+        if(document.getElementById('studio-content-type')) document.getElementById('studio-content-type').value='music';
         document.getElementById('studio-description').value = '';
         document.getElementById('studio-lyrics').value = '';
         ['studio-warning-explicit','studio-warning-violence','studio-warning-disturbing','studio-warning-adult'].forEach(id=>{
@@ -11552,7 +11575,7 @@ async function renderChart100(){
   if(amkinaChartPeriod==="all") await amkinaLoadChartSnapshots();
   amkinaStartChartCountdown();
 
-  const source=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]);
+  const source=(typeof tracks!=="undefined" && Array.isArray(tracks)?tracks:[]).filter(t=>!window.amkinaIsKidsTrack?.(t));
   source.forEach(t=>{t._live_like_count=likeCounts[String(t.id)]||0});
 
   let list=source.slice();
@@ -13014,9 +13037,9 @@ if ("serviceWorker" in navigator) {
 
   function sourceTracks(){
     try{
-      if(typeof tracks!=="undefined" && Array.isArray(tracks) && tracks.length) return tracks;
+      if(typeof tracks!=="undefined" && Array.isArray(tracks) && tracks.length) return tracks.filter(t=>!window.amkinaIsKidsTrack?.(t));
     }catch(e){}
-    if(Array.isArray(window.tracks)&&window.tracks.length)return window.tracks;
+    if(Array.isArray(window.tracks)&&window.tracks.length)return window.tracks.filter(t=>!window.amkinaIsKidsTrack?.(t));
     if(Array.isArray(window.musicData)&&window.musicData.length)return window.musicData;
     return [];
   }
@@ -13181,7 +13204,39 @@ body.compact-lyrics-open{padding-bottom:236px!important}
  window.renderCompactLyrics=renderKaraoke;
  ensureKaraokeNodes();
  const a=audioEl();if(a){a.addEventListener("timeupdate",renderKaraoke);a.addEventListener("loadedmetadata",renderKaraoke);a.addEventListener("play",renderKaraoke)}
- setInterval(()=>{const p=document.getElementById("compact-lyrics-panel");if(p?.classList.contains("open"))renderKaraoke()},120);
+
+  /* AMKINA KARAOKE CLOCK FIX
+     Karaoke display follows the audio clock every animation frame.
+     This prevents the lyric display from running on its own 120 ms timer. */
+  let akKaraokeRAF = 0;
+
+  function akKaraokeLoop(){
+    renderKaraoke();
+    akKaraokeRAF = requestAnimationFrame(akKaraokeLoop);
+  }
+
+  function akStartKaraokeLoop(){
+    if(akKaraokeRAF) return;
+    akKaraokeRAF = requestAnimationFrame(akKaraokeLoop);
+  }
+
+  function akStopKaraokeLoop(){
+    if(!akKaraokeRAF) return;
+    cancelAnimationFrame(akKaraokeRAF);
+    akKaraokeRAF = 0;
+    renderKaraoke();
+  }
+
+  const akAudio = audioEl();
+  if(akAudio){
+    akAudio.addEventListener("play", akStartKaraokeLoop);
+    akAudio.addEventListener("pause", akStopKaraokeLoop);
+    akAudio.addEventListener("ended", akStopKaraokeLoop);
+    akAudio.addEventListener("seeking", renderKaraoke);
+    akAudio.addEventListener("seeked", renderKaraoke);
+    akAudio.addEventListener("ratechange", renderKaraoke);
+    if(!akAudio.paused) akStartKaraokeLoop();
+  }
 
  window.openKaraokeSyncEditor=function(){
    const editId=(typeof editingTrackId!=="undefined"?editingTrackId:null);
@@ -17014,6 +17069,172 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeTrackStory()});
 }
 </style>
 <!-- ===== /AMKINA SIGNATURE BACKGROUND v1 ===== -->
+
+<!-- ===== AMKINA KIDS ZONE / COMPLETE SEPARATION ===== -->
+<style id="amkina-kids-zone-style">
+.ak-content-type-select{width:100%;min-height:44px;padding:0 12px;border:1px solid #ddd;border-radius:10px;background:#fff;color:#111;font:700 12px Arial,sans-serif}
+.ak-kids-label{font-weight:950!important;letter-spacing:1.2px!important;color:#111!important}
+#kids-zone-nav{border:1px solid #e8e8e8!important;border-radius:9px!important}
+#kids-zone-page{display:none;min-height:100vh;background:#fff;color:#111;padding:42px 34px 150px;box-sizing:border-box}
+#kids-zone-page.active{display:block}
+.ak-kids-wrap{max-width:1320px;margin:0 auto}
+.ak-kids-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:30px;border:1px solid #e8e8e8;border-radius:20px;background:linear-gradient(135deg,#fff 0%,#f7f7f5 100%);margin-bottom:28px}
+.ak-kids-kicker{font-size:10px;font-weight:950;letter-spacing:2.2px;color:#8b8b8b;margin-bottom:8px}
+.ak-kids-title{font-size:38px;line-height:1;margin:0;font-weight:950;letter-spacing:-1.5px}
+.ak-kids-sub{font-size:12px;color:#777;margin-top:10px}
+.ak-kids-count{font-size:11px;font-weight:850;color:#777;white-space:nowrap}
+.ak-kids-tabs{display:flex;gap:7px;margin-bottom:20px}
+.ak-kids-tab{border:1px solid #ddd;background:#fff;color:#111;border-radius:999px;padding:8px 14px;font-size:10px;font-weight:850;cursor:pointer}
+.ak-kids-tab.active{background:#111;color:#fff;border-color:#111}
+.ak-kids-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.ak-kids-card{border:1px solid #e5e5e5;border-radius:13px;background:#fff;overflow:hidden;cursor:pointer;transition:.18s ease}
+.ak-kids-card:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,.07)}
+.ak-kids-cover{aspect-ratio:1/1;width:100%;object-fit:cover;background:#eee;display:block}
+.ak-kids-info{padding:12px}
+.ak-kids-name{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ak-kids-artist{font-size:10px;color:#777;margin-top:5px}
+.ak-kids-meta{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #eee;font-size:9px;color:#888}
+.ak-kids-empty{grid-column:1/-1;padding:60px 20px;text-align:center;color:#999;font-size:12px}
+@media(max-width:1000px){.ak-kids-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:768px){
+ #kids-zone-page{padding:18px 12px 120px}
+ .ak-kids-hero{padding:22px 18px;display:block}.ak-kids-title{font-size:30px}.ak-kids-count{margin-top:14px}
+ .ak-kids-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}
+</style>
+
+<section id="kids-zone-page" aria-label="AMKINA KIDS ZONE">
+ <div class="ak-kids-wrap">
+  <div class="ak-kids-hero">
+   <div>
+    <div class="ak-kids-kicker">AMKINA KIDS ZONE</div>
+    <h1 class="ak-kids-title">동요</h1>
+    <div class="ak-kids-sub">어린이 음악은 일반 음악 영역과 분리되어 이곳에서만 만날 수 있습니다.</div>
+   </div>
+   <div class="ak-kids-count" id="ak-kids-count">0 KIDS TRACKS</div>
+  </div>
+  <div class="ak-kids-tabs">
+   <button class="ak-kids-tab active" data-kids-sort="latest">최신 동요</button>
+   <button class="ak-kids-tab" data-kids-sort="popular">인기 동요</button>
+  </div>
+  <div class="ak-kids-grid" id="ak-kids-grid"></div>
+ </div>
+</section>
+
+<script id="amkina-kids-zone-script">
+(function(){
+  function txt(v){return String(v??"").trim()}
+  function esc(v){return txt(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+  // Existing tracks marked with genre "동요", KIDS, KID, CHILDREN or NURSERY are treated as KIDS.
+  // New Studio uploads use the "KIDS · ..." genre marker automatically.
+  window.amkinaIsKidsTrack=function(t){
+    if(!t)return false;
+    const g=txt(t.genre).toLowerCase();
+    const ct=txt(t.content_type||t.category||t.track_type).toLowerCase();
+    return ct==="kids" || ct==="kid" ||
+      /^kids?\b/i.test(g) ||
+      /(^|[\s·|,\/_-])(동요|어린이|키즈)([\s·|,\/_-]|$)/i.test(g) ||
+      /\b(children|nursery)\b/i.test(g);
+  };
+
+  function allTracks(){
+    try{return (Array.isArray(tracks)?tracks:[])}catch(e){return Array.isArray(window.tracks)?window.tracks:[]}
+  }
+  function kidsTracks(){return allTracks().filter(window.amkinaIsKidsTrack)}
+
+  // General Latest Releases / ALL / POPULAR / NEW must never expose KIDS.
+  function separateGeneralCards(){
+    document.querySelectorAll("#music-list .track").forEach(card=>{
+      const idx=Number(card.dataset.originalIndex);
+      const t=Number.isInteger(idx)?allTracks()[idx]:allTracks().find(x=>String(x.id)===String(card.dataset.trackId));
+      if(window.amkinaIsKidsTrack(t)){
+        card.classList.add("ak-kids-general-hidden");
+        card.style.setProperty("display","none","important");
+        card.dataset.amkinaKids="1";
+      }else if(card.dataset.amkinaKids==="1"){
+        card.classList.remove("ak-kids-general-hidden");
+        card.style.removeProperty("display");
+        card.dataset.amkinaKids="0";
+      }
+    });
+    const normal=allTracks().filter(t=>!window.amkinaIsKidsTrack(t));
+    const count=document.getElementById("track-count");
+    if(count)count.textContent=normal.length+" RELEASES";
+
+    // Remove KIDS genres from the normal genre selector.
+    const gs=document.getElementById("amkina-genre-filter");
+    if(gs)[...gs.options].forEach(o=>{if(o.value!=="all" && window.amkinaIsKidsTrack({genre:o.value}))o.remove()});
+  }
+  window.amkinaSeparateKids=separateGeneralCards;
+
+  function renderKids(sort="latest"){
+    let list=kidsTracks().slice();
+    if(sort==="popular") list.sort((a,b)=>(Number(b.play_count)||0)-(Number(a.play_count)||0));
+    const grid=document.getElementById("ak-kids-grid"),count=document.getElementById("ak-kids-count");
+    if(count)count.textContent=list.length+" KIDS TRACKS";
+    if(!grid)return;
+    if(!list.length){grid.innerHTML='<div class="ak-kids-empty">등록된 KIDS 음원이 없습니다.</div>';return}
+    grid.innerHTML=list.map(t=>`
+      <article class="ak-kids-card" data-id="${esc(t.id)}">
+       <img class="ak-kids-cover" src="${esc(t.cover_url||t.cover||"")}" alt="">
+       <div class="ak-kids-info">
+        <div class="ak-kids-name">${esc(t.title||"Untitled")}</div>
+        <div class="ak-kids-artist">${esc(t.artist||"AMKINA")}</div>
+        <div class="ak-kids-meta"><span>${esc(txt(t.genre).replace(/^KIDS\s*[·|:\-]?\s*/i,"")||"동요")}</span><span>▷ ${(Number(t.play_count)||0).toLocaleString()}</span></div>
+       </div>
+      </article>`).join("");
+    grid.querySelectorAll(".ak-kids-card").forEach(card=>card.onclick=()=>{
+      const idx=allTracks().findIndex(t=>String(t.id)===String(card.dataset.id));
+      if(idx>=0&&typeof window.playTrack==="function")window.playTrack(idx);
+    });
+  }
+  window.renderKidsZone=renderKids;
+
+  function hideKidsPage(){const p=document.getElementById("kids-zone-page");if(p){p.classList.remove("active");p.style.setProperty("display","none","important")}}
+  window.hideKidsZone=hideKidsPage;
+
+  window.showKidsZone=function(e){
+    if(e){e.preventDefault();e.stopPropagation()}
+    ["music","studio","community","chart100-page","mypage","artists-page","amkina-faq-page","library-page"].forEach(id=>{
+      const x=document.getElementById(id);if(x)x.style.setProperty("display","none","important");
+    });
+    document.querySelectorAll(".hero,.hero-slider,.amkina-home-notice,#amkina-home-highlights,#amkina-home-flow").forEach(x=>x.style.setProperty("display","none","important"));
+    const p=document.getElementById("kids-zone-page");
+    if(p){p.style.setProperty("display","block","important");p.classList.add("active")}
+    document.querySelectorAll(".amkina-sidebar-nav a").forEach(a=>a.classList.remove("menu-active"));
+    document.getElementById("kids-zone-nav")?.classList.add("menu-active");
+    renderKids(document.querySelector(".ak-kids-tab.active")?.dataset.kidsSort||"latest");
+    if(typeof closeMobileMenu==="function")closeMobileMenu();
+    window.scrollTo(0,0);
+    return false;
+  };
+
+  document.addEventListener("click",e=>{
+    const b=e.target.closest(".ak-kids-tab");if(!b)return;
+    document.querySelectorAll(".ak-kids-tab").forEach(x=>x.classList.toggle("active",x===b));
+    renderKids(b.dataset.kidsSort||"latest");
+  });
+
+  // Whenever the normal list is rebuilt, immediately remove KIDS from it.
+  const obs=new MutationObserver(()=>separateGeneralCards());
+  document.addEventListener("DOMContentLoaded",()=>{
+    const list=document.getElementById("music-list");
+    if(list)obs.observe(list,{childList:true,subtree:false});
+    setTimeout(separateGeneralCards,0);
+    setTimeout(separateGeneralCards,600);
+  });
+
+  // Any normal page navigation closes KIDS ZONE.
+  ["showHomePage","showMusicPage","showStudioPage","showCommunityPage","showMyPage","showArtistsPage","openChart100","showFaqPage","showLibraryPage"].forEach(name=>{
+    const old=window[name];
+    if(typeof old!=="function"||old.__kidsWrapped)return;
+    const wrapped=function(){hideKidsPage();return old.apply(this,arguments)};
+    wrapped.__kidsWrapped=true;window[name]=wrapped;
+  });
+})();
+</script>
+
 </body>
 </html>
 ```
