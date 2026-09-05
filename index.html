@@ -3887,12 +3887,11 @@ html body #amkinaGlobalNoticeBox{
 </nav>
 </header>
 <section class="hero hero-slider" aria-label="AMKINA MUSIC 메인 배너">
-    <div class="hero-slide active"><img src="amkina-banner-1.jpg" alt="AMKINA MUSIC 배너 1"></div>
-    <div class="hero-slide"><img src="amkina-banner-2.jpg" alt="AMKINA MUSIC 배너 2"></div>
-    <div class="hero-slide"><img src="amkina-banner-3.jpg" alt="AMKINA MUSIC 배너 3"></div>
-    <div class="hero-slide"><img src="amkina-banner-4.jpg" alt="AMKINA MUSIC 배너 4"></div>
-    <div class="hero-slide"><img src="amkina-banner-5.jpg" alt="AMKINA MUSIC 배너 5"></div>
-    <div class="hero-slide"><img src="amkina-banner-6.jpg" alt="AMKINA MUSIC 배너 6"></div>
+    <div class="hero-slide active"><img src="./amkina-banner-1.jpg?v=20260905-final2" alt="AMKINA MUSIC 배너 1"></div>
+    <div class="hero-slide"><img src="./amkina-banner-2.jpg?v=20260905-final2" alt="AMKINA MUSIC 배너 2"></div>
+    <div class="hero-slide"><img src="./amkina-banner-3.jpg?v=20260905-final2" alt="AMKINA MUSIC 배너 3"></div>
+    <div class="hero-slide"><img src="./amkina-banner-4.jpg?v=20260905-final2" alt="AMKINA MUSIC 배너 4"></div>
+    <div class="hero-slide"><img src="./amkina-banner-6.jpg?v=20260905-final2" alt="AMKINA MUSIC 배너 6"></div>
     <button class="hero-arrow hero-prev" type="button" aria-label="이전 배너">‹</button>
     <button class="hero-arrow hero-next" type="button" aria-label="다음 배너">›</button>
     <div class="hero-dots" aria-label="배너 선택">
@@ -3900,7 +3899,6 @@ html body #amkinaGlobalNoticeBox{
         <button class="hero-dot" type="button" aria-label="배너 2"></button>
         <button class="hero-dot" type="button" aria-label="배너 3"></button>
         <button class="hero-dot" type="button" aria-label="배너 4"></button>
-        <button class="hero-dot" type="button" aria-label="배너 5"></button>
         <button class="hero-dot" type="button" aria-label="배너 6"></button>
     </div>
 </section>
@@ -17438,5 +17436,123 @@ document.addEventListener("DOMContentLoaded",function(){
   next?.addEventListener("click",e=>{e.stopPropagation();go(current()+1)});
 });
 </script>
+
+<style id="AMKINA-HERO-ABSOLUTE-LAST-FIX">
+/* =========================================================
+   AMKINA HOME BANNER — ABSOLUTE LAST FIX
+   1920x200 원본 전체 표시 / 좌우 크롭 금지 / 캐시 교체 대응
+   ========================================================= */
+@media (min-width:769px){
+  body > section.hero.hero-slider,
+  section.hero.hero-slider,
+  .hero.hero-slider,
+  .hero-slider{
+    display:block !important;
+    position:relative !important;
+    box-sizing:border-box !important;
+    width:calc(100% - 48px) !important;
+    max-width:none !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    aspect-ratio:1920 / 200 !important;
+    margin:10px 24px 16px !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    border-radius:16px !important;
+    background:#050505 !important;
+  }
+
+  .hero-slider::before,
+  .hero-slider::after{
+    display:none !important;
+    content:none !important;
+  }
+
+  .hero-slider .hero-slide,
+  .hero-slider .hero-slide.active{
+    position:absolute !important;
+    inset:0 !important;
+    left:0 !important;
+    top:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    width:100% !important;
+    height:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    transform:none !important;
+  }
+
+  .hero-slider .hero-slide img,
+  .hero-slider .hero-slide.active img{
+    position:absolute !important;
+    inset:0 !important;
+    left:0 !important;
+    top:0 !important;
+    width:100% !important;
+    height:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    min-height:0 !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:block !important;
+    object-fit:fill !important;
+    object-position:0 0 !important;
+    transform:none !important;
+    translate:none !important;
+    clip:auto !important;
+    clip-path:none !important;
+  }
+}
+
+@media (max-width:768px){
+  .hero-slider{
+    display:block !important;
+    position:relative !important;
+    width:calc(100% - 24px) !important;
+    height:auto !important;
+    min-height:0 !important;
+    aspect-ratio:1920 / 200 !important;
+    margin:10px 12px 14px !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    background:#050505 !important;
+  }
+
+  .hero-slider .hero-slide,
+  .hero-slider .hero-slide.active{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    transform:none !important;
+  }
+
+  .hero-slider .hero-slide img,
+  .hero-slider .hero-slide.active img{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    object-fit:fill !important;
+    object-position:0 0 !important;
+    transform:none !important;
+    clip-path:none !important;
+  }
+}
+</style>
+
 </body>
 </html>
