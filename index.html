@@ -3617,6 +3617,44 @@ document.addEventListener("DOMContentLoaded", function(){
 .hero-slider .hero-slide img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:fill!important;object-position:center center!important;margin:0!important;}
 @media(max-width:768px){.hero-slider{aspect-ratio:48/5!important;min-height:0!important;height:auto!important;margin:10px 12px!important;border-radius:12px!important;}}
 </style>
+
+<style id="amkina-banner-no-crop-final-v3">
+/* FINAL: banner artwork is already 1920x200; never crop it in the browser */
+.hero-slider{
+  position:relative !important;
+  width:auto !important;
+  height:auto !important;
+  aspect-ratio:9.6 / 1 !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:hidden !important;
+  background:#050505 !important;
+}
+.hero-slider .hero-slide,
+.hero-slider .hero-slide.active{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+}
+.hero-slider .hero-slide img{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:fill !important;
+  object-position:center center !important;
+}
+@media (max-width:768px){
+  .hero-slider{
+    aspect-ratio:9.6 / 1 !important;
+    min-height:72px !important;
+  }
+  .hero-slider .hero-slide img{
+    object-fit:fill !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
